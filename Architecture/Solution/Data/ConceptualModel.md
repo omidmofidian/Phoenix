@@ -1,0 +1,995 @@
+# Conceptual Database Model
+
+---
+
+# Document Information
+
+| Item | Value |
+|------|-------|
+| Document | Conceptual Database Model |
+| Project | Phoenix |
+| Version | 1.1 |
+| Status | Architecture Freeze |
+| Last Updated | 2026-06-29 |
+
+---
+
+# Purpose
+
+The Conceptual Database Model defines the business entities of the Phoenix platform and the relationships between them.
+
+This model is independent of any database technology and focuses exclusively on business concepts.
+
+It serves as the foundation for:
+
+- Logical Database Model
+- Physical Database Model
+- Data Dictionary
+- API Design
+- Domain Model
+- DDL Generation
+
+---
+
+# Scope
+
+This document describes the conceptual structure of the following domains:
+
+- Market Master Data
+- Trading Reference Data
+- Integration Layer
+
+The following domains are intentionally excluded and will be documented separately:
+
+- Authentication
+- Authorization
+- User Management
+- Configuration
+- Analytics
+- Machine Learning
+- Audit
+
+---
+
+# Design Principles
+
+The Phoenix conceptual model follows these principles.
+
+## Business First
+
+Business concepts take precedence over technical implementation.
+
+---
+
+## Technology Independent
+
+No database-specific implementation details are included.
+
+Examples intentionally omitted:
+
+- Data types
+- Indexes
+- Constraints
+- Storage engines
+
+These belong to the Logical and Physical Database Models.
+
+---
+
+## Single Source of Truth
+
+Every business concept exists only once.
+
+No duplicated entities are allowed.
+
+---
+
+## High Cohesion
+
+Each entity has a single responsibility.
+
+---
+
+## Low Coupling
+
+Relationships between entities are minimized while preserving business integrity.
+
+---
+
+## Future Extensibility
+
+The model is designed to support future modules without structural redesign.
+
+Examples include:
+
+- Analytics
+- Machine Learning
+- Multi-Market Support
+- Multi-Country Support
+- Multiple Data Providers
+
+---
+
+# Architecture Overview
+
+Phoenix separates its data model into independent business domains.
+
+```text
+Market Domain
+│
+├── Exchange
+├── Trading Board
+├── Sector
+├── Industry
+├── Company
+├── Instrument
+└── Instrument Listing
+
+Trading Domain
+│
+├── Trading Calendar
+├── Daily Market Data
+└── Corporate Action
+
+Integration Infrastructure
+│
+└── External Identifier
+
+Future Domains
+│
+├── Analytics
+├── System
+└── AI
+```
+
+---
+
+# Domain Layers
+
+## Market Domain
+
+Responsible for static master data.
+
+Entities rarely change and define the structure of financial markets.
+
+Contained entities:
+
+- Exchange
+- Trading Board
+- Sector
+- Industry
+- Company
+- Instrument
+- Instrument Listing
+
+---
+
+## Trading Domain
+
+Responsible for operational market information.
+
+Contained entities:
+
+- Trading Calendar
+- Daily Market Data
+- Corporate Action
+
+---
+
+## Integration Infrastructure
+
+Responsible for mapping Phoenix entities to external systems.
+
+The Integration Infrastructure isolates Phoenix from external data providers.
+
+Instead of embedding provider-specific identifiers inside business entities, all mappings are maintained separately.
+
+Current entity:
+
+- External Identifier
+
+Future entities may include:
+
+- Data Provider
+- Import Job
+- Synchronization Log
+- Mapping Rule
+- ETL Pipeline
+
+---
+
+# Conceptual Modeling Rules
+
+The following rules apply throughout the conceptual model.
+
+- Every entity represents one business concept.
+- Every entity owns its lifecycle.
+- Relationships express business meaning only.
+- No implementation details appear in this document.
+- Primary keys are not modeled conceptually.
+- Foreign keys are not modeled conceptually.
+- Database normalization is addressed in later design phases.
+
+---
+# Core Business Entities
+
+---
+
+## Exchange
+
+Represents a securities exchange.
+
+Examples:
+
+- Tehran Stock Exchange
+- Iran Fara Bourse
+
+Responsibilities
+
+- Defines the trading venue.
+- Owns one or more trading boards.
+
+---
+
+## Trading Board
+
+Represents a trading board operated by an exchange.
+
+Responsibilities
+
+- Belongs to one exchange.
+- Hosts one or more instrument listings.
+
+---
+
+## Sector
+
+Represents the highest level of business classification.
+
+Responsibilities
+
+- Groups related industries.
+- Acts as the top-level economic classification.
+
+---
+
+## Industry
+
+Represents an economic industry.
+
+Responsibilities
+
+- Belongs to one sector.
+- Groups related companies.
+
+---
+
+## Company
+
+Represents a legal business entity.
+
+Responsibilities
+
+- Belongs to one industry.
+- Issues one or more financial instruments.
+
+A company is **not** a tradable asset.
+
+---
+
+## Instrument
+
+Represents a tradable financial instrument.
+
+Examples
+
+- Common Stock
+- Preferred Stock
+- ETF
+- Bond
+- Option
+- Future
+
+Responsibilities
+
+- Belongs to one company.
+- May be listed on one or more trading boards.
+
+---
+
+## Instrument Listing
+
+Represents the listing of an instrument on a trading board.
+
+Responsibilities
+
+- Connects instruments and trading boards.
+- Maintains listing lifecycle.
+
+Examples
+
+- Listing date
+- Delisting date
+- Listing status
+
+---
+
+## Trading Calendar
+
+Represents official trading sessions.
+
+Responsibilities
+
+- Defines trading days.
+- Defines holidays.
+- Defines market sessions.
+
+---
+
+## Daily Market Data
+
+Represents end-of-day trading information.
+
+Responsibilities
+
+- Stores daily OHLC prices.
+- Stores trading volume.
+- Stores trading value.
+- Stores market statistics.
+
+Each record belongs to exactly one instrument and one trading day.
+
+---
+
+## Corporate Action
+
+Represents events affecting financial instruments.
+
+Examples
+
+- Cash Dividend
+- Stock Dividend
+- Capital Increase
+- Stock Split
+- Reverse Split
+- Rights Offering
+
+Responsibilities
+
+- Belongs to one instrument.
+- Occurs on a specific effective date.
+
+---
+
+## External Identifier
+
+Represents identifiers assigned by external data providers.
+
+Examples
+
+- TSE
+- IFB
+- CSDI
+- Bloomberg
+- Refinitiv
+- Yahoo Finance
+
+Responsibilities
+
+- Maps Phoenix entities to external systems.
+- Allows multiple providers.
+- Keeps provider-specific identifiers outside business entities.
+
+---
+
+# Business Relationships
+
+The conceptual relationships are shown below.
+
+```text
+Exchange
+    │
+    │ 1
+    ▼
+Trading Board
+    │
+    │ 1
+    ▼
+Instrument Listing
+    ▲
+    │
+    │ N
+Instrument
+    ▲
+    │
+    │ N
+Company
+    ▲
+    │
+    │ N
+Industry
+    ▲
+    │
+    │ N
+Sector
+```
+
+---
+
+# Relationship Cardinalities
+
+## Exchange → Trading Board
+
+One Exchange
+
+↓
+
+Many Trading Boards
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Trading Board → Instrument Listing
+
+One Trading Board
+
+↓
+
+Many Listings
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Company → Instrument
+
+One Company
+
+↓
+
+Many Instruments
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Industry → Company
+
+One Industry
+
+↓
+
+Many Companies
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Sector → Industry
+
+One Sector
+
+↓
+
+Many Industries
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Instrument → Daily Market Data
+
+One Instrument
+
+↓
+
+Many Daily Market Data Records
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Instrument → Corporate Action
+
+One Instrument
+
+↓
+
+Many Corporate Actions
+
+Cardinality
+
+```text
+1 : N
+```
+
+---
+
+## Business Hierarchy
+
+```text
+Sector
+
+↓
+
+Industry
+
+↓
+
+Company
+
+↓
+
+Instrument
+
+↓
+
+Instrument Listing
+
+↓
+
+Daily Market Data
+```
+
+---
+# Aggregate Boundaries
+
+The Phoenix domain is organized into independent aggregates.
+
+Each aggregate owns its lifecycle and business consistency.
+
+---
+
+## Market Aggregate
+
+Root Entities
+
+- Exchange
+- Sector
+- Company
+- Instrument
+
+Supporting Entities
+
+- Trading Board
+- Industry
+- Instrument Listing
+
+Responsibilities
+
+- Market structure
+- Company master data
+- Instrument master data
+- Listing information
+
+---
+
+## Trading Aggregate
+
+Root Entities
+
+- Trading Calendar
+- Daily Market Data
+- Corporate Action
+
+Responsibilities
+
+- Trading sessions
+- Daily market activity
+- Corporate events
+
+Trading data is operational and grows continuously.
+
+---
+
+## Integration Aggregate
+
+Root Entity
+
+- External Identifier
+
+Responsibilities
+
+- External provider mappings
+- Provider-independent architecture
+- Identifier normalization
+
+The Integration Aggregate never owns business entities.
+
+It only maintains references to business entities.
+
+---
+
+# Integration Infrastructure
+
+The Integration Infrastructure isolates Phoenix from external systems.
+
+External providers never become part of the business model.
+
+Instead, provider-specific identifiers are mapped through the Integration Infrastructure.
+
+```text
+External Provider
+
+        │
+
+        ▼
+
+External Identifier
+
+        │
+
+        ▼
+
+Phoenix Business Entity
+```
+
+Supported provider examples
+
+- Tehran Stock Exchange
+- Iran Fara Bourse
+- CSDI
+- Bloomberg
+- Refinitiv
+- Yahoo Finance
+
+Future providers can be added without modifying business entities.
+
+---
+
+# External Infrastructure Relationships
+
+The External Infrastructure component may reference:
+
+- Exchange
+- Trading Board
+- Sector
+- Industry
+- Company
+- Instrument
+
+Conceptually
+
+```text
+External Provider
+
+        │
+
+        ▼
+
+External Identifier
+
+        │
+
+        ├────────► Exchange
+
+        ├────────► Trading Board
+
+        ├────────► Sector
+
+        ├────────► Industry
+
+        ├────────► Company
+
+        └────────► Instrument
+```
+
+This design completely decouples Phoenix from provider-specific identifiers.
+
+---
+
+# Trading Layer
+
+The Trading Layer contains operational market information.
+
+Conceptually
+
+```text
+Trading Calendar
+
+        │
+
+        ▼
+
+Daily Market Data
+
+        ▲
+
+        │
+
+Corporate Action
+```
+
+Characteristics
+
+- Time-series oriented
+- High growth
+- Immutable history
+- Optimized for analytics
+
+---
+
+# Domain Invariants
+
+The following business rules must always hold.
+
+## Market Rules
+
+- Every Trading Board belongs to exactly one Exchange.
+- Every Industry belongs to exactly one Sector.
+- Every Company belongs to exactly one Industry.
+- Every Instrument belongs to exactly one Company.
+- Every Instrument Listing belongs to exactly one Trading Board.
+
+---
+
+## Trading Rules
+
+- Daily Market Data cannot exist without an Instrument.
+- Corporate Actions cannot exist without an Instrument.
+- Trading Calendar defines valid trading sessions.
+
+---
+
+## Integration Rules
+
+- Business entities never store provider-specific identifiers.
+- External identifiers belong exclusively to the Integration Layer.
+- One business entity may have multiple external identifiers.
+- One provider may define identifiers for multiple business entities.
+
+---
+
+# Business Lifecycle
+
+Master Data
+
+```text
+Exchange
+
+↓
+
+Trading Board
+
+↓
+
+Sector
+
+↓
+
+Industry
+
+↓
+
+Company
+
+↓
+
+Instrument
+
+↓
+
+Instrument Listing
+```
+
+Operational Data
+
+```text
+Trading Calendar
+
+↓
+
+Daily Market Data
+
+↓
+
+Corporate Action
+```
+
+Integration Data
+
+```text
+External Provider
+
+↓
+
+External Identifier
+
+↓
+
+Business Entity
+```
+
+---
+
+# Conceptual Design Principles
+
+The Conceptual Model follows these principles.
+
+- Technology independent
+- Business-oriented
+- Provider independent
+- Fully normalized at the conceptual level
+- Future extensible
+- Domain-driven
+- Single source of truth
+- Stable business boundaries
+
+---
+# Conceptual Overview
+
+The conceptual architecture of Phoenix is illustrated below.
+
+```text
+                        +----------------------+
+                        |    Market Domain     |
+                        +----------------------+
+
+Exchange
+    │
+    ▼
+Trading Board
+    │
+    ▼
+Instrument Listing
+    ▲
+    │
+Instrument
+    ▲
+    │
+Company
+    ▲
+    │
+Industry
+    ▲
+    │
+Sector
+
+
+                        +----------------------+
+                        |    Trading Domain    |
+                        +----------------------+
+
+Trading Calendar
+        │
+        ▼
+Daily Market Data
+        ▲
+        │
+Corporate Action
+
+
+                     +---------------------------+
+                     |   Integration Domain      |
+                     +---------------------------+
+
+External Provider
+
+        │
+
+        ▼
+
+External Identifier
+
+        │
+
+        ├────────► Exchange
+
+        ├────────► Trading Board
+
+        ├────────► Sector
+
+        ├────────► Industry
+
+        ├────────► Company
+
+        └────────► Instrument
+```
+
+---
+
+# Business Constraints
+
+The following conceptual constraints govern the Phoenix domain model.
+
+## Master Data
+
+- Every Exchange owns one or more Trading Boards.
+- Every Trading Board belongs to exactly one Exchange.
+- Every Sector owns one or more Industries.
+- Every Industry belongs to exactly one Sector.
+- Every Company belongs to exactly one Industry.
+- Every Instrument belongs to exactly one Company.
+- Every Instrument Listing references one Instrument and one Trading Board.
+
+---
+
+## Trading Data
+
+- Trading Calendar defines valid trading sessions.
+- Daily Market Data exists only for listed instruments.
+- Corporate Actions affect exactly one instrument.
+
+---
+
+## Integration
+
+- External identifiers are never stored inside business entities.
+- External providers are isolated from the business model.
+- Multiple providers may identify the same business entity.
+- Provider identifiers may change without affecting business entities.
+
+---
+
+# Mapping to Logical Database Model
+
+The Conceptual Model is transformed into the Logical Database Model according to the following rules.
+
+| Conceptual Entity | Logical Table |
+|-------------------|---------------|
+| Exchange | market.exchange |
+| Trading Board | market.trading_board |
+| Sector | market.sector |
+| Industry | market.industry |
+| Company | market.company |
+| Instrument | market.instrument |
+| Instrument Listing | market.instrument_listing |
+| Trading Calendar | trading.trading_calendar |
+| Daily Market Data | trading.daily_market_data |
+| Corporate Action | trading.corporate_action |
+| External Identifier | integration.external_identifier |
+
+---
+
+# Related Documents
+
+- DomainModel.md
+- LogicalDatabaseModel.md
+- PhysicalDatabaseModel.md
+- DataDictionary/README.md
+- ADR-015 – Public Identifier Strategy
+- ADR-016 – Primary Key Strategy
+- ADR-017 – External Identifier Mapping Strategy
+- ArchitectureFreeze-v1.1.md
+
+---
+
+# Architecture Status
+
+This document represents the conceptual baseline for Phoenix Architecture v1.1.
+
+Future database design, DDL generation, ORM implementation, API design and integration architecture shall conform to this conceptual model.
+
+---
+
+# Revision History
+
+| Version | Date | Description |
+|----------|------|-------------|
+| 1.0 | 2026-06-12 | Initial Conceptual Model |
+| 1.1 | 2026-06-29 | Architecture Freeze v1.1, Integration Layer introduced, DailyPrice renamed to DailyMarketData, External Identifier Mapping Strategy adopted |
