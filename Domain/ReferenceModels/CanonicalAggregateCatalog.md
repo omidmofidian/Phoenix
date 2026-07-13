@@ -3,229 +3,322 @@
 | Property | Value |
 |----------|-------|
 | Project | Phoenix Platform |
-| Artifact ID | DOM-008 |
+| Artifact ID | DOM-006 |
 | Document | CanonicalAggregateCatalog |
-| Version | 2026.1 |
+| Version | 2.0 |
 | Status | Approved |
 | Classification | Domain Architecture |
 | Owner | Architecture Team |
-| Sprint | Sprint 3 |
 | Last Updated | 2026-07-07 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical aggregates and aggregate roots of the Phoenix Platform.
+This document defines the canonical Aggregate structure of the Phoenix Platform based on Domain-Driven Design (DDD).
 
-Aggregates establish transactional consistency boundaries and define ownership of business entities within the domain model.
+It establishes aggregate boundaries, ownership, lifecycle, business invariants, and relationships between aggregates.
 
-This catalog serves as the authoritative reference for logical data modeling, service boundaries, and future microservice decomposition.
-
----
-
-# 2. Design Principles
-
-The aggregate model follows the principles of Domain-Driven Design (DDD):
-
-- Every aggregate has exactly one Aggregate Root.
-- External references shall target only Aggregate Roots.
-- Internal entities are accessed through their Aggregate Root.
-- Business invariants shall be enforced within aggregate boundaries.
-- Aggregates should remain cohesive and transactionally consistent.
+This document is the authoritative reference for all logical and physical data models.
 
 ---
 
-# 3. Aggregate Catalog
+# 2. Aggregate Design Principles
 
-| Aggregate | Aggregate Root | Domain |
-|------------|----------------|--------|
-| Reference Data | Market | Reference |
-| Instrument Catalog | Instrument | Market |
-| Market Data | Market Data | Market |
-| Portfolio | Portfolio | Portfolio |
-| Analytics | Strategy | Analytics |
-| Machine Learning | Model | Machine Learning |
-| Configuration | Configuration | Configuration |
+Every aggregate shall satisfy the following principles:
+
+- Single Aggregate Root
+- Explicit ownership
+- High cohesion
+- Low coupling
+- Transaction consistency within the aggregate
+- References across aggregates by identifier only
+- Technology-independent design
 
 ---
 
-# 4. Reference Data Aggregate
+# 3. Domain Organization
 
-## Aggregate Root
+The platform is organized into business domains.
+
+Each domain contains one or more subdomains.
+
+Each subdomain contains one or more aggregates.
+
+```text
+Domain
+    └── Subdomain
+            └── Aggregate
+                    └── Entity
+```
+
+---
+
+# 4. Reference Domain
+
+## 4.1 Master Reference Subdomain
+
+### Geography Aggregate
+
+**Purpose**
+
+Represents geographical hierarchy used throughout the platform.
+
+**Aggregate Root**
+
+Country
+
+**Child Entities**
+
+- Region
+- City
+
+**Business Invariants**
+
+- A Region belongs to exactly one Country.
+- A City belongs to exactly one Region.
+- Country Code is unique.
+- Geographic hierarchy cannot contain cycles.
+
+**Lifecycle**
+
+Stable
+
+---
+
+### Time Aggregate
+
+**Aggregate Root**
+
+TimeZone
+
+**Business Invariants**
+
+- TimeZone identifiers follow the IANA standard.
+- TimeZone definitions are immutable except for metadata.
+
+---
+
+### Localization Aggregate
+
+**Aggregate Root**
+
+Language
+
+**Child Entities**
+
+- Locale
+
+**Business Invariants**
+
+- Locale references exactly one Language.
+- Language codes follow ISO 639-1.
+
+---
+
+### Currency Aggregate
+
+**Aggregate Root**
+
+Currency
+
+**Child Entities**
+
+- CurrencyPair
+
+**Business Invariants**
+
+- Currency codes follow ISO 4217.
+- CurrencyPair references two valid currencies.
+- Duplicate currency pairs are prohibited.
+
+---
+
+### Market Aggregate
+
+**Aggregate Root**
 
 Market
 
-### Member Entities
+**Child Entities**
 
 - Exchange
-- Country
-- Currency
-- Time Zone
-- Language
+- TradingCalendar
+- TradingSession
 
-Business Responsibility
+**Business Invariants**
 
-Provides stable reference information shared across the platform.
-
----
-
-# 5. Instrument Catalog Aggregate
-
-## Aggregate Root
-
-Instrument
-
-### Member Entities
-
-- Symbol
-- Listing
-
-Business Responsibility
-
-Represents tradable financial assets and their listings on one or more exchanges.
+- Exchange belongs to one Market.
+- TradingCalendar belongs to one Exchange.
+- TradingSession belongs to one TradingCalendar.
+- Sessions within a calendar shall not overlap.
 
 ---
 
-# 6. Market Data Aggregate
+### Provider Aggregate
 
-## Aggregate Root
+**Aggregate Root**
 
-Market Data
+DataProvider
 
-### Member Entities
+**Child Entities**
 
-- Daily Market Data
-- Intraday Market Data (Future)
-- Tick Data (Future)
-- Order Book Snapshot (Future)
+- DataSource
 
-Business Responsibility
+**Business Invariants**
 
-Represents historical and real-time market observations associated with financial instruments.
+- DataSource belongs to exactly one DataProvider.
+- Provider names are unique.
 
 ---
 
-# 7. Portfolio Aggregate
+### Holiday Aggregate
 
-## Aggregate Root
+**Aggregate Root**
 
-Portfolio
+HolidayCalendar
 
-### Member Entities
+**Business Invariants**
 
-- Position
-- Transaction (Future)
-- Cash Balance (Future)
-
-Business Responsibility
-
-Represents investment holdings and portfolio composition.
+- Holidays shall not overlap for the same calendar.
+- Holiday dates are unique within a calendar.
 
 ---
 
-# 8. Analytics Aggregate
+## 4.2 Classification Subdomain
 
-## Aggregate Root
+### AssetClass Aggregate
 
-Strategy
+**Aggregate Root**
 
-### Member Entities
+AssetClass
 
-- Indicator
-- Feature
-- Signal
-- Ranking
+**Purpose**
 
-Business Responsibility
-
-Transforms market data into investment opportunities using quantitative analysis.
+Defines high-level financial asset categories.
 
 ---
 
-# 9. Machine Learning Aggregate
+### InstrumentType Aggregate
 
-## Aggregate Root
+**Aggregate Root**
 
-Model
+InstrumentType
 
-### Member Entities
+**Purpose**
 
-- Training Dataset
-- Validation Dataset
-- Prediction
-- Model Version (Future)
-
-Business Responsibility
-
-Manages predictive models and generated forecasts.
+Defines tradable instrument classifications.
 
 ---
 
-# 10. Configuration Aggregate
+### Sector Aggregate
 
-## Aggregate Root
+**Aggregate Root**
 
-Configuration
+Sector
 
-### Member Entities
+**Purpose**
 
-- Parameter
-- Environment Setting
-- Feature Flag
-
-Business Responsibility
-
-Stores configurable platform behavior independent of business data.
+Defines business sectors.
 
 ---
 
-# 11. Aggregate Ownership Rules
+### Industry Aggregate
 
-The following rules apply to all aggregates.
+**Aggregate Root**
 
-- Every entity belongs to exactly one aggregate.
-- Aggregate Roots own the lifecycle of their member entities.
-- Cross-aggregate updates should be coordinated through services.
-- Aggregate boundaries define transactional consistency.
+Industry
 
----
+**Purpose**
 
-# 12. Relationship to Services
-
-Each aggregate is primarily managed by one business service.
-
-| Aggregate | Primary Service |
-|------------|-----------------|
-| Reference Data | Reference Service |
-| Instrument Catalog | Market Service |
-| Market Data | Market Data Service |
-| Portfolio | Portfolio Service |
-| Analytics | Analytics Service |
-| Machine Learning | Machine Learning Service |
-| Configuration | Configuration Service |
+Defines industries within sectors.
 
 ---
 
-# 13. Future Extensions
+# 5. Aggregate Ownership
 
-The aggregate model is designed to support future capabilities including:
-
-- Multi-market support
-- Multi-provider integration
-- Event-driven architecture
-- CQRS
-- Distributed services
-- Independent service deployment
+| Aggregate | Owner |
+|-----------|-------|
+| Geography | Reference Domain |
+| Time | Reference Domain |
+| Localization | Reference Domain |
+| Currency | Reference Domain |
+| Market | Reference Domain |
+| Provider | Integration Domain (business ownership delegated by Reference Domain) |
+| Holiday | Reference Domain |
+| AssetClass | Reference Domain |
+| InstrumentType | Reference Domain |
+| Sector | Reference Domain |
+| Industry | Reference Domain |
 
 ---
 
-# 14. Related Documents
+# 6. Aggregate Dependency Rules
+
+The following rules apply:
+
+- Aggregates communicate through identifiers.
+- Aggregates shall not directly modify each other's state.
+- Cross-aggregate transactions are prohibited.
+- Aggregate Roots enforce all business invariants.
+- Child entities cannot exist independently of their Aggregate Root.
+
+---
+
+# 7. Cross-Aggregate References
+
+| From | To | Relationship |
+|------|----|--------------|
+| Market | Currency | Uses settlement currency |
+| Exchange | TimeZone | Uses local time |
+| Exchange | HolidayCalendar | Uses holiday schedule |
+| TradingCalendar | HolidayCalendar | References holidays |
+| Locale | Country | Default regional settings |
+| CurrencyPair | Currency | Base and quote currencies |
+
+---
+
+# 8. Aggregate Dependency Matrix
+
+| Aggregate | Depends On |
+|-----------|------------|
+| Geography | None |
+| Time | None |
+| Localization | Geography |
+| Currency | None |
+| Market | Time, Currency, Holiday |
+| Provider | None |
+| Holiday | Geography |
+| AssetClass | None |
+| InstrumentType | AssetClass |
+| Sector | None |
+| Industry | Sector |
+
+---
+
+# 9. General Business Invariants
+
+The following rules apply platform-wide:
+
+- Every aggregate has exactly one Aggregate Root.
+- Aggregate Roots own the lifecycle of child entities.
+- Cross-domain ownership is prohibited.
+- Business identifiers are immutable.
+- Canonical identifiers are immutable.
+- External identifiers are managed by the Integration Domain.
+- Aggregate boundaries shall not overlap.
+
+---
+
+# 10. Traceability
+
+This document is referenced by:
 
 - CanonicalDomainModel.md
-- EntityDictionary.md
-- RelationshipDictionary.md
-- AggregateDefinitions.md
+- CanonicalBusinessRules.md
+- ReferenceDomainArchitecture.md
+- ReferenceDomainLogicalModel.md
+- EnterpriseIdentityStandard.md
 - ServiceContextMap.md
 
 ---
@@ -234,4 +327,5 @@ The aggregate model is designed to support future capabilities including:
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-07 | Initial Canonical Aggregate Catalog. |
+| 1.0 | 2026-07-04 | Initial aggregate catalog. |
+| 2.0 | 2026-07-07 | Refactored according to DDD aggregate boundaries and subdomain architecture. |
