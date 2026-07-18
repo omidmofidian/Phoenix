@@ -2,28 +2,29 @@
 
 | Property | Value |
 |----------|-------|
-| Artifact ID | ART-011 |
 | Project | Phoenix Platform |
+| Artifact ID | DM-008 |
 | Document | AggregateDefinitions |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Architecture |
+| Classification | Enterprise Domain Architecture |
 | Architecture Layer | Domain Model |
-| Owner | Architecture Team |
-| Sprint | Sprint 2 |
-| Depends On | CanonicalDomainModel, EntityCatalog, CanonicalBusinessRules, ServiceContextMap, ConceptualRelationships |
-| Consumed By | LogicalDatabaseModel, CanonicalERD, Service Design |
-| Last Updated | 2026-07-04 |
+| Owner | Enterprise Architecture |
+| Depends On | AggregateCatalog, CanonicalDomainModel, DomainResponsibilities |
+| Consumed By | AggregateAttributeMatrix, ConceptualDataModel, LogicalDatabaseModel |
+| Last Updated | 2026-07-18 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical aggregates of the Phoenix Platform.
+This document defines the canonical business specifications of the Aggregates identified in the Enterprise Aggregate Catalog.
 
-Aggregates establish consistency boundaries within the domain model and identify the aggregate root responsible for enforcing business invariants.
+Where the Aggregate Catalog identifies **which Aggregates exist**, this document defines **how each Aggregate behaves as a business consistency boundary**.
 
-Aggregate definitions are independent of persistence technologies and implementation details.
+Each Aggregate specification describes its business purpose, ownership, lifecycle, invariants, collaboration rules, and extension points.
+
+This document is technology-independent and contains no implementation, persistence, or service implementation details.
 
 ---
 
@@ -31,470 +32,401 @@ Aggregate definitions are independent of persistence technologies and implementa
 
 The objectives of this document are to:
 
-- Define aggregate boundaries.
-- Identify aggregate roots.
-- Assign aggregate ownership.
-- Preserve business consistency.
-- Support transactional integrity.
-- Provide input for logical database design.
+- Define the business semantics of every Aggregate.
+- Describe Aggregate responsibilities.
+- Specify Aggregate boundaries.
+- Identify Aggregate invariants.
+- Define lifecycle ownership.
+- Describe Aggregate collaboration.
+- Support conceptual and logical data modeling.
+- Maintain consistency across the enterprise architecture.
 
 ---
 
-# 3. Aggregate Design Principles
+# 3. Aggregate Specification Template
 
-## AGG-001 — Single Aggregate Root
+Every Aggregate defined within the Phoenix Platform shall follow a common specification template.
 
-Every aggregate shall have exactly one Aggregate Root.
+Each specification contains the following sections.
 
----
-
-## AGG-002 — Consistency Boundary
-
-Business consistency shall be guaranteed within an aggregate.
-
----
-
-## AGG-003 — Reference by Identity
-
-Aggregates shall reference other aggregates by identity rather than by direct object ownership.
-
----
-
-## AGG-004 — Service Ownership
-
-Each aggregate shall belong to exactly one owning service.
+| Section | Description |
+|---------|-------------|
+| Business Purpose | Why the Aggregate exists. |
+| Aggregate Root | The single business entry point. |
+| Business Responsibility | Responsibilities owned by the Aggregate. |
+| Business Invariants | Rules that shall always remain true. |
+| Lifecycle | Creation, modification and retirement rules. |
+| Collaboration | Relationships with other Aggregates. |
+| Published Information | Business information exposed to other Domains. |
+| Extension Points | Future business evolution opportunities. |
 
 ---
 
-## AGG-005 — Technology Independence
+# 4. Aggregate Specifications
 
-Aggregate definitions shall not depend on persistence mechanisms.
+## 4.1 Exchange Aggregate
 
----
+### Business Purpose
 
-# 4. Canonical Aggregate Catalog
+Represents a securities exchange operating within a financial market.
 
-| Aggregate | Aggregate Root | Owner Service |
-|------------|----------------|---------------|
-| Reference Catalog | ReferenceCatalog | Reference Service |
-| Instrument | Instrument | Instrument Service |
-| Market Data | MarketData | Market Service |
-| Feature Set | FeatureSet | Feature Service |
-| Analysis | Analysis | Analytics Service |
-| AI Model | MLModel | AI Service |
-| Strategy | Strategy | Strategy Service |
-| Opportunity | Opportunity | Ranking Service |
-| Portfolio | Portfolio | Portfolio Service |
-| Risk Profile | RiskAssessment | Risk Service |
-| Report | Report | Reporting Service |
-| Notification | Notification | Notification Service |
-| Configuration | ConfigurationItem | Configuration Service |
-| Audit Log | AuditEntry | Audit Service |
-| Order | Order | Execution Service |
-
----
-
-# 5. Aggregate Specifications
-
-## 5.1 Reference Catalog
+The Exchange Aggregate provides the authoritative business definition of an exchange and serves as the parent business context for one or more Markets.
 
 ### Aggregate Root
 
-ReferenceCatalog
+Exchange
 
-### Purpose
+### Business Responsibility
 
-Maintains canonical reference data used throughout the platform.
+- Maintain exchange identity.
+- Maintain exchange business attributes.
+- Govern exchange lifecycle.
+- Publish exchange reference information.
 
-### Owned Entities
+### Business Invariants
 
-- Exchange
-- Market
-- Currency
-- Country
-- TradingCalendar
+- Every Exchange has a unique business identity.
+- Exchange business identifiers remain stable.
+- Exchange meaning is immutable once established.
 
-### Referenced Aggregates
+### Lifecycle
 
-None
+- Create
+- Maintain
+- Deactivate
+- Preserve historical identity
 
-### Owner Service
+### Collaborates With
 
-Reference Service
+- Market Aggregate
+
+### Published Information
+
+- Exchange identifier
+- Exchange code
+- Exchange name
+- Operational status
+
+### Extension Points
+
+Future versions may support:
+
+- Regulatory authority
+- Trading regulations
+- Settlement characteristics
 
 ---
 
-## 5.2 Instrument
+## 4.2 Market Aggregate
+
+### Business Purpose
+
+Represents a distinct financial market operating within an Exchange.
+
+The Market Aggregate defines the business environment in which financial instruments are listed and traded. It provides the organizational structure for Trading Boards and establishes the business context for trading activities.
 
 ### Aggregate Root
 
-Instrument
+Market
 
-### Purpose
+### Business Responsibility
 
-Represents a tradable financial instrument.
+- Maintain market identity.
+- Define market characteristics.
+- Govern market lifecycle.
+- Organize trading boards.
+- Publish market reference information.
 
-### Owned Entities
+### Business Invariants
 
-- Symbol
-- Asset
+- Every Market belongs to exactly one Exchange.
+- A Market cannot exist without an Exchange.
+- Market business identifiers are immutable.
+- Market ownership shall never change after creation.
 
-### Referenced Aggregates
+### Lifecycle
 
-- Reference Catalog
+- Create
+- Maintain
+- Suspend
+- Deactivate
+- Preserve historical identity
 
-### Owner Service
+### Collaborates With
 
-Instrument Service
+- Exchange Aggregate
+- Trading Board Aggregate
+
+### Published Information
+
+- Market identifier
+- Market code
+- Market name
+- Parent Exchange
+- Operational status
+
+### Extension Points
+
+Future versions may introduce:
+
+- Market segments
+- Trading models
+- Settlement models
+- Regulatory classifications
 
 ---
 
-## 5.3 Market Data
+## 4.3 Trading Board Aggregate
+
+### Business Purpose
+
+Represents a trading board within a Market.
+
+The Trading Board Aggregate defines the business rules governing the listing and trading of financial instruments within a specific market segment.
 
 ### Aggregate Root
 
-MarketData
+TradingBoard
 
-### Purpose
+### Business Responsibility
 
-Represents validated market information collected from external providers.
+- Maintain board identity.
+- Organize listed companies and instruments.
+- Define board characteristics.
+- Publish board reference information.
 
-### Owned Entities
+### Business Invariants
 
-- PriceHistory
-- CorporateAction
+- Every Trading Board belongs to exactly one Market.
+- A Trading Board cannot exist independently.
+- Board business identifiers are immutable.
+- Board classification shall remain stable.
 
-### Referenced Aggregates
+### Lifecycle
 
-- Instrument
+- Create
+- Maintain
+- Suspend
+- Deactivate
 
-### Owner Service
+### Collaborates With
 
-Market Service
+- Market Aggregate
+- Company Aggregate
+
+### Published Information
+
+- Board identifier
+- Board code
+- Board name
+- Parent Market
+- Operational status
+
+### Extension Points
+
+Future versions may support:
+
+- Listing requirements
+- Trading restrictions
+- Market-specific regulations
 
 ---
 
-## 5.4 Feature Set
+## 4.4 Industry Aggregate
+
+### Business Purpose
+
+Represents the highest level of business industry classification used throughout the Phoenix Platform.
+
+The Industry Aggregate provides a stable classification framework for organizing economic activities across multiple markets.
 
 ### Aggregate Root
 
-FeatureSet
+Industry
 
-### Purpose
+### Business Responsibility
 
-Represents analytical features derived from market data.
+- Maintain industry taxonomy.
+- Govern industry lifecycle.
+- Publish classification information.
+- Support enterprise-wide business classification.
 
-### Owned Entities
+### Business Invariants
 
-- Feature
-- Indicator
-- Factor
+- Every Industry has a unique business identity.
+- Industry definitions are centrally governed.
+- Industry meaning remains stable over time.
 
-### Referenced Aggregates
+### Lifecycle
 
-- Market Data
-- Instrument
+- Create
+- Maintain
+- Retire (only when officially superseded)
 
-### Owner Service
+### Collaborates With
 
-Feature Service
+- Sector Aggregate
+
+### Published Information
+
+- Industry identifier
+- Industry code
+- Industry name
+
+### Extension Points
+
+Future versions may support:
+
+- International classification standards
+- Multi-level industry hierarchies
+- Cross-market mappings
 
 ---
 
-## 5.5 Analysis
+## 4.5 Company Aggregate
+
+### Business Purpose
+
+Represents a legally recognized business entity participating in one or more financial markets.
+
+The Company Aggregate serves as the enterprise business identity for issuers of financial instruments and acts as the authoritative source of corporate information throughout the platform.
 
 ### Aggregate Root
 
-Analysis
+Company
 
-### Purpose
+### Business Responsibility
 
-Represents quantitative analysis and backtesting results.
+- Maintain company identity.
+- Manage corporate business information.
+- Support company lifecycle.
+- Publish enterprise company information.
 
-### Owned Entities
+### Business Invariants
 
-- AnalysisResult
-- BacktestResult
-- StatisticalModel
+- Every Company belongs to exactly one Trading Board.
+- Every Company belongs to exactly one Sector.
+- Company identity shall remain immutable.
+- Business ownership belongs exclusively to the Company Aggregate.
 
-### Referenced Aggregates
+### Lifecycle
 
-- Feature Set
+- Register
+- Maintain
+- Suspend
+- Delist
+- Preserve historical identity
 
-### Owner Service
+### Collaborates With
 
-Analytics Service
+- Trading Board Aggregate
+- Sector Aggregate
+- Financial Instrument Aggregate
+
+### Published Information
+
+- Company identifier
+- Company code
+- Company name
+- Listing information
+- Business classification
+
+### Extension Points
+
+Future versions may support:
+
+- Corporate governance information
+- Ownership structure
+- Regulatory filings
+- Corporate profile
 
 ---
 
-## 5.6 AI Model
+## 4.6 Financial Instrument Aggregate
+
+### Business Purpose
+
+Represents a tradable financial asset issued by a Company.
+
+The Financial Instrument Aggregate defines the commercial characteristics of securities and other financial products traded within supported markets.
 
 ### Aggregate Root
 
-MLModel
+FinancialInstrument
 
-### Purpose
+### Business Responsibility
 
-Represents machine learning models and prediction results.
+- Maintain instrument identity.
+- Define instrument characteristics.
+- Govern instrument lifecycle.
+- Publish instrument reference information.
 
-### Owned Entities
+### Business Invariants
 
-- Prediction
-- TrainingDataset
+- Every Financial Instrument belongs to exactly one Company.
+- Instrument identity is immutable.
+- Instrument classification shall remain stable.
+- Business ownership belongs exclusively to this Aggregate.
 
-### Referenced Aggregates
+### Lifecycle
 
-- Analysis
+- Create
+- Activate
+- Maintain
+- Suspend
+- Delist
+- Preserve historical identity
 
-### Owner Service
+### Collaborates With
 
-AI Service
+- Company Aggregate
+- Daily Market Data Aggregate
+- Corporate Action Aggregate
 
----
+### Published Information
 
-## 5.7 Strategy
+- Instrument identifier
+- Trading symbol
+- Instrument type
+- Listing status
+- Parent Company
 
-### Aggregate Root
+### Extension Points
 
-Strategy
+Future versions may support:
 
-### Purpose
-
-Defines trading strategies and signal generation.
-
-### Owned Entities
-
-- TradingSignal
-
-### Referenced Aggregates
-
-- AI Model
-- Analysis
-
-### Owner Service
-
-Strategy Service
-
----
-
-## 5.8 Opportunity
-
-### Aggregate Root
-
-Opportunity
-
-### Purpose
-
-Represents evaluated investment opportunities.
-
-### Owned Entities
-
-- OpportunityScore
-
-### Referenced Aggregates
-
-- Strategy
-- Risk Profile
-
-### Owner Service
-
-Ranking Service
+- Multi-exchange listings
+- International identifiers
+- Derivative relationships
+- Trading restrictions
 
 ---
 
-## 5.9 Portfolio
+# 5. Aggregate Collaboration Principles
 
-### Aggregate Root
+All Aggregates shall collaborate according to the following principles.
 
-Portfolio
-
-### Purpose
-
-Represents an investment portfolio and its holdings.
-
-### Owned Entities
-
-- Position
-- Transaction
-
-### Referenced Aggregates
-
-- Instrument
-- Opportunity
-
-### Owner Service
-
-Portfolio Service
+- Each Aggregate owns its own business consistency boundary.
+- Business ownership shall never overlap.
+- Cross-Aggregate relationships shall be established through Aggregate Root identities.
+- Business rules shall be enforced only by the owning Aggregate.
+- Aggregates shall communicate through published interfaces or application services.
+- Aggregate boundaries shall remain stable unless modified through an approved Architecture Decision Record (ADR).
 
 ---
 
-## 5.10 Risk Profile
+# 6. Relationship with Other Artifacts
 
-### Aggregate Root
-
-RiskAssessment
-
-### Purpose
-
-Represents portfolio and position risk evaluations.
-
-### Owned Entities
-
-- RiskModel
-
-### Referenced Aggregates
-
-- Portfolio
-- Market Data
-
-### Owner Service
-
-Risk Service
-
----
-
-## 5.11 Report
-
-### Aggregate Root
-
-Report
-
-### Purpose
-
-Represents analytical reports and dashboards.
-
-### Owned Entities
-
-- Dashboard
-
-### Referenced Aggregates
-
-All business aggregates (read-only)
-
-### Owner Service
-
-Reporting Service
-
----
-
-## 5.12 Notification
-
-### Aggregate Root
-
-Notification
-
-### Purpose
-
-Represents user notifications generated from business events.
-
-### Owned Entities
-
-- Alert
-
-### Referenced Aggregates
-
-Business Events
-
-### Owner Service
-
-Notification Service
-
----
-
-## 5.13 Configuration
-
-### Aggregate Root
-
-ConfigurationItem
-
-### Purpose
-
-Represents platform configuration managed centrally.
-
-### Owned Entities
-
-None
-
-### Referenced Aggregates
-
-None
-
-### Owner Service
-
-Configuration Service
-
----
-
-## 5.14 Audit Log
-
-### Aggregate Root
-
-AuditEntry
-
-### Purpose
-
-Represents immutable audit records.
-
-### Owned Entities
-
-None
-
-### Referenced Aggregates
-
-Business Events
-
-### Owner Service
-
-Audit Service
-
----
-
-## 5.15 Order
-
-### Aggregate Root
-
-Order
-
-### Purpose
-
-Represents trade execution requests and execution lifecycle.
-
-### Owned Entities
-
-- Execution
-
-### Referenced Aggregates
-
-- Portfolio
-- Strategy
-- Risk Profile
-
-### Owner Service
-
-Execution Service
-
----
-
-# 6. Aggregate Interaction Rules
-
-- Aggregates shall communicate through references or service contracts.
-- Aggregate boundaries shall preserve transactional consistency.
-- Cross-aggregate updates shall be coordinated through application services or domain events.
-- Aggregate roots are the only entry points for modifying aggregate state.
-
----
-
-# 7. Traceability
-
-Every aggregate shall be traceable to:
+This document is supported by the following architectural artifacts.
 
 - Business Capability Map
-- Bounded Context Definition
 - Canonical Domain Model
-- Entity Catalog
-- Canonical Business Rules
-- Service Context Map
-- Conceptual Relationships
+- Aggregate Catalog
+- Aggregate Attribute Matrix
+- Domain Responsibilities
+- Conceptual Data Model
+- Logical Database Model
+- Enterprise Data Dictionary
 
 ---
 
@@ -503,3 +435,4 @@ Every aggregate shall be traceable to:
 | Version | Date | Description |
 |----------|------|-------------|
 | 2026.1 | 2026-07-04 | Initial version. |
+| 2026.2 | 2026-07-18 | Rewritten as the canonical Aggregate specification document aligned with the Enterprise Domain Model. |

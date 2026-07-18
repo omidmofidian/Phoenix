@@ -2,13 +2,17 @@
 
 | Property | Value |
 |----------|-------|
-| Document ID | ReferenceDataModel |
-| Version | 1.0 |
+| Project | Phoenix Platform |
+| Artifact ID | DAT-001 |
+| Document | ReferenceDataModel |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Business Architecture |
-| Owner | Enterprise Architecture |
-| Repository | Phoenix Platform |
-| Last Updated | 2026-07-11 |
+| Classification | Enterprise Data Architecture |
+| Architecture Layer | Data Architecture |
+| Owner | Enterprise Architecture Team |
+| Depends On | PlatformArchitectureVision, ReferenceArchitecture, ReferenceDomainArchitecture, CanonicalDomainModel |
+| Used By | LogicalDatabaseModel, PhysicalDatabaseModel, EnterpriseDataDictionary |
+| Last Updated | 2026-07-18 |
 
 ---
 
@@ -16,285 +20,483 @@
 
 This document defines the Canonical Reference Data Model of the Phoenix Platform.
 
-Reference Data represents stable enterprise-wide business concepts that are shared across multiple domains and services.
+It specifies the architectural structure of enterprise reference data, the categories of reference entities, their canonical relationships, governance principles, and lifecycle characteristics.
 
-The purpose of this model is to ensure consistency, normalization, extensibility, and long-term maintainability throughout the platform.
+The model provides a stable, technology-independent representation of enterprise reference information that supports all business domains, services, analytical components, and future market expansions.
+
+The Reference Data Model serves as the authoritative foundation for logical and physical data modeling throughout the platform.
 
 ---
 
-# 2. Scope
+# 2. Objectives
 
-This document applies to all reference entities used by the Phoenix Platform.
+The objectives of the Reference Data Model are to:
 
-Reference Data shall be shared across:
+- Establish a canonical representation of enterprise reference data.
+- Eliminate duplication of reference information.
+- Standardize enterprise classifications.
+- Support consistent business semantics.
+- Enable enterprise-wide reuse.
+- Provide a stable foundation for logical database design.
+- Support multi-market expansion.
+- Preserve long-term architectural consistency.
+
+---
+
+# 3. Scope
+
+This model applies to all enterprise reference data shared across multiple business domains.
+
+Reference data shall be reusable by:
 
 - Business Domains
-- Services
-- Databases
-- APIs
-- Reporting
-- Analytics
-- Artificial Intelligence
+- Business Services
+- Data Services
+- Analytical Services
+- Artificial Intelligence Services
+- Reporting Services
+- Integration Services
 
-Reference Data is considered canonical enterprise data.
+Reference data represents business knowledge rather than operational business activity.
 
 ---
 
-# 3. Guiding Principles
+# 4. Architectural Principles
 
-The Reference Data Model follows these principles:
+The Reference Data Model follows the architectural principles defined by the Phoenix Enterprise Architecture.
+
+Key principles include:
 
 - Single Source of Truth
-- Enterprise-wide Reuse
-- Stable Business Semantics
-- Normalized Relationships
+- Canonical Data Representation
 - Technology Independence
-- Extensibility
-- Immutable Business Meaning
+- Stable Business Semantics
+- Enterprise Reuse
+- Controlled Evolution
+- Separation of Reference and Transaction Data
+- Extensibility Without Redesign
 
-Reference entities shall be managed independently from business transactions.
-
----
-
-# 4. Reference Domain
-
-The Reference Domain contains business entities that describe classifications, taxonomies, and reusable business concepts.
-
-Reference entities are shared across the entire platform.
+Reference data shall remain independent of implementation technologies and operational workflows.
 
 ---
 
-# 5. Canonical Reference Entities
+# 5. Reference Data Architecture
 
-## Market
+Reference Data occupies the foundational layer of enterprise data architecture.
 
-Represents a financial market.
+```text
+Business Knowledge
+        │
+        ▼
+Reference Domain Architecture
+        │
+        ▼
+Reference Data Model
+        │
+        ▼
+Logical Data Model
+        │
+        ▼
+Physical Database Model
+```
 
-Examples:
-
-- Iran Capital Market
-- Forex
-- Cryptocurrency
-- US Capital Market
-
----
-
-## Exchange
-
-Represents a trading exchange.
-
-Examples:
-
-- Tehran Stock Exchange
-- Iran Fara Bourse
-- NASDAQ
-- NYSE
-- CME
-
-Relationship
-
-Market
-1 ────────∞ Exchange
+The Reference Data Model translates business reference knowledge into a canonical data architecture while remaining independent of database implementation.
 
 ---
 
-## Trading Board
+# 6. Reference Entity Categories
 
-Represents an exchange trading board.
+Reference entities are organized into enterprise categories according to their business purpose.
 
-Examples:
+### Geographic Reference
 
-- Main Market
-- Secondary Market
-- SME Market
+Defines geographical concepts shared across the enterprise.
 
-Relationship
-
-Exchange
-1 ────────∞ Trading Board
+Examples include countries, regions, cities, and geopolitical areas.
 
 ---
 
-## Asset Class
+### Financial Reference
 
-Represents the high-level financial asset category.
+Defines financial concepts that are common across markets.
 
-Examples:
+Examples include currencies, settlement methods, and financial classifications.
 
-- Equity
-- ETF
-- Commodity
-- Fixed Income
+---
+
+### Market Reference
+
+Defines financial market structures and trading environments.
+
+Examples include markets, exchanges, trading boards, and market segments.
+
+---
+
+### Classification Reference
+
+Defines business taxonomies used for organizing financial information.
+
+Examples include asset classes, instrument types, sectors, industries, and sub-industries.
+
+---
+
+### Calendar Reference
+
+Defines enterprise calendars and business schedules.
+
+Examples include trading calendars, holidays, settlement calendars, and trading sessions.
+
+---
+
+### Localization Reference
+
+Defines language and regional settings used throughout the platform.
+
+Examples include languages, locales, time zones, and regional conventions.
+
+---
+
+### Integration Reference
+
+Defines shared reference information required for external system integration.
+
+Examples include data providers, external code systems, and identifier registries.
+
+---
+
+# 7. Canonical Reference Entity Catalog
+
+The Reference Data Model defines the canonical categories of enterprise reference entities.
+
+Each reference entity belongs to exactly one reference category and shall have a single authoritative business owner.
+
+Reference entities are intentionally stable and reusable across the platform.
+
+---
+
+## 7.1 Geographic Reference
+
+Purpose
+
+Provides standardized geographical information used throughout the platform.
+
+Typical reference entities include:
+
+- Country
+- Region
+- City
+- Time Zone
+
+These entities support localization, regulatory compliance, and international market expansion.
+
+---
+
+## 7.2 Financial Reference
+
+Purpose
+
+Provides standardized financial classifications and monetary concepts.
+
+Typical reference entities include:
+
 - Currency
-- Crypto
-- Derivative
+- Currency Pair
+- Settlement Type
+
+Financial reference entities are shared across multiple financial markets.
 
 ---
 
-## Instrument Type
+## 7.3 Market Reference
 
-Represents the financial instrument type.
+Purpose
 
-Examples:
+Defines the organizational structure of financial markets.
 
-- Common Stock
-- Preferred Stock
-- Bond
-- Sukuk
-- ETF
-- Future
-- Option
-- Mutual Fund
+Typical reference entities include:
 
-Relationship
+- Market
+- Exchange
+- Trading Board
+- Market Segment
+
+These entities establish the structural hierarchy of trading environments.
+
+---
+
+## 7.4 Classification Reference
+
+Purpose
+
+Provides reusable business classifications for financial instruments and business entities.
+
+Typical reference entities include:
+
+- Asset Class
+- Instrument Type
+- Sector
+- Industry
+- Sub-Industry
+
+Classification entities provide a canonical taxonomy that supports analytics, reporting, and portfolio management.
+
+---
+
+## 7.5 Calendar Reference
+
+Purpose
+
+Defines enterprise calendars and business schedules.
+
+Typical reference entities include:
+
+- Trading Calendar
+- Trading Session
+- Holiday Calendar
+- Settlement Calendar
+
+Calendar entities provide consistent temporal definitions across the platform.
+
+---
+
+## 7.6 Localization Reference
+
+Purpose
+
+Supports multilingual and multinational platform capabilities.
+
+Typical reference entities include:
+
+- Language
+- Locale
+- Regional Format
+
+Localization entities ensure consistent presentation of business information across regions.
+
+---
+
+## 7.7 Integration Reference
+
+Purpose
+
+Supports standardized interaction with external systems.
+
+Typical reference entities include:
+
+- Data Provider
+- External Identifier Type
+- External Code System
+
+Integration reference entities isolate external systems from the canonical enterprise model.
+
+---
+
+# 8. Canonical Relationships
+
+Reference entities are organized through normalized parent-child relationships.
+
+The following relationships define the canonical reference hierarchy.
+
+```text
+Market
+    └── Exchange
+            └── Trading Board
 
 Asset Class
-1 ────────∞ Instrument Type
-
----
-
-## Sector
-
-Represents the highest economic classification.
-
-Examples:
-
-- Financial
-- Energy
-- Technology
-
----
-
-## Industry
-
-Represents a business industry.
-
-Examples:
-
-- Banking
-- Insurance
-- Petrochemical
-
-Relationship
+    └── Instrument Type
 
 Sector
-1 ────────∞ Industry
+    └── Industry
+            └── Sub-Industry
+
+Trading Calendar
+    ├── Trading Session
+    └── Holiday Calendar
+```
+
+Only direct parent-child relationships shall be stored.
+
+Derived relationships shall be resolved through navigation rather than duplication.
 
 ---
 
-## Sub Industry
+# 9. Reference Data Governance
 
-Represents the lowest industry classification.
+Reference data is governed as an enterprise asset.
 
-Relationship
+Governance responsibilities include:
 
-Industry
-1 ────────∞ Sub Industry
+- Definition of canonical business meaning.
+- Approval of new reference entities.
+- Lifecycle management.
+- Classification governance.
+- Identifier governance.
+- Version management.
+- Deprecation management.
+- Change control.
 
----
-
-# 6. Business Entity Relationships
-
-Business entities reference the Reference Domain.
-
-Example:
-
-Instrument
-
-├── MarketId
-
-├── ExchangeId
-
-├── TradingBoardId
-
-├── AssetClassId
-
-├── InstrumentTypeId
-
-├── IndustryId
-
-└── SubIndustryId
-
-Reference entities never reference business entities.
+Every reference entity shall have a designated business owner responsible for maintaining its semantic integrity.
 
 ---
 
-# 7. Business Rules
+# 10. Reference Data Lifecycle
 
-The following rules apply.
+Reference data evolves through controlled governance rather than operational business processes.
 
-- Every Instrument belongs to exactly one Market.
-- Every Instrument belongs to exactly one Exchange.
-- Every Instrument belongs to exactly one Asset Class.
-- Every Instrument belongs to exactly one Instrument Type.
-- Every Instrument belongs to exactly one Industry.
-- Sector contains multiple Industries.
-- Industry contains multiple Sub Industries.
-- Classification entities are enterprise reference data.
-- Reference data shall never be duplicated inside business entities.
-- Business transactions shall never modify reference definitions.
+Typical lifecycle stages include:
 
----
+1. Proposal
+2. Review
+3. Approval
+4. Publication
+5. Operational Use
+6. Revision
+7. Deprecation
+8. Retirement
 
-# 8. Lifecycle
+Reference data changes shall preserve backward compatibility whenever practical.
 
-Reference data changes infrequently.
-
-Typical lifecycle events include:
-
-- Creation of new markets
-- Creation of new exchanges
-- Industry taxonomy updates
-- Regulatory changes
-
-Reference data changes shall be governed through controlled administrative processes.
+Deprecated reference entities shall remain traceable until all dependent artifacts have been migrated.
 
 ---
 
-# 9. Integration
+# 11. Business Rules
 
-Reference data supports:
+The following enterprise business rules govern the Reference Data Model.
 
-- Market Data Service
-- Trading Service
-- Analytics Service
-- Reporting Service
-- AI Service
-- Integration Service
+**RDM-001**
+
+Every reference entity shall have exactly one canonical definition.
+
+**RDM-002**
+
+Every reference entity shall belong to exactly one reference category.
+
+**RDM-003**
+
+Reference entities shall remain independent of operational business transactions.
+
+**RDM-004**
+
+Reference data shall be reusable across multiple business domains.
+
+**RDM-005**
+
+Reference classifications shall not be duplicated within business entities.
+
+**RDM-006**
+
+Only direct hierarchical relationships shall be persisted.
+
+Derived relationships shall be resolved through the canonical hierarchy.
+
+**RDM-007**
+
+Reference data shall support multiple financial markets without requiring structural redesign.
+
+**RDM-008**
+
+Every reference entity shall have a stable business identifier.
+
+**RDM-009**
+
+External provider identifiers shall never replace canonical enterprise identifiers.
+
+External identifiers shall be maintained through explicit mapping.
+
+**RDM-010**
+
+Business meaning shall always take precedence over physical implementation.
 
 ---
 
-# 10. Related Artifacts
+# 12. Design Principles
 
-- ADR-015 — Market Classification Model
+Logical and physical database models derived from this document shall comply with the following principles.
+
+- Fully normalized reference structures.
+- Canonical ownership of reference entities.
+- Stable business semantics.
+- Explicit parent-child relationships.
+- Extensible classification hierarchies.
+- Technology-independent business definitions.
+- Separation of reference data from transactional data.
+- Preservation of historical compatibility.
+
+---
+
+# 13. Traceability
+
+The Reference Data Model provides the foundation for downstream design artifacts.
+
+```text
+PlatformArchitectureVision
+            │
+            ▼
+ReferenceArchitecture
+            │
+            ▼
+ReferenceDomainArchitecture
+            │
+            ▼
+ReferenceDataModel
+            │
+            ├── LogicalDatabaseModel
+            ├── PhysicalDatabaseModel
+            ├── EnterpriseDataDictionary
+            ├── CanonicalERD
+            └── Database Standards
+```
+
+All derived artifacts shall preserve the canonical structure defined by this model.
+
+---
+
+# 14. Related Documents
+
+## Vision
+
+- PlatformArchitectureVision.md
+- ReferenceArchitecture.md
+- KnowledgeDrivenArchitecture.md
+- ArchitecturalPrinciples.md
+
+## Business Architecture
+
+- BusinessCapabilityMap.md
 - CanonicalDomainModel.md
-- EntityCatalog.md
-- AggregateCatalog.md
-- EnterpriseDataDictionary.md
-- ConceptualModel.md
+- DomainResponsibilities.md
+
+## Domain Architecture
+
+- ReferenceDomainArchitecture.md
+
+## Data Architecture
+
 - LogicalDatabaseModel.md
 - PhysicalDatabaseModel.md
+- EnterpriseDataDictionary.md
+- CanonicalERD.md
+
+## Governance
+
+- BusinessGlossary.md
+- CanonicalBusinessRules.md
+- Architecture Decision Records (ADR)
 
 ---
 
-# 11. Future Extensions
+# 15. Success Criteria
 
-The Reference Data Model is intentionally extensible.
+The Reference Data Model is considered successful when:
 
-Future versions may introduce additional reference entities, including:
-
-- Currency
-- Country
-- Language
-- Time Zone
-- Trading Session
-- Settlement Type
-- Market Segment
-- Regulatory Authority
-- Holiday Calendar
-- Corporate Action Type
-
-Such additions shall not require changes to existing business entities.
+- Enterprise reference data has a single canonical representation.
+- Reference entities are consistently reused across all business domains.
+- Canonical relationships remain normalized and unambiguous.
+- Reference classifications support multi-market expansion.
+- External identifiers are isolated from canonical business identifiers.
+- Downstream logical and physical data models are fully traceable to this model.
+- The model remains stable as new markets, instruments, and services are introduced.
 
 ---
 
@@ -302,4 +504,5 @@ Such additions shall not require changes to existing business entities.
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.0 | 2026-07-11 | Initial release |
+| 1.0 | 2026-07-11 | Initial version. |
+| 2026.2 | 2026-07-18 | Complete redesign as an Enterprise Data Architecture artifact aligned with the Phoenix Architecture Framework. |

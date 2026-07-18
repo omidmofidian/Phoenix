@@ -1,4 +1,4 @@
-# Repository Structure
+> # Repository Structure
 
 | Property | Value |
 |----------|-------|
@@ -11,6 +11,12 @@
 | Last Updated | 2026-07-08 |
 
 ---
+
+**Scope Note**
+>
+> This document defines the repository structure from the Architecture Governance perspective.
+>
+> The canonical enterprise repository structure is maintained separately in the Project capability.
 
 # 1. Purpose
 

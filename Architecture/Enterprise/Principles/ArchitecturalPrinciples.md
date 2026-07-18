@@ -5,119 +5,351 @@
 | Artifact ID | ART-001 |
 | Project | Phoenix Platform |
 | Document | ArchitecturalPrinciples |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
 | Classification | Enterprise Architecture |
-| Architecture Layer | Vision |
-| Owner | Architecture Team |
-| Sprint | Sprint 2 |
-| Depends On | PlatformArchitectureVision |
-| Consumed By | All Architecture Artifacts |
-| Last Updated | 2026-07-04 |
+| Architecture Layer | Principles |
+| Owner | Phoenix Architecture Board |
+| Depends On | ProjectOverview.md, PlatformArchitectureVision.md, KnowledgeDrivenArchitecture.md |
+| Used By | Entire Enterprise Architecture Repository |
+| Last Updated | 2026-07-17 |
 
 ---
 
 # 1. Purpose
 
-This document defines the fundamental architectural principles governing the design, implementation, and evolution of the Phoenix Platform.
+This document defines the Enterprise Architectural Principles governing the Phoenix Platform.
 
-These principles provide a stable decision-making framework to ensure consistency across all architectural artifacts, software services, database models, and implementation technologies.
+Architectural Principles establish the mandatory rules that guide every architectural, design, implementation, and operational decision across the platform.
 
-Every architectural decision shall comply with these principles unless an approved Architecture Decision Record (ADR) explicitly documents an exception.
+These principles provide a stable decision-making framework that preserves architectural consistency while enabling long-term evolution.
 
----
-
-# 2. Principle Classification
-
-Architectural principles are classified into the following categories:
-
-- Business Principles
-- Domain Principles
-- Service Principles
-- Data Principles
-- Integration Principles
-- Technology Principles
-- Governance Principles
+Every architectural artifact, business capability, domain model, service, database model, and implementation component shall comply with these principles unless an approved Architecture Decision Record (ADR) explicitly authorizes an exception.
 
 ---
 
-# 3. Business Principles
+# 2. Architectural Philosophy
 
-## AP-001 — Business First
+Phoenix adopts an enterprise architecture philosophy based upon the following progression.
+
+```text
+Enterprise Knowledge
+        │
+        ▼
+Architecture Vision
+        │
+        ▼
+Architectural Principles
+        │
+        ▼
+Business Capability Architecture
+        │
+        ▼
+Canonical Domain Architecture
+        │
+        ▼
+Canonical Data Architecture
+        │
+        ▼
+Implementation
+        │
+        ▼
+Operations
+```
+
+Each architectural layer refines the previous layer while preserving its business meaning.
+
+Lower architectural layers shall never contradict higher architectural layers.
+
+---
+
+# 3. Principle Categories
+
+Enterprise Architectural Principles are organized into the following categories.
+
+| Category | Scope |
+|----------|-------|
+| Enterprise Principles | Overall architectural philosophy |
+| Knowledge Principles | Enterprise knowledge and business semantics |
+| Business Principles | Business capabilities and business architecture |
+| Capability Principles | Capability-centered platform organization |
+| Domain Principles | Domain-Driven Design and business boundaries |
+| Service Principles | Service-oriented architecture |
+| Data Principles | Enterprise data architecture |
+| Technology Principles | Technology independence and implementation |
+| Governance Principles | Enterprise governance and repository integrity |
+
+These categories collectively define the architectural constitution of the Phoenix Platform.
+
+---
+
+# 4. Enterprise Principles
+
+## AP-001 — Knowledge Before Technology
 
 ### Statement
 
-Business requirements shall drive architectural decisions.
+Enterprise knowledge shall always precede technology decisions.
 
 ### Rationale
 
-Technology exists to support business capabilities, not define them.
+Business understanding provides the semantic foundation for sustainable architecture.
 
 ---
 
-## AP-002 — Architecture First
+## AP-002 — Architecture Before Implementation
 
 ### Statement
 
-Business architecture shall be completed before implementation begins.
+Business architecture shall be completed before implementation activities begin.
 
 ### Rationale
 
-Stable architecture minimizes redesign costs and reduces technical debt.
+Stable architecture minimizes redesign, technical debt, and implementation risk.
 
 ---
 
-## AP-003 — Domain-Driven Design
+## AP-003 — Business Before Technology
 
 ### Statement
 
-Business domains shall define the structure of the platform.
+Business capabilities shall determine architectural structure.
+
+Technology shall support the business rather than define it.
 
 ### Rationale
 
-The software architecture must reflect the business architecture.
+Business objectives evolve more slowly than implementation technologies.
 
 ---
 
-## AP-004 — Canonical Business Model
+## AP-004 — Enterprise Consistency
 
 ### Statement
 
-Every business concept shall have exactly one canonical representation.
+Enterprise architecture shall remain internally consistent across all architectural layers.
 
 ### Rationale
 
-Canonical models eliminate ambiguity and improve traceability.
+Consistency improves maintainability, governance, and long-term evolution.
 
 ---
 
-# 4. Service Principles
+# 5. Knowledge Principles
 
-## AP-005 — Service-Oriented Architecture
+## AP-005 — Knowledge as a Strategic Asset
 
 ### Statement
 
-Business capabilities shall be implemented as independent services.
+Enterprise knowledge shall be treated as a strategic organizational asset.
 
 ### Rationale
 
-Independent services improve scalability, maintainability, and reuse.
+Knowledge provides the foundation for business architecture, data architecture, artificial intelligence, and long-term organizational learning.
 
 ---
 
-## AP-006 — Single Responsibility
+## AP-006 — Canonical Business Vocabulary
 
 ### Statement
 
-Each service shall own one business capability.
+Every enterprise business concept shall have one approved canonical definition.
 
 ### Rationale
 
-Clear responsibilities reduce coupling and simplify maintenance.
+Shared terminology eliminates ambiguity and improves communication across the platform.
 
 ---
 
-## AP-007 — Loose Coupling
+## AP-007 — Single Source of Business Truth
+
+### Statement
+
+Business knowledge shall be maintained in one authoritative location.
+
+### Rationale
+
+Duplicated business definitions inevitably create inconsistencies.
+
+---
+
+## AP-008 — Architectural Traceability
+
+### Statement
+
+Every architectural artifact shall be traceable to documented enterprise knowledge.
+
+### Rationale
+
+Traceability enables governance, validation, auditing, and controlled architectural evolution.
+
+---
+
+# 6. Business Principles
+
+## AP-009 — Business Capability Orientation
+
+### Statement
+
+The Phoenix Platform shall be organized around business capabilities rather than technical functions.
+
+### Rationale
+
+Business capabilities remain significantly more stable than implementation technologies and provide a durable foundation for enterprise architecture.
+
+---
+
+## AP-010 — Capability Ownership
+
+### Statement
+
+Every business capability shall have one clearly defined architectural owner.
+
+### Rationale
+
+Explicit ownership eliminates ambiguity and improves governance and accountability.
+
+---
+
+## AP-011 — Canonical Business Model
+
+### Statement
+
+Every business concept shall have exactly one canonical representation within the enterprise architecture.
+
+### Rationale
+
+Canonical business models eliminate semantic inconsistencies and improve enterprise-wide interoperability.
+
+---
+
+## AP-012 — Business Semantics Preservation
+
+### Statement
+
+Business meaning shall remain unchanged throughout architectural transformation.
+
+### Rationale
+
+Logical models, database schemas, and software implementations shall preserve approved business semantics.
+
+---
+
+# 7. Capability Principles
+
+## AP-013 — Capability-Centric Architecture
+
+### Statement
+
+The enterprise architecture shall be organized around business capabilities.
+
+### Rationale
+
+Capabilities provide a stable organizational structure independent of implementation technologies.
+
+---
+
+## AP-014 — Capability Independence
+
+### Statement
+
+Business capabilities shall remain as independent as practical.
+
+### Rationale
+
+Independent capabilities simplify maintenance, expansion, and organizational scalability.
+
+---
+
+## AP-015 — Capability Reuse
+
+### Statement
+
+Business capabilities shall be designed for reuse across multiple services, applications, and business processes.
+
+### Rationale
+
+Reusable capabilities reduce duplication and improve long-term maintainability.
+
+---
+
+# 8. Domain Principles
+
+## AP-016 — Domain-Driven Design
+
+### Statement
+
+Business domains shall define the logical structure of the enterprise architecture.
+
+### Rationale
+
+Software architecture should accurately reflect business reality rather than technical convenience.
+
+---
+
+## AP-017 — Explicit Domain Boundaries
+
+### Statement
+
+Every domain shall have clearly defined responsibilities and ownership.
+
+### Rationale
+
+Explicit boundaries reduce coupling and preserve architectural clarity.
+
+---
+
+## AP-018 — Aggregate Integrity
+
+### Statement
+
+Aggregate boundaries shall preserve business consistency and transactional integrity.
+
+### Rationale
+
+Aggregates represent consistency boundaries rather than database optimization.
+
+---
+
+## AP-019 — Business Before Database
+
+### Statement
+
+Business entities shall never be introduced solely to simplify database implementation.
+
+### Rationale
+
+Business architecture shall remain independent from physical persistence technologies.
+
+---
+
+# 9. Service Principles
+
+## AP-020 — Service-Oriented Architecture
+
+### Statement
+
+Business capabilities shall be realized through autonomous business services.
+
+### Rationale
+
+Service-oriented architecture improves modularity, scalability, and long-term adaptability.
+
+---
+
+## AP-021 — Single Business Responsibility
+
+### Statement
+
+Each service shall implement one primary business capability.
+
+### Rationale
+
+Clearly focused services are easier to understand, maintain, and evolve.
+
+---
+
+## AP-022 — Loose Coupling
 
 ### Statement
 
@@ -125,236 +357,247 @@ Services shall minimize dependencies on one another.
 
 ### Rationale
 
-Loose coupling enables independent development and deployment.
+Loose coupling enables independent deployment, testing, and evolution.
 
 ---
 
-## AP-008 — High Cohesion
+## AP-023 — High Cohesion
 
 ### Statement
 
-Related business responsibilities shall remain within the same service.
+Closely related business responsibilities shall remain within the same service boundary.
 
 ### Rationale
 
-High cohesion improves maintainability and readability.
+High cohesion improves maintainability, readability, and architectural consistency.
 
 ---
 
-## AP-009 — Reusability
+# 10. Data Principles
+
+## AP-024 — Data as a Strategic Enterprise Asset
 
 ### Statement
 
-Business services shall be reusable across multiple applications and deployment scenarios.
+Enterprise data shall be treated as a strategic organizational asset.
 
 ### Rationale
 
-Reuse reduces implementation effort and improves consistency.
+Reliable business decisions, analytics, artificial intelligence, and long-term knowledge preservation depend upon trustworthy enterprise data.
 
 ---
 
-# 5. Data Principles
-
-## AP-010 — Data as a Strategic Asset
+## AP-025 — Canonical Data Architecture
 
 ### Statement
 
-Business data is a strategic enterprise asset.
+Business meaning shall always be defined before logical or physical data structures.
 
 ### Rationale
 
-Reliable analytics depend on high-quality business data.
+Data architecture shall implement business architecture rather than define it.
 
 ---
 
-## AP-011 — Canonical Data Representation
+## AP-026 — Historical Data Preservation
 
 ### Statement
 
-Business meaning shall be defined before physical storage.
+Historical business facts shall remain immutable whenever business regulations permit.
 
 ### Rationale
 
-Logical consistency must not depend on database implementation.
+Financial systems require complete historical traceability and reproducibility.
 
 ---
 
-## AP-012 — Data Integrity
+## AP-027 — Data Integrity
 
 ### Statement
 
-Business rules shall preserve data integrity throughout its lifecycle.
+Business rules shall preserve the integrity, consistency, and quality of enterprise data throughout its lifecycle.
 
 ### Rationale
 
-Reliable decision-making requires trustworthy information.
+High-quality enterprise data is essential for reliable analytics and decision support.
 
 ---
 
-## AP-013 — Historical Preservation
+## AP-028 — Reference Data Governance
 
 ### Statement
 
-Historical business information shall remain immutable.
+Reference data shall be centrally governed and maintained as reusable enterprise assets.
 
 ### Rationale
 
-Financial systems require complete historical traceability.
+Shared reference data improves consistency across domains, services, and databases.
 
 ---
 
-# 6. Integration Principles
+# 11. Technology Principles
 
-## AP-014 — Explicit Interfaces
+## AP-029 — Technology Independence
 
 ### Statement
 
-Service interactions shall occur through explicit and documented interfaces.
+Enterprise architecture shall remain independent of implementation technologies.
 
 ### Rationale
 
-Well-defined contracts reduce integration risks.
+Business architecture evolves significantly more slowly than software technologies.
 
 ---
 
-## AP-015 — External Independence
+## AP-030 — Implementation Follows Architecture
 
 ### Statement
 
-External systems shall remain replaceable.
+Implementation shall realize approved architectural artifacts without redefining business concepts.
 
 ### Rationale
 
-The platform must not become dependent upon specific vendors or providers.
+Architecture provides the authoritative blueprint for implementation.
 
 ---
 
-## AP-016 — Event Readiness
+## AP-031 — Container-First Deployment
 
 ### Statement
 
-The architecture shall support asynchronous communication where appropriate.
+Deployment environments shall prioritize containerized execution whenever practical.
 
 ### Rationale
 
-Event-driven integration improves scalability and resilience.
+Containerization improves portability, reproducibility, scalability, and operational consistency.
 
 ---
 
-# 7. Technology Principles
-
-## AP-017 — Technology Independence
+## AP-032 — Cloud Readiness
 
 ### Statement
 
-Business architecture shall remain independent of implementation technologies.
+The platform shall remain deployable across cloud, hybrid, and on-premises environments.
 
 ### Rationale
 
-Technology evolves faster than business.
+Deployment flexibility protects long-term enterprise investment.
 
 ---
 
-## AP-018 — Database Independence
+# 12. Governance Principles
+
+## AP-033 — Documentation as Code
 
 ### Statement
 
-Logical business models shall not depend upon physical database structures.
+Architecture documentation shall be managed as an integral part of the software product.
 
 ### Rationale
 
-Database technologies may change without affecting the business model.
+Documentation preserves enterprise knowledge and architectural integrity.
 
 ---
 
-## AP-019 — Cloud Readiness
+## AP-034 — Repository Integrity
 
 ### Statement
 
-The platform shall remain deployable in cloud and on-premises environments.
+The repository structure shall remain stable and governed.
+
+New artifacts shall comply with approved repository standards.
 
 ### Rationale
 
-Deployment flexibility protects long-term investment.
+Repository stability improves discoverability, governance, and maintainability.
 
 ---
 
-## AP-020 — Container First
+## AP-035 — Controlled Architectural Evolution
 
 ### Statement
 
-Deployment shall prioritize containerized environments.
+Architectural evolution shall occur through controlled extension rather than uncontrolled modification.
 
 ### Rationale
 
-Containers improve portability and operational consistency.
+Stable enterprise architecture enables sustainable long-term growth.
 
 ---
 
-# 8. Governance Principles
-
-## AP-021 — Documentation as Code
+## AP-036 — Architecture Decision Governance
 
 ### Statement
 
-Architecture documentation is part of the software product.
+Significant architectural decisions shall be documented through approved Architecture Decision Records (ADR).
 
 ### Rationale
 
-Accurate documentation preserves architectural knowledge.
+Architectural decisions require permanent traceability and governance.
 
 ---
 
-## AP-022 — Traceability
+# 13. Principle Compliance
 
-### Statement
+Compliance with these Architectural Principles is mandatory for all Phoenix architectural artifacts.
 
-Every implementation artifact shall be traceable to a business requirement or architectural decision.
+Every architecture, design, implementation, and operational artifact shall demonstrate alignment with these principles.
 
-### Rationale
+Intentional deviations require:
 
-Traceability simplifies maintenance and governance.
-
----
-
-## AP-023 — Repository Stability
-
-### Statement
-
-The documentation repository structure shall remain stable.
-
-New artifacts shall be integrated into the existing structure whenever possible.
-
-Parallel structures shall not be introduced without an approved ADR.
-
-### Rationale
-
-A stable repository improves discoverability, reduces maintenance costs, and preserves architectural consistency.
+- Architecture Review
+- Impact Analysis
+- Approved Architecture Decision Record (ADR)
+- Governance Approval
 
 ---
 
-## AP-024 — Controlled Evolution
+# 14. Related Artifacts
 
-### Statement
+## Vision
 
-Architectural evolution shall occur through extension rather than modification.
+- ProjectOverview.md
+- PlatformArchitectureVision.md
+- ArchitectureVisionMap.md
+- KnowledgeDrivenArchitecture.md
+- ReferenceArchitecture.md
 
-### Rationale
+## Principles
 
-Stable architecture minimizes disruption and supports long-term growth.
+- EngineeringPrinciples.md
+- QualityAttributes.md
+
+## Governance
+
+- GovernanceFramework.md
+- RepositoryStructure.md
+- ArtifactCatalog.md
+- DependencyRules.md
+- TraceabilityMatrix.md
+
+## Architecture
+
+- BusinessCapabilityMap.md
+- CanonicalDomainModel.md
+- CanonicalServiceCatalog.md
+- ServiceContextMap.md
+
+## Data
+
+- ConceptualModel.md
+- LogicalDatabaseModel.md
+- PhysicalDatabaseModel.md
+- CanonicalEnterpriseERD.md
 
 ---
 
-# 9. Principle Compliance
-
-All architecture artifacts shall demonstrate compliance with these principles.
-
-Any intentional deviation shall be documented through an approved Architecture Decision Record (ADR).
-
----
-
-# 10. Revision History
+# 15. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-04 | Initial version. |
+| 2026.1 | 2026-07-04 | Initial architectural principles. |
+| 2026.2 | 2026-07-17 | Complete enterprise rewrite aligned with the Knowledge-Driven Architecture, Platform Architecture Vision, Capability-Centric repository architecture, Canonical Domain Architecture, Service-Oriented Architecture, and Enterprise Data Architecture. |
+
+---
+
+**End of Document**

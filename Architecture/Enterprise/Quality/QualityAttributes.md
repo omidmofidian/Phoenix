@@ -2,28 +2,29 @@
 
 | Property | Value |
 |----------|-------|
-| Artifact ID | ART-002 |
+| Artifact ID | ART-004 |
 | Project | Phoenix Platform |
 | Document | QualityAttributes |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
 | Classification | Enterprise Architecture |
-| Architecture Layer | Vision |
-| Owner | Architecture Team |
-| Sprint | Sprint 2 |
-| Depends On | PlatformArchitectureVision, ArchitecturalPrinciples |
-| Consumed By | All Architecture Artifacts |
-| Last Updated | 2026-07-04 |
+| Architecture Layer | Principles |
+| Owner | Phoenix Architecture Board |
+| Depends On | PlatformArchitectureVision.md, ArchitecturalPrinciples.md, EngineeringPrinciples.md |
+| Used By | All Architecture, Design, Implementation and Operations Artifacts |
+| Last Updated | 2026-07-17 |
 
 ---
 
 # 1. Purpose
 
-This document defines the architectural quality attributes of the Phoenix Platform.
+This document defines the enterprise quality attributes governing the Phoenix Platform.
 
-Quality attributes represent the non-functional characteristics that guide architectural decisions throughout the lifecycle of the platform.
+Quality attributes describe the non-functional characteristics that every architectural, engineering, design, implementation, and operational decision shall preserve.
 
-Every architectural decision, software service, database design, and implementation activity shall support one or more of the quality attributes defined in this document.
+Unlike functional requirements, quality attributes determine **how well** the platform fulfills its business objectives throughout its lifecycle.
+
+These attributes establish measurable engineering goals that guide architectural evaluation and technology selection.
 
 ---
 
@@ -31,83 +32,115 @@ Every architectural decision, software service, database design, and implementat
 
 The objectives of this document are to:
 
-- Define measurable architectural quality goals.
-- Provide a common evaluation framework.
-- Support architectural decision making.
-- Ensure consistency across all services.
-- Minimize architectural drift.
-- Improve long-term maintainability.
+- Define enterprise-wide quality goals.
+- Establish measurable non-functional requirements.
+- Support architecture evaluation and governance.
+- Provide a common quality vocabulary.
+- Guide engineering trade-off decisions.
+- Preserve long-term architectural sustainability.
 
 ---
 
-# 3. Quality Attribute Classification
+# 3. Enterprise Quality Model
 
-Phoenix evaluates its architecture according to the following quality attributes:
+Quality is evaluated across every architectural layer.
 
-| ID | Attribute | Priority |
-|----|-----------|----------|
-| QA-001 | Maintainability | Critical |
-| QA-002 | Scalability | Critical |
-| QA-003 | Extensibility | Critical |
-| QA-004 | Reusability | Critical |
-| QA-005 | Reliability | High |
-| QA-006 | Availability | High |
-| QA-007 | Performance | High |
-| QA-008 | Security | High |
-| QA-009 | Testability | High |
-| QA-010 | Observability | Medium |
-| QA-011 | Portability | High |
-| QA-012 | Deployability | High |
-| QA-013 | Vendor Independence | Critical |
-| QA-014 | Traceability | Critical |
-| QA-015 | Data Quality | Critical |
+```text
+Knowledge
+        │
+        ▼
+Vision
+        │
+        ▼
+Principles
+        │
+        ▼
+Business Architecture
+        │
+        ▼
+Domain Architecture
+        │
+        ▼
+Data Architecture
+        │
+        ▼
+Service Architecture
+        │
+        ▼
+Application Architecture
+        │
+        ▼
+Infrastructure
+        │
+        ▼
+Operations
+```
+
+Each layer contributes to one or more enterprise quality attributes.
+
+Quality is therefore considered an architectural property of the entire platform rather than an implementation concern.
 
 ---
 
-# 4. Quality Attributes
+# 4. Quality Attribute Categories
+
+Enterprise quality attributes are grouped into six categories.
+
+| Category | Scope |
+|----------|-------|
+| Architectural Quality | Structural integrity |
+| Business Quality | Business adaptability |
+| Data Quality | Enterprise information |
+| Operational Quality | Runtime characteristics |
+| Engineering Quality | Development practices |
+| Governance Quality | Architectural control |
+
+---
+
+# 5. Architectural Quality Attributes
 
 ## QA-001 — Maintainability
 
 ### Definition
 
-The platform shall be easy to understand, modify, extend, and maintain throughout its lifecycle.
+The platform shall remain understandable, modifiable, and maintainable throughout its operational lifetime.
 
 ### Architectural Impact
 
 - Modular architecture
-- Domain-driven design
-- Clear service boundaries
-- Comprehensive documentation
+- Explicit responsibilities
+- Clear dependencies
+- Documentation consistency
 
 ---
 
-## QA-002 — Scalability
+## QA-002 — Extensibility
 
 ### Definition
 
-The platform shall support increasing workloads through architectural expansion rather than redesign.
+New business capabilities shall be introduced through controlled architectural extension rather than redesign.
+
+### Architectural Impact
+
+- Stable interfaces
+- Service independence
+- Layer isolation
+- Canonical business models
+
+---
+
+## QA-003 — Scalability
+
+### Definition
+
+The platform shall support increasing workloads through architectural growth without structural redesign.
 
 ### Architectural Impact
 
 - Independent services
-- Stateless processing
 - Horizontal scaling
-- Asynchronous communication
-
----
-
-## QA-003 — Extensibility
-
-### Definition
-
-New business capabilities shall be introduced with minimal impact on existing services.
-
-### Architectural Impact
-
-- Plug-in style architecture
-- Stable interfaces
-- Open for extension
-- Closed for modification
+- Stateless processing
+- Distributed execution
 
 ---
 
@@ -115,240 +148,418 @@ New business capabilities shall be introduced with minimal impact on existing se
 
 ### Definition
 
-Business services shall be reusable across different applications and deployment environments.
+Business capabilities and services shall be reusable across multiple applications and financial markets.
 
 ### Architectural Impact
 
+- Canonical services
 - Shared contracts
-- Canonical models
-- Independent deployment
-- Standardized interfaces
+- Technology independence
+- Business capability orientation
 
 ---
 
-## QA-005 — Reliability
+## QA-005 — Modularity
 
 ### Definition
 
-The platform shall produce consistent and dependable business results.
+Enterprise capabilities shall be organized into cohesive and loosely coupled modules.
 
 ### Architectural Impact
 
-- Validation
-- Error handling
-- Transaction consistency
-- Auditability
+- High cohesion
+- Loose coupling
+- Explicit ownership
+- Independent evolution
 
 ---
 
-## QA-006 — Availability
+# 6. Business Quality Attributes
+
+## QA-006 — Business Adaptability
 
 ### Definition
 
-Business services shall remain operational despite failures of individual components.
+The platform shall adapt to evolving business requirements without requiring architectural redesign.
+
+### Architectural Impact
+
+- Capability-based architecture
+- Stable business boundaries
+- Domain-driven organization
+- Controlled evolution
+
+---
+
+## QA-007 — Business Traceability
+
+### Definition
+
+Every implementation artifact shall be traceable to enterprise business knowledge and architectural decisions.
+
+### Architectural Impact
+
+- Architecture traceability
+- ADR references
+- Business rule mapping
+- Repository governance
+
+---
+
+## QA-008 — Multi-Market Readiness
+
+### Definition
+
+The enterprise architecture shall support multiple financial markets through extension rather than duplication.
+
+### Architectural Impact
+
+- Shared business capabilities
+- Canonical reference data
+- Market abstraction
+- Service extensibility
+
+---
+
+# 7. Data Quality Attributes
+
+## QA-009 — Data Integrity
+
+### Definition
+
+Enterprise information shall remain accurate, complete, consistent, and internally valid throughout its lifecycle.
+
+### Architectural Impact
+
+- Business validation
+- Referential integrity
+- Canonical data model
+- Controlled data ownership
+
+---
+
+## QA-010 — Historical Preservation
+
+### Definition
+
+Historical business facts shall remain immutable whenever business regulations permit.
+
+### Architectural Impact
+
+- Immutable historical data
+- Business-time preservation
+- Auditability
+- Reproducibility
+
+---
+
+## QA-011 — Reference Data Consistency
+
+### Definition
+
+Reference data shall remain standardized and centrally governed across the enterprise.
+
+### Architectural Impact
+
+- Shared reference entities
+- Controlled vocabularies
+- Canonical classifications
+- Enterprise Data Dictionary
+
+---
+
+# 8. Operational Quality Attributes
+
+## QA-012 — Reliability
+
+### Definition
+
+The platform shall provide dependable and predictable operational behavior under normal operating conditions.
 
 ### Architectural Impact
 
 - Fault isolation
-- Service independence
+- Validation
+- Transaction consistency
+- Recovery mechanisms
+
+---
+
+## QA-013 — Availability
+
+### Definition
+
+Business services shall remain operational despite localized failures.
+
+### Architectural Impact
+
+- Independent services
 - Health monitoring
 - Graceful degradation
+- Operational resilience
 
 ---
 
-## QA-007 — Performance
+## QA-014 — Performance
 
 ### Definition
 
-The platform shall efficiently process large volumes of financial data.
+The platform shall efficiently process enterprise workloads while preserving architectural integrity.
 
 ### Architectural Impact
 
-- Optimized queries
-- Efficient indexing
-- Data partitioning
-- Caching strategies
+- Efficient database design
+- Optimized processing
+- Appropriate indexing
+- Controlled resource utilization
 
 ---
 
-## QA-008 — Security
+## QA-015 — Observability
 
 ### Definition
 
-Business information shall be protected against unauthorized access and modification.
-
-### Architectural Impact
-
-- Authentication
-- Authorization
-- Encryption
-- Audit logging
-- Least privilege
-
----
-
-## QA-009 — Testability
-
-### Definition
-
-Every business service shall be independently testable.
-
-### Architectural Impact
-
-- Dependency isolation
-- Automated testing
-- Service contracts
-- Deterministic behavior
-
----
-
-## QA-010 — Observability
-
-### Definition
-
-Operational behavior shall be measurable and understandable.
+The operational behavior of the platform shall be measurable and understandable.
 
 ### Architectural Impact
 
 - Structured logging
-- Metrics
 - Monitoring
-- Distributed tracing
+- Metrics
+- Diagnostics
+- Audit events
 
 ---
 
-## QA-011 — Portability
+# 9. Engineering Quality Attributes
+
+## QA-016 — Testability
 
 ### Definition
 
-The platform shall remain deployable across different infrastructures.
+Every architectural component shall support effective verification and validation.
 
 ### Architectural Impact
 
-- Containerization
-- Infrastructure abstraction
-- Configuration externalization
+- Component isolation
+- Automated testing
+- Deterministic behavior
+- Reproducible execution
 
 ---
 
-## QA-012 — Deployability
+## QA-017 — Deployability
 
 ### Definition
 
-Services shall support reliable and repeatable deployment.
+The platform shall support reliable, repeatable, and low-risk deployments.
 
 ### Architectural Impact
 
-- Docker-native deployment
-- CI/CD compatibility
-- Immutable artifacts
-- Versioned releases
+- Containerized deployment
+- Infrastructure as Code
+- Versioned artifacts
+- Automated deployment
 
 ---
 
-## QA-013 — Vendor Independence
+## QA-018 — Portability
 
 ### Definition
 
-The architecture shall not depend upon any specific technology vendor.
+The platform shall remain deployable across multiple infrastructure environments.
 
 ### Architectural Impact
 
-- Standard protocols
+- Container abstraction
+- Externalized configuration
+- Platform independence
+- Standard technologies
+
+---
+
+## QA-019 — Vendor Independence
+
+### Definition
+
+Business architecture shall remain independent of individual technology vendors.
+
+### Architectural Impact
+
+- Open standards
 - Technology abstraction
 - Replaceable infrastructure
-- Open standards
+- Portable services
 
 ---
 
-## QA-014 — Traceability
+## QA-020 — Reproducibility
 
 ### Definition
 
-Every implementation artifact shall be traceable to business architecture.
+Equivalent engineering processes shall consistently produce equivalent results.
 
 ### Architectural Impact
 
-- Architecture artifacts
+- Controlled environments
+- Version-controlled configuration
+- Standardized workflows
+- Development synchronization
+
+---
+
+# 10. Governance Quality Attributes
+
+## QA-021 — Documentation Quality
+
+### Definition
+
+Architecture documentation shall be complete, accurate, version-controlled, and maintained as an integral part of the software product.
+
+### Architectural Impact
+
+- Documentation as Code
+- Version control
+- Cross-reference validation
+- Continuous documentation maintenance
+
+---
+
+## QA-022 — Repository Consistency
+
+### Definition
+
+All repository artifacts shall conform to the approved repository architecture and governance standards.
+
+### Architectural Impact
+
+- Capability-centric repository
+- Standardized artifact placement
+- Naming conventions
+- Repository validation
+
+---
+
+## QA-023 — Compliance
+
+### Definition
+
+Architecture, design, implementation, and operational artifacts shall comply with approved enterprise standards.
+
+### Architectural Impact
+
+- Architecture reviews
+- Repository audits
+- Standards validation
+- Compliance reporting
+
+---
+
+## QA-024 — Traceability
+
+### Definition
+
+Every enterprise artifact shall be traceable from business knowledge to operational execution.
+
+### Architectural Impact
+
+- Knowledge traceability
 - ADR references
-- Business rules
-- Documentation hierarchy
+- Domain traceability
+- Repository traceability
+- End-to-end architectural lineage
 
 ---
 
-## QA-015 — Data Quality
+# 11. Enterprise Quality Priorities
 
-### Definition
+Quality attributes shall be considered according to the following priority order.
 
-Financial analysis depends upon accurate, complete, consistent, and validated business data.
+| Priority | Quality Attribute |
+|----------|-------------------|
+| 1 | Maintainability |
+| 2 | Extensibility |
+| 3 | Modularity |
+| 4 | Business Adaptability |
+| 5 | Data Integrity |
+| 6 | Traceability |
+| 7 | Repository Consistency |
+| 8 | Vendor Independence |
+| 9 | Scalability |
+| 10 | Reliability |
+| 11 | Security |
+| 12 | Performance |
+| 13 | Reproducibility |
+| 14 | Deployability |
+| 15 | Portability |
+| 16 | Availability |
+| 17 | Observability |
+| 18 | Testability |
 
-### Architectural Impact
-
-- Canonical data model
-- Validation rules
-- Reference data governance
-- Historical preservation
-
----
-
-# 5. Quality Attribute Priorities
-
-Architectural decisions shall prioritize quality attributes according to the following order:
-
-1. Maintainability
-2. Extensibility
-3. Reusability
-4. Vendor Independence
-5. Traceability
-6. Data Quality
-7. Scalability
-8. Reliability
-9. Security
-10. Performance
-11. Deployability
-12. Portability
-13. Availability
-14. Testability
-15. Observability
-
-If a design decision introduces a conflict between attributes, the attribute with the higher priority shall take precedence unless an Architecture Decision Record (ADR) explicitly states otherwise.
+When quality attributes conflict, architectural decisions shall prioritize the higher-ranked attribute unless an approved Architecture Decision Record (ADR) explicitly documents an alternative trade-off.
 
 ---
 
-# 6. Architectural Evaluation
+# 12. Architectural Evaluation
 
-Every major architectural artifact should be evaluated against the quality attributes defined in this document.
+Major architectural artifacts shall be evaluated against the quality attributes defined in this document.
 
-Evaluation criteria include:
+Evaluation activities include:
 
-- Alignment with architectural principles
-- Impact on business capabilities
-- Long-term maintainability
-- Effect on service independence
-- Impact on future scalability
-- Compatibility with multi-market support
-- Compatibility with AI-driven services
+- Architecture Reviews
+- Repository Audits
+- Design Reviews
+- Data Model Validation
+- Service Architecture Validation
+- Engineering Reviews
+- Infrastructure Validation
+- Operational Readiness Reviews
 
----
-
-# 7. Compliance
-
-All architecture artifacts, service designs, database models, and implementation plans shall demonstrate alignment with these quality attributes.
-
-Any significant deviation shall be documented through an approved Architecture Decision Record (ADR).
+Quality evaluation shall occur continuously throughout the architecture lifecycle.
 
 ---
 
-# 8. Guiding Statement
+# 13. Related Artifacts
 
-The Phoenix Platform prioritizes long-term architectural sustainability over short-term implementation convenience.
+## Vision
 
-Every architectural decision shall improve or preserve the quality attributes defined in this document.
+- ProjectOverview.md
+- PlatformArchitectureVision.md
+- ArchitectureVisionMap.md
+- KnowledgeDrivenArchitecture.md
+- ReferenceArchitecture.md
+
+## Principles
+
+- ArchitecturalPrinciples.md
+- EngineeringPrinciples.md
+- LayerArchitecture.md
+
+## Governance
+
+- GovernanceFramework.md
+- RepositoryStructure.md
+- DependencyRules.md
+- TraceabilityMatrix.md
+
+## Standards
+
+- STD-001-DocumentationStandard.md
+- STD-002-RepositoryStructureStandard.md
+- STD-003-NamingConventionStandard.md
+- STD-004-PythonCodingStandard.md
+- STD-005-DatabaseDesignStandard.md
+- STD-006-DatabaseStandards.md
 
 ---
 
-# Revision History
+# 14. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-04 | Initial version. |
+| 2026.1 | 2026-07-04 | Initial quality attributes document. |
+| 2026.2 | 2026-07-17 | Complete enterprise rewrite aligned with the Platform Architecture Vision, Knowledge-Driven Architecture, Reference Architecture, Architectural Principles, Engineering Principles, Layer Architecture, Enterprise Governance Framework, and Capability-Centric Repository Architecture. |
+
+---
+
+**End of Document**

@@ -1,325 +1,575 @@
-# SDS-2026.1
+# SDS-2026.2
 
 # Canonical Domain Model
 
-**Document ID**
-
-SDS-CDM-001
-
-**Project**
-
-Phoenix Platform
-
-**Version**
-
-2026.1
-
-**Status**
-
-Approved
-
-**Sprint**
-
-Sprint 2
+| Property | Value |
+|----------|-------|
+| Project | Phoenix Platform |
+| Document | CanonicalDomainModel |
+| Document ID | SDS-CDM-001 |
+| Version | 2026.2 |
+| Status | Approved |
+| Classification | Enterprise Domain Architecture |
+| Owner | Enterprise Architecture |
+| Depends On | PlatformArchitectureVision, ArchitecturalPrinciples, BoundedContextDefinition |
+| Consumed By | AggregateCatalog, AggregateDefinitions, ServiceContextMap, ConceptualDataModel, LogicalDataModel, PhysicalDatabaseModel |
+| Last Updated | 2026-07-18 |
 
 ---
 
-# Purpose
+# 1. Purpose
 
-The Canonical Domain Model defines the stable business structure of the Phoenix Platform.
+The Canonical Domain Model defines the stable business architecture of the Phoenix Platform.
 
-This model represents business concepts only.
+It identifies the enterprise business domains, their responsibilities, ownership boundaries, and business relationships independently of implementation technology.
 
-It is independent of:
+This document represents the highest level of the enterprise business architecture and serves as the authoritative source for all subsequent domain-driven design and data modeling activities.
 
-* PostgreSQL
-* Tables
-* Schemas
-* Services
-* APIs
-* UI
-* Deployment
-
-All technical artifacts shall be derived from this model.
+All lower-level architectural artifacts—including aggregates, entities, conceptual models, logical models, physical database models, services, and APIs—shall be derived from this document.
 
 ---
 
-# Domain Hierarchy
+# 2. Architectural Principles
 
+The Canonical Domain Model is governed by the following principles.
+
+- Domain-Driven Design (DDD)
+- Enterprise Business Architecture
+- Single Source of Truth
+- Separation of Concerns
+- Explicit Domain Ownership
+- High Cohesion
+- Low Coupling
+- Technology Independence
+- Business-Driven Design
+- Long-Term Architectural Stability
+
+---
+
+# 3. Canonical Domain Landscape
+
+The Phoenix Platform is organized into a set of independent business domains.
+
+```text
 Phoenix Platform
-
-│
-
-├── Identity Domain
-
-│ ├── Identity Management
-
-│ ├── Authorization
-
-│ └── Security
-
-│
-
-├── Organization Domain
-
-│ ├── Organization Structure
-
-│ ├── Company
-
-│ └── Department
-
-│
-
-├── Portfolio Domain
-
-│ ├── Portfolio
-
-│ ├── Account
-
-│ ├── Position
-
-│ └── Holding
-
-│
-
-├── Trading Domain
-
-│ ├── Order
-
-│ ├── Execution
-
-│ ├── Trade
-
-│ └── Allocation
-
-│
-
-├── Market Domain
-
-│ ├── Instrument
-
-│ ├── Listing
-
-│ ├── Market Data
-
-│ ├── Quote
-
-│ ├── Candle
-
-│ └── Corporate Action
-
-│
 
 ├── Reference Domain
 
-│ ├── Geography
+├── Instrument Domain
 
-│ ├── Currency
+├── Market Data Domain
 
-│ ├── Calendar
+├── Corporate Actions Domain
 
-│ ├── Exchange
+├── Trading Calendar Domain
 
-│ ├── Classification
+├── Analytics Domain
 
-│ └── Localization
+├── Feature Engineering Domain
 
-│
+├── Strategy Domain
 
-├── Configuration Domain
+├── Backtesting Domain
 
-│ ├── Application Configuration
+├── Portfolio Domain
 
-│ ├── System Parameters
-
-│ └── Feature Flags
-
-│
-
-├── Audit Domain
-
-│ ├── Audit
-
-│ ├── Compliance
-
-│ ├── Logging
-
-│ └── Security Events
-
-│
+├── Risk Management Domain
 
 ├── Reporting Domain
 
-│ ├── Reporting
-
-│ ├── Dashboard
-
-│ └── Analytics
-
-│
-
 └── Integration Domain
+```
 
-├── Broker Connectivity
+Each domain owns a distinct set of business capabilities, aggregates, business entities, and business rules.
 
-├── Provider Connectivity
-
-├── Import
-
-├── Export
-
-└── Webhooks
+No business capability shall belong to more than one domain.
 
 ---
 
-# Domain Principles
+# 4. Domain Definitions
 
-Every business concept belongs to exactly one domain.
+## 4.1 Reference Domain
 
-Domains own business terminology.
+### Mission
 
-Domains own business rules.
+Provide enterprise-wide reference data shared across the entire Phoenix Platform.
 
-Domains do not own implementation details.
+### Primary Responsibilities
 
-Domains communicate through contracts.
+- Financial market structure
+- Business classifications
+- Geographic reference data
+- Calendar definitions
+- Localization metadata
+- Provider classifications
+- Enterprise reference standards
 
-No business concept shall have multiple owners.
+### Typical Aggregates
 
----
-
-# Subdomain Classification
-
-Each domain is classified as one of the following.
-
-## Core Domain
-
-Provides competitive business value.
-
-Examples
-
-* Trading
-* Portfolio
-
----
-
-## Supporting Domain
-
-Supports the Core Domains.
-
-Examples
-
-* Identity
-* Organization
-* Reporting
+- Exchange
+- Market
+- Board
+- Industry
+- Sector
+- Country
+- Currency
+- Trading Calendar
 
 ---
 
-## Generic Domain
+## 4.2 Instrument Domain
 
-Shared enterprise services.
+### Mission
 
-Examples
+Manage all tradable financial instruments and their business identities.
 
-* Reference
-* Configuration
-* Audit
-* Integration
+### Primary Responsibilities
 
----
+- Company management
+- Financial instrument lifecycle
+- Instrument identity
+- Instrument metadata
+- Instrument classifications
+- Listing-independent instrument information
 
-# Domain Dependency
+### Typical Aggregates
 
-Reference Domain
-
-↓
-
-All Domains
-
-Identity Domain
-
-↓
-
-Portfolio Domain
-
-↓
-
-Trading Domain
-
-↓
-
-Reporting Domain
-
-Audit Domain
-
-receives events from all domains.
-
-Integration Domain
-
-communicates with external systems without owning business entities.
+- Company
+- Financial Instrument
+- Instrument Identifier
 
 ---
 
-# Stability
+## 4.3 Market Data Domain
 
-The Canonical Domain Model shall remain stable.
+### Mission
 
-Changes require architectural review.
+Capture, validate and maintain historical market observations.
 
-Entities may evolve.
+### Primary Responsibilities
 
-Tables may evolve.
+- Daily market data
+- Price history
+- Trading statistics
+- Market quotations
+- Trading volumes
+- Historical market records
 
-Services may evolve.
+### Typical Aggregates
 
-Domains should remain stable.
-
----
-
-# Derived Artifacts
-
-The following documents shall be derived from this model.
-
-* Entity Catalog
-
-* Aggregate Definitions
-
-* Canonical ERD
-
-* Schema Allocation
-
-* Physical Database Design
-
-* APIs
-
-* Service Contracts
+- Instrument Listing
+- Daily Market Data
+- Market Statistics
 
 ---
 
-# Out of Scope
+# 5. Domain Responsibilities
 
-This document does not define:
+The responsibilities of each domain define its ownership boundary within the enterprise architecture.
 
-* Entities
+## Reference Domain
 
-* Tables
+**Business Purpose**
 
-* Columns
+Provide enterprise reference information that is shared across all business domains.
 
-* Keys
+**Owns**
 
-* Constraints
+- Enterprise classifications
+- Exchange hierarchy
+- Market hierarchy
+- Board hierarchy
+- Geographic reference data
+- Calendar reference data
+- Currency reference data
 
-* Data Types
+**Consumed By**
 
-* Database Objects
-
-These are specified by subsequent architecture documents.
+All other business domains.
 
 ---
 
-# Next Document
+## Instrument Domain
 
-Entity Catalog
+**Business Purpose**
 
-(Document SDS-EC-001)
+Manage the identity and lifecycle of tradable financial instruments.
+
+**Owns**
+
+- Company
+- Financial Instrument
+- Instrument identifiers
+- Instrument metadata
+
+**Consumed By**
+
+- Market Data Domain
+- Analytics Domain
+- Strategy Domain
+- Portfolio Domain
+
+---
+
+## Market Data Domain
+
+**Business Purpose**
+
+Manage historical and operational market observations.
+
+**Owns**
+
+- Daily Market Data
+- Instrument Listing
+- Trading statistics
+- Historical prices
+
+**Consumed By**
+
+- Analytics Domain
+- Feature Engineering Domain
+- Strategy Domain
+- Backtesting Domain
+- Portfolio Domain
+
+---
+
+## Corporate Actions Domain
+
+**Business Purpose**
+
+Manage business events affecting financial instruments.
+
+**Owns**
+
+- Corporate Actions
+- Adjustment events
+- Distribution events
+- Capital change events
+
+**Consumed By**
+
+- Market Data Domain
+- Analytics Domain
+- Portfolio Domain
+
+---
+
+## Trading Calendar Domain
+
+**Business Purpose**
+
+Manage official trading schedules and trading sessions.
+
+**Owns**
+
+- Trading Calendar
+- Trading Days
+- Holidays
+- Trading Sessions
+
+**Consumed By**
+
+All domains that process time-dependent market information.
+
+---
+
+## Analytics Domain
+
+**Business Purpose**
+
+Produce analytical results from normalized market information.
+
+**Owns**
+
+- Indicator calculations
+- Statistical analysis
+- Analytical models
+- Derived market metrics
+
+---
+
+## Feature Engineering Domain
+
+**Business Purpose**
+
+Generate reusable analytical features for quantitative models.
+
+**Owns**
+
+- Feature definitions
+- Feature values
+- Feature generation rules
+- Feature metadata
+
+---
+
+## Strategy Domain
+
+**Business Purpose**
+
+Define and execute investment decision logic.
+
+**Owns**
+
+- Trading strategies
+- Strategy parameters
+- Trading signals
+- Strategy versions
+
+---
+
+## Backtesting Domain
+
+**Business Purpose**
+
+Evaluate trading strategies using historical market data.
+
+**Owns**
+
+- Backtest executions
+- Simulation results
+- Performance metrics
+
+---
+
+## Portfolio Domain
+
+**Business Purpose**
+
+Manage investment portfolios and positions.
+
+**Owns**
+
+- Portfolio
+- Position
+- Transactions
+- Holdings
+
+---
+
+## Risk Management Domain
+
+**Business Purpose**
+
+Measure and monitor portfolio risk.
+
+**Owns**
+
+- Risk models
+- Risk measurements
+- Exposure calculations
+- Risk assessments
+
+---
+
+## Reporting Domain
+
+**Business Purpose**
+
+Provide business reporting and analytical projections.
+
+**Owns**
+
+- Report definitions
+- Report snapshots
+- Analytical views
+- Dashboard models
+
+Reporting data is derived and shall never become the system of record.
+
+---
+
+## Integration Domain
+
+**Business Purpose**
+
+Integrate external systems and market data providers.
+
+**Owns**
+
+- Data providers
+- External identifiers
+- Import sessions
+- Provider mappings
+- Integration metadata
+
+The Integration Domain never owns core business entities.
+
+---
+
+# 6. Domain Classification
+
+The enterprise domains are classified according to their architectural role.
+
+| Domain | Classification |
+|---------|----------------|
+| Reference | Foundation Domain |
+| Instrument | Core Business Domain |
+| Market Data | Core Business Domain |
+| Corporate Actions | Core Business Domain |
+| Trading Calendar | Supporting Domain |
+| Analytics | Analytical Domain |
+| Feature Engineering | Analytical Domain |
+| Strategy | Decision Domain |
+| Backtesting | Research Domain |
+| Portfolio | Core Business Domain |
+| Risk Management | Decision Domain |
+| Reporting | Supporting Domain |
+| Integration | Infrastructure Domain |
+
+---
+
+# 7. Domain Dependency Principles
+
+The following dependency rules govern the enterprise architecture.
+
+- Reference Domain shall not depend on any business domain.
+- Instrument Domain may depend only on the Reference Domain.
+- Market Data Domain may depend on the Reference and Instrument Domains.
+- Corporate Actions Domain may depend on the Instrument Domain.
+- Trading Calendar Domain shall remain independent.
+- Analytical domains shall consume operational domains but shall never own operational data.
+- Reporting shall consume information without modifying operational data.
+- Integration shall communicate with external systems without owning business concepts.
+- Dependencies shall always flow from foundational domains toward higher-level business capabilities.
+
+---
+
+# 8. Domain Interaction Rules
+
+The interaction between enterprise domains shall comply with the following rules.
+
+## DM-001 — Single Ownership
+
+Every business capability shall belong to exactly one domain.
+
+Ownership shall never overlap.
+
+---
+
+## DM-002 — Business Autonomy
+
+Each domain owns:
+
+- Business terminology
+- Business rules
+- Business entities
+- Aggregate boundaries
+- Lifecycle management
+
+---
+
+## DM-003 — Explicit Collaboration
+
+Cross-domain collaboration shall occur only through published contracts.
+
+Domains shall not expose their internal implementation.
+
+---
+
+## DM-004 — Data Ownership
+
+Each business entity shall have exactly one owning domain.
+
+Read access does not imply ownership.
+
+---
+
+## DM-005 — Stable Boundaries
+
+Domain boundaries shall remain stable over time.
+
+Changes to domain ownership require an approved Architecture Decision Record (ADR).
+
+---
+
+## DM-006 — Technology Independence
+
+Domains are independent of:
+
+- Database schemas
+- Programming languages
+- Frameworks
+- APIs
+- Messaging technologies
+- Deployment models
+
+---
+
+# 9. Derived Architectural Artifacts
+
+The Canonical Domain Model is the foundation for the following architectural artifacts.
+
+### Domain Architecture
+
+- BoundedContextDefinition
+- DomainResponsibilities
+- DomainDependencyMatrix
+- ServiceContextMap
+
+### Domain Modeling
+
+- AggregateCatalog
+- AggregateDefinitions
+- AggregateDesignGuidelines
+- AggregateAttributeMatrix
+- EntityClassification
+
+### Data Architecture
+
+- ConceptualDataModel
+- LogicalDataModel
+- PhysicalDatabaseModel
+- ReferenceDataModel
+- EnterpriseDataDictionary
+
+### Service Architecture
+
+- CanonicalServiceCatalog
+- ServiceContracts
+- IntegrationArchitecture
+
+Every downstream artifact shall remain consistent with the ownership boundaries defined in this document.
+
+---
+
+# 10. Architectural Constraints
+
+The following enterprise constraints are mandatory.
+
+- Every business entity belongs to exactly one domain.
+- Every aggregate belongs to exactly one domain.
+- Every service implements responsibilities of a single domain or a well-defined supporting capability.
+- Reference data shall never be duplicated across domains.
+- Analytical data shall never modify operational data.
+- Business terminology shall remain consistent across all architectural artifacts.
+- Cross-domain persistence is prohibited.
+- Domain ownership shall take precedence over implementation convenience.
+
+---
+
+# 11. Traceability
+
+This document is governed by and shall remain consistent with the following architectural artifacts.
+
+| Artifact | Purpose |
+|----------|---------|
+| PlatformArchitectureVision | Enterprise architecture vision |
+| ArchitecturalPrinciples | Enterprise design principles |
+| BoundedContextDefinition | Business ownership boundaries |
+| DomainResponsibilities | Business responsibility allocation |
+| ServiceContextMap | Service ownership model |
+| AggregateCatalog | Aggregate ownership |
+| AggregateDefinitions | Aggregate specifications |
+| ConceptualDataModel | Business information model |
+| EnterpriseDataDictionary | Canonical business definitions |
+
+---
+
+# Revision History
+
+| Version | Date | Description |
+|----------|------|-------------|
+| 2026.1 | 2026-07-04 | Initial version |
+| 2026.2 | 2026-07-18 | Refactored to align with the Enterprise Domain Architecture, clarified domain responsibilities, introduced explicit ownership and dependency rules, and synchronized with the canonical architecture documentation. |

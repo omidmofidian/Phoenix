@@ -2,28 +2,27 @@
 
 | Property | Value |
 |----------|-------|
-| Artifact ID | ART-021 |
 | Project | Phoenix Platform |
+| Artifact ID | ART-021 |
 | Document | ServiceContextMap |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Architecture |
+| Classification | Enterprise Solution Architecture |
 | Architecture Layer | Service Architecture |
-| Owner | Architecture Team |
-| Sprint | Sprint 2 |
-| Depends On | CanonicalDomainModel, CanonicalServiceCatalog |
-| Consumed By | API Design, Database Design, Service Specifications |
-| Last Updated | 2026-07-04 |
+| Owner | Enterprise Architecture |
+| Depends On | BusinessCapabilityMap.md, CanonicalDomainModel.md, DomainResponsibilities.md |
+| Used By | Service Specifications, API Design, Integration Architecture, Database Design |
+| Last Updated | 2026-07-18 |
 
 ---
 
 # 1. Purpose
 
-This document defines the ownership boundaries between business services, bounded contexts, aggregates, and business entities within the Phoenix Platform.
+This document defines the canonical service ownership model of the Phoenix Platform.
 
-The Service Context Map establishes the canonical ownership model of the platform and serves as the authoritative reference for service responsibilities and inter-service dependencies.
+It establishes how Business Capabilities, Business Domains, Aggregates, and Services relate to one another, ensuring that every business responsibility is implemented by exactly one service while preserving clear architectural boundaries.
 
-No service implementation shall violate the ownership boundaries defined in this document.
+The Service Context Map provides the authoritative definition of service ownership, collaboration patterns, and dependency rules across the platform.
 
 ---
 
@@ -31,204 +30,416 @@ No service implementation shall violate the ownership boundaries defined in this
 
 The objectives of this document are to:
 
-- Define service ownership boundaries.
-- Map services to bounded contexts.
+- Define service boundaries based on business domains.
+- Map Business Capabilities to Services.
 - Define aggregate ownership.
-- Define entity ownership.
+- Establish service collaboration principles.
 - Prevent overlapping responsibilities.
 - Support independent service evolution.
-- Enable future microservice implementation.
-- Preserve architectural consistency.
+- Enable future distributed deployment.
+- Preserve long-term architectural consistency.
 
 ---
 
-# 3. Mapping Principles
+# 3. Architectural Position
 
-The following principles govern service ownership throughout the platform.
+Within the Phoenix Enterprise Architecture, service design is derived from business architecture rather than implementation technology.
 
-## SCM-001 — Single Ownership
+The architectural derivation is:
 
-Every business capability shall be owned by exactly one service.
+```text
+Knowledge
+        │
+        ▼
+Business Capability
+        │
+        ▼
+Business Domain
+        │
+        ▼
+Aggregate
+        │
+        ▼
+Business Service
+        │
+        ▼
+Service Interface
+        │
+        ▼
+Implementation
+```
 
----
-
-## SCM-002 — Aggregate Ownership
-
-Every aggregate shall belong to one owning service.
-
----
-
-## SCM-003 — Entity Ownership
-
-Every business entity shall have exactly one owning service.
-
----
-
-## SCM-004 — Interface-Based Collaboration
-
-Services shall collaborate exclusively through explicit service contracts.
-
----
-
-## SCM-005 — Database Isolation
-
-Services shall never directly access another service's persistent storage.
+A service is therefore an implementation of one or more business capabilities owned by a specific business domain.
 
 ---
 
-## SCM-006 — Stable Boundaries
+# 4. Context Mapping Principles
 
-Service boundaries shall evolve only through approved architectural decisions.
+The following principles govern service ownership.
 
----
+## SCM-001 — Capability Ownership
 
-# 4. Service Context Matrix
-
-| Service | Bounded Context | Primary Aggregates | Primary Entities |
-|----------|-----------------|-------------------|------------------|
-| Reference Service | Reference | Reference Catalog | Exchange, Market, Currency, Country, Calendar |
-| Market Service | Market | Market Data | MarketData, PriceHistory, CorporateAction |
-| Instrument Service | Instrument | Instrument | Instrument, Symbol, Asset |
-| Feature Service | Feature Engineering | Feature Set | Feature, Indicator, Factor |
-| Analytics Service | Analytics | Analysis | AnalysisResult, BacktestResult, StatisticalModel |
-| AI Service | Artificial Intelligence | AI Model | MLModel, Prediction, TrainingDataset |
-| Strategy Service | Strategy | Strategy | Strategy, TradingSignal |
-| Ranking Service | Ranking | Opportunity Ranking | Opportunity, OpportunityScore |
-| Risk Service | Risk | Risk Profile | RiskModel, RiskAssessment |
-| Portfolio Service | Portfolio | Portfolio | Portfolio, Position, Transaction |
-| Integration Service | Integration | Provider | DataProvider, BrokerConnection |
-| Reporting Service | Reporting | Report | Report, Dashboard |
-| Notification Service | Notification | Notification | Notification, Alert |
-| Configuration Service | Configuration | Configuration | ConfigurationItem |
-| Audit Service | Audit | Audit Log | AuditEntry |
-| Execution Service | Execution | Order | Order, Execution |
+Every Business Capability shall belong to exactly one Business Domain.
 
 ---
 
-# 5. Service Dependency Matrix
+## SCM-002 — Domain Ownership
 
-| Service | Depends On |
-|----------|------------|
-| Reference Service | — |
-| Market Service | Reference Service |
-| Instrument Service | Reference Service |
-| Feature Service | Market Service, Instrument Service |
-| Analytics Service | Feature Service |
-| AI Service | Analytics Service |
-| Strategy Service | Analytics Service |
-| Ranking Service | Strategy Service, Risk Service |
-| Risk Service | Portfolio Service, Market Service |
-| Portfolio Service | Instrument Service, Market Service |
-| Integration Service | Reference Service |
-| Reporting Service | Read Contracts of All Services |
-| Notification Service | Published Events |
-| Configuration Service | — |
-| Audit Service | Published Events |
-| Execution Service | Strategy Service, Portfolio Service, Risk Service |
+Every Business Domain shall own one or more Aggregates.
 
 ---
 
-# 6. Entity Ownership
+## SCM-003 — Aggregate Ownership
 
-The following table defines the canonical owner of each business entity.
-
-| Entity | Owner Service |
-|---------|---------------|
-| Exchange | Reference Service |
-| Market | Reference Service |
-| Currency | Reference Service |
-| Country | Reference Service |
-| Calendar | Reference Service |
-| Instrument | Instrument Service |
-| Symbol | Instrument Service |
-| Asset | Instrument Service |
-| MarketData | Market Service |
-| PriceHistory | Market Service |
-| CorporateAction | Market Service |
-| Feature | Feature Service |
-| Indicator | Feature Service |
-| Factor | Feature Service |
-| AnalysisResult | Analytics Service |
-| BacktestResult | Analytics Service |
-| StatisticalModel | Analytics Service |
-| MLModel | AI Service |
-| Prediction | AI Service |
-| TrainingDataset | AI Service |
-| Strategy | Strategy Service |
-| TradingSignal | Strategy Service |
-| Opportunity | Ranking Service |
-| OpportunityScore | Ranking Service |
-| Portfolio | Portfolio Service |
-| Position | Portfolio Service |
-| Transaction | Portfolio Service |
-| RiskModel | Risk Service |
-| RiskAssessment | Risk Service |
-| DataProvider | Integration Service |
-| BrokerConnection | Integration Service |
-| Report | Reporting Service |
-| Dashboard | Reporting Service |
-| Notification | Notification Service |
-| Alert | Notification Service |
-| ConfigurationItem | Configuration Service |
-| AuditEntry | Audit Service |
-| Order | Execution Service |
-| Execution | Execution Service |
+Every Aggregate shall belong to exactly one Business Service.
 
 ---
 
-# 7. Communication Model
+## SCM-004 — Single Service Ownership
 
-Services shall communicate through well-defined service contracts.
+Every Aggregate Root shall have exactly one owning service.
 
-Supported communication mechanisms include:
+---
+
+## SCM-005 — Explicit Collaboration
+
+Services collaborate only through published contracts.
+
+Business entities shall never be modified by non-owning services.
+
+---
+
+## SCM-006 — Autonomous Evolution
+
+Services shall evolve independently whenever practical.
+
+Changes to service boundaries require architectural governance.
+
+---
+
+# 5. Business Capability Mapping
+
+The following table illustrates the relationship between Business Capabilities, Domains, and Services.
+
+| Business Capability | Business Domain | Primary Service |
+|---------------------|-----------------|-----------------|
+| Reference Data Management | Reference Domain | Reference Service |
+| Instrument Management | Core Domain | Instrument Service |
+| Market Data Management | Market Domain | Market Service |
+| Portfolio Management | Portfolio Domain | Portfolio Service |
+| Analytics | Analytics Domain | Analytics Service |
+| Strategy Management | Strategy Domain | Strategy Service |
+| Risk Management | Risk Domain | Risk Service |
+| Research & Backtesting | Research Domain | Research Service |
+| Integration | Integration Domain | Integration Service |
+| Configuration | Configuration Domain | Configuration Service |
+| Audit & Governance | Audit Domain | Audit Service |
+| Reporting | Reporting Domain | Reporting Service |
+
+This mapping establishes the canonical ownership of enterprise business capabilities.
+
+---
+
+# 6. Domain Context Map
+
+The Phoenix Platform is organized into a collection of autonomous business domains.
+
+Each domain owns its business capabilities, aggregates, entities, and business rules.
+
+```text
+Reference Domain
+        │
+        ├──────────────┐
+        │              │
+        ▼              ▼
+Core Domain      Integration Domain
+        │              │
+        ├──────┐       │
+        ▼      ▼       ▼
+Market   Portfolio   Configuration
+Domain    Domain        Domain
+        │
+        ├──────────────┐
+        ▼              ▼
+Analytics        Research
+Domain            Domain
+        │
+        ▼
+Reporting
+Domain
+```
+
+The Reference Domain provides shared business reference information for all other domains while remaining independent of operational business processes.
+
+---
+
+# 7. Aggregate Ownership
+
+Every Aggregate belongs to exactly one Business Domain and is implemented by one owning service.
+
+| Business Domain | Aggregate | Owning Service |
+|-----------------|-----------|----------------|
+| Reference Domain | Market Structure | Reference Service |
+| Reference Domain | Business Classification | Reference Service |
+| Reference Domain | Geographic Reference | Reference Service |
+| Reference Domain | Financial Reference | Reference Service |
+| Reference Domain | Calendar Reference | Reference Service |
+| Core Domain | Financial Instrument | Instrument Service |
+| Market Domain | Market Data | Market Service |
+| Market Domain | Corporate Actions | Market Service |
+| Portfolio Domain | Portfolio | Portfolio Service |
+| Analytics Domain | Indicator Analysis | Analytics Service |
+| Analytics Domain | Feature Engineering | Analytics Service |
+| Strategy Domain | Trading Strategy | Strategy Service |
+| Risk Domain | Risk Assessment | Risk Service |
+| Research Domain | Backtesting | Research Service |
+| Reporting Domain | Reporting | Reporting Service |
+| Integration Domain | Provider Integration | Integration Service |
+| Configuration Domain | Configuration | Configuration Service |
+| Audit Domain | Audit Trail | Audit Service |
+
+Aggregate ownership defines the authoritative source of business rules and lifecycle management.
+
+---
+
+# 8. Service Responsibilities
+
+Each service is responsible for:
+
+- Managing its aggregates.
+- Enforcing business rules.
+- Preserving data integrity.
+- Managing aggregate lifecycles.
+- Publishing business events.
+- Providing explicit service interfaces.
+- Protecting aggregate consistency.
+
+Services shall not assume ownership of aggregates belonging to other domains.
+
+---
+
+# 9. Service Collaboration
+
+Business services collaborate through published interfaces rather than shared persistence.
+
+Supported collaboration patterns include:
+
+## Synchronous Communication
 
 - REST APIs
 - gRPC
-- Event Messaging
-- Scheduled Synchronization
 
-Direct database sharing between services is prohibited.
+Used when an immediate response is required.
 
 ---
 
-# 8. Ownership Rules
+## Asynchronous Communication
 
-Ownership implies responsibility for:
+- Domain Events
+- Event Messaging
+- Message Queues
+
+Used for loosely coupled business collaboration.
+
+---
+
+## Batch Collaboration
+
+- Scheduled Synchronization
+- Bulk Import
+- Bulk Export
+
+Used for high-volume integration scenarios.
+
+Direct database access between services is prohibited.
+
+---
+
+# 10. Dependency Rules
+
+Service dependencies shall follow the business architecture.
+
+The permitted dependency direction is:
+
+```text
+Reference Service
+        │
+        ▼
+Instrument Service
+        │
+        ▼
+Market Service
+        │
+        ▼
+Portfolio Service
+        │
+        ▼
+Analytics Service
+        │
+        ▼
+Strategy Service
+        │
+        ▼
+Research Service
+        │
+        ▼
+Reporting Service
+```
+
+Cross-domain dependencies shall be minimized.
+
+Circular service dependencies are prohibited.
+
+Infrastructure services may support multiple business services without owning business capabilities.
+
+---
+
+# 11. Service Interface Principles
+
+Every Business Service shall expose its capabilities through explicit, versioned, and well-defined interfaces.
+
+Service interfaces shall satisfy the following principles:
+
+- Business-oriented
+- Technology independent
+- Version controlled
+- Backward compatible whenever practical
+- Secure by default
+- Fully documented
+- Independently testable
+
+Service interfaces represent business contracts rather than implementation details.
+
+---
+
+# 12. Ownership Rules
+
+Ownership defines both responsibility and authority.
+
+The owning service is exclusively responsible for:
 
 - Business rules
-- Data integrity
-- Validation
-- Persistence
-- Lifecycle management
+- Aggregate lifecycle
+- Data validation
+- Consistency enforcement
+- Persistence management
 - Version compatibility
+- Business event publication
 
 Other services may consume business information only through published interfaces.
 
----
-
-# 9. Evolution Rules
-
-The Service Context Map is expected to evolve as new business capabilities are introduced.
-
-However:
-
-- Existing ownership boundaries shall remain stable.
-- Business capability duplication is prohibited.
-- Service responsibilities shall not overlap.
-- Major ownership changes require an approved Architecture Decision Record (ADR).
+No service may modify another service's aggregates directly.
 
 ---
 
-# 10. Traceability
+# 13. Governance
 
-Every service defined in this document shall be traceable to:
+Changes to service boundaries shall be governed through the Phoenix Architecture Governance process.
 
-- Business Capability Map
-- Bounded Context Definition
-- Canonical Domain Model
-- Entity Catalog
-- Canonical Business Rules
+Governance activities include:
+
+1. Business capability analysis
+2. Domain boundary validation
+3. Aggregate ownership review
+4. Dependency impact assessment
+5. Architecture approval
+6. Repository update
+7. Version publication
+
+Service boundaries are expected to remain stable over time.
+
+Changes shall occur through architectural evolution rather than incremental implementation decisions.
+
+Major ownership changes require an approved Architecture Decision Record (ADR).
+
+---
+
+# 14. Traceability
+
+Every service defined within the Phoenix Platform shall be traceable to its business origin.
+
+```text
+Business Vision
+        │
+        ▼
+Business Capability Map
+        │
+        ▼
+Canonical Domain Model
+        │
+        ▼
+Domain Responsibilities
+        │
+        ▼
+Service Context Map
+        │
+        ▼
+Service Specification
+        │
+        ▼
+API Specification
+        │
+        ▼
+Database Design
+        │
+        ▼
+Implementation
+```
+
+This traceability ensures architectural consistency across all layers of the platform.
+
+---
+
+# 15. Related Documents
+
+## Vision
+
+- PlatformArchitectureVision.md
+- ReferenceArchitecture.md
+- KnowledgeDrivenArchitecture.md
+
+## Business Architecture
+
+- BusinessCapabilityMap.md
+- CanonicalDomainModel.md
+- DomainResponsibilities.md
+
+## Domain Architecture
+
+- ReferenceDomainArchitecture.md
+
+## Data Architecture
+
+- ReferenceDataModel.md
+- EntityClassification.md
+- LogicalDatabaseModel.md
+- PhysicalDatabaseModel.md
+- EnterpriseDataDictionary.md
+
+## Service Architecture
+
+- CanonicalServiceCatalog.md
+
+## Governance
+
+- ArchitecturalPrinciples.md
+- QualityAttributes.md
+- CanonicalBusinessRules.md
 - Architecture Decision Records (ADR)
+
+---
+
+# 16. Success Criteria
+
+The Service Context Map is considered complete when:
+
+- Every Business Capability is assigned to exactly one Business Domain.
+- Every Business Domain has clearly defined service ownership.
+- Every Aggregate has a single owning service.
+- Service collaboration occurs exclusively through published interfaces.
+- Cross-domain ownership is eliminated.
+- Circular dependencies are absent.
+- All service boundaries remain traceable to the Business Capability Map and Canonical Domain Model.
 
 ---
 
@@ -237,3 +448,4 @@ Every service defined in this document shall be traceable to:
 | Version | Date | Description |
 |----------|------|-------------|
 | 2026.1 | 2026-07-04 | Initial version. |
+| 2026.2 | 2026-07-18 | Complete architectural redesign aligned with the Phoenix Enterprise Architecture Framework, Business Capability Model, Domain Architecture, and Knowledge-Driven Architecture. |

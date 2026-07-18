@@ -5,284 +5,329 @@
 | Project | Phoenix Platform |
 | Artifact ID | DM-007 |
 | Document | AggregateAttributeMatrix |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Domain Model |
-| Owner | Architecture Team |
-| Depends On | AggregateCatalog, EnterpriseAttributeStandard, AttributeCatalog |
-| Last Updated | 2026-07-09 |
+| Classification | Enterprise Domain Architecture |
+| Owner | Enterprise Architecture |
+| Architecture Layer | Domain Model |
+| Depends On | CanonicalDomainModel, AggregateCatalog, EntityClassification, EnterpriseAttributeCatalog |
+| Consumed By | ConceptualDataModel, LogicalDatabaseModel, PhysicalDatabaseModel |
+| Last Updated | 2026-07-18 |
 
 ---
 
 # 1. Purpose
 
-This document defines the assignment of standardized enterprise attributes to Aggregate Roots.
+This document defines the canonical attribute profiles assigned to Aggregate Roots within the Phoenix Platform.
 
-The objective is to ensure that every Aggregate uses approved, reusable and semantically consistent attributes defined by the Enterprise Attribute Catalog.
+Rather than defining physical database columns, this document specifies the categories of business attributes that each Aggregate shall possess according to its business responsibilities.
 
-This matrix establishes the bridge between business architecture and information architecture.
-
----
-
-# 2. Scope
-
-This document defines:
-
-- Aggregate Roots
-- Assigned Attributes
-- Attribute Categories
-- Mandatory and Optional Attributes
-- Business Identifiers
-- Aggregate References
-
-This document does not define:
-
-- Attribute semantics
-- SQL columns
-- Physical data types
-- Database implementation
+The Aggregate Attribute Matrix establishes the architectural relationship between Aggregate definitions and the Enterprise Attribute Catalog.
 
 ---
 
-# 3. Assignment Principles
+# 2. Objectives
 
-## Principle 1
+The objectives of this document are to:
 
-Attributes shall be assigned only after Aggregate boundaries have been approved.
-
----
-
-## Principle 2
-
-Only attributes defined in the Enterprise Attribute Catalog may be assigned.
-
----
-
-## Principle 3
-
-Each Aggregate shall define one Business Identifier.
+- Standardize Aggregate attribute composition.
+- Promote enterprise-wide attribute reuse.
+- Eliminate duplicate attribute definitions.
+- Ensure consistency across all business domains.
+- Support technology-independent domain modeling.
+- Provide traceability between Aggregates and Enterprise Attributes.
+- Serve as the foundation for subsequent conceptual and logical data modeling.
 
 ---
 
-## Principle 4
+# 3. Architectural Principles
 
-Audit attributes shall be inherited from the Base Entity Standard.
+The Aggregate Attribute Matrix follows the following architectural principles.
+
+## AAM-001 — Enterprise Attribute Reuse
+
+Business attributes shall be defined once within the Enterprise Attribute Catalog and reused throughout the platform.
 
 ---
 
-## Principle 5
+## AAM-002 — Technology Independence
 
-Reference attributes shall reference Aggregate Roots only.
+This document defines business attribute profiles only.
+
+Physical database columns, SQL data types, indexes, and implementation details are outside its scope.
+
+---
+
+## AAM-003 — Aggregate Consistency
+
+All instances of the same Aggregate shall share the same attribute profile.
+
+---
+
+## AAM-004 — Single Source of Truth
+
+Business attribute definitions shall originate exclusively from the Enterprise Attribute Catalog.
+
+This document assigns attributes but never defines them.
+
+---
+
+## AAM-005 — Separation of Concerns
+
+Business attributes, audit attributes, derived attributes, and infrastructure attributes shall remain architecturally separated.
 
 ---
 
 # 4. Attribute Categories
 
-| Category | Description |
-|----------|-------------|
-| Identity | Enterprise identity |
-| Naming | Human-readable names and codes |
-| Business | Business information |
-| Classification | Classification data |
-| Reference | References to other Aggregates |
-| Lifecycle | Business state |
-| Temporal | Business validity |
-| Audit | Audit information |
-| External | External identifiers |
-| Derived | Calculated attributes |
+The Phoenix Platform classifies enterprise attributes into the following categories.
+
+| Category | Purpose |
+|----------|---------|
+| Identity | Enterprise identity and business identifiers |
+| Naming | Human-readable names and business codes |
+| Business | Core business properties |
+| Reference | References to other Aggregate Roots |
+| Classification | Business classifications and taxonomies |
+| Lifecycle | Business status and lifecycle management |
+| Temporal | Business validity and effective periods |
+| External | External provider identifiers |
+| Derived | Computed business information |
+| Audit | Enterprise audit information inherited from the Base Entity Pattern |
+
+Audit attributes are inherited by all Aggregates and therefore are not explicitly repeated within Aggregate profiles.
 
 ---
 
-# 5. Reference Domain
+# 5. Aggregate Attribute Profiles
 
-## Exchange Aggregate
+This section defines the canonical attribute profile for each Aggregate.
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| exchange_id | Identity | Yes |
-| exchange_code | Naming | Yes |
-| exchange_name | Naming | Yes |
-| country_id | Reference | Yes |
-| timezone | Business | Yes |
-| is_active | Lifecycle | Yes |
-| created_at | Audit | Yes |
-| updated_at | Audit | Yes |
+The profiles specify the categories of attributes required by each Aggregate rather than individual attribute definitions.
+
+Detailed attribute semantics are maintained within the Enterprise Attribute Catalog.
 
 ---
 
-## Trading Board Aggregate
+# 5.1 Reference Domain
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| trading_board_id | Identity | Yes |
-| exchange_id | Reference | Yes |
-| board_code | Naming | Yes |
-| board_name | Naming | Yes |
-| is_active | Lifecycle | Yes |
-| created_at | Audit | Yes |
-| updated_at | Audit | Yes |
+Reference Aggregates provide enterprise-wide reference information shared across multiple business domains.
 
----
+## Exchange
 
-## Sector Aggregate
-
-| Attribute | Category | Required |
-|----------|----------|----------|
-| sector_id | Identity | Yes |
-| sector_code | Naming | Yes |
-| sector_name | Naming | Yes |
-| created_at | Audit | Yes |
-| updated_at | Audit | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Business | Yes |
+| Lifecycle | Yes |
+| External | Optional |
+| Audit | Inherited |
 
 ---
 
-## Industry Aggregate
+## Market
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| industry_id | Identity | Yes |
-| sector_id | Reference | Yes |
-| industry_code | Naming | Yes |
-| industry_name | Naming | Yes |
-| created_at | Audit | Yes |
-| updated_at | Audit | Yes |
-
----
-
-## Trading Calendar Aggregate
-
-| Attribute | Category | Required |
-|----------|----------|----------|
-| trading_calendar_id | Identity | Yes |
-| market_id | Reference | Yes |
-| trading_date | Temporal | Yes |
-| is_trading_day | Business | Yes |
-| created_at | Audit | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Reference | Yes |
+| Business | Yes |
+| Lifecycle | Yes |
+| Audit | Inherited |
 
 ---
 
-# 6. Core Domain
+## Board
 
-## Company Aggregate
-
-| Attribute | Category | Required |
-|----------|----------|----------|
-| company_id | Identity | Yes |
-| company_code | Naming | Yes |
-| company_name | Naming | Yes |
-| national_identifier | Business | No |
-| sector_id | Reference | Yes |
-| industry_id | Reference | Yes |
-| status | Lifecycle | Yes |
-| created_at | Audit | Yes |
-| updated_at | Audit | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Reference | Yes |
+| Lifecycle | Yes |
+| Audit | Inherited |
 
 ---
 
-## Instrument Aggregate
+## Industry
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| instrument_id | Identity | Yes |
-| instrument_code | Naming | Yes |
-| instrument_name | Naming | Yes |
-| company_id | Reference | Yes |
-| instrument_type_id | Reference | Yes |
-| listing_date | Business | No |
-| status | Lifecycle | Yes |
-| created_at | Audit | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Lifecycle | Yes |
+| Audit | Inherited |
 
 ---
 
-# 7. Market Domain
+## Sector
 
-## Instrument Listing Aggregate
-
-| Attribute | Category | Required |
-|----------|----------|----------|
-| listing_id | Identity | Yes |
-| instrument_id | Reference | Yes |
-| market_id | Reference | Yes |
-| board_id | Reference | Yes |
-| listing_status | Lifecycle | Yes |
-| created_at | Audit | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Reference | Yes |
+| Lifecycle | Yes |
+| Audit | Inherited |
 
 ---
 
-## Daily Market Data Aggregate
+## Trading Calendar
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| daily_market_data_id | Identity | Yes |
-| listing_id | Reference | Yes |
-| trading_date | Temporal | Yes |
-| open_price | Business | Yes |
-| high_price | Business | Yes |
-| low_price | Business | Yes |
-| close_price | Business | Yes |
-| volume | Business | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Business | Yes |
+| Temporal | Yes |
+| Lifecycle | Yes |
+| Audit | Inherited |
 
 ---
 
-## Corporate Action Aggregate
+# 5.2 Core Domain
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| corporate_action_id | Identity | Yes |
-| instrument_id | Reference | Yes |
-| action_type | Classification | Yes |
-| effective_date | Temporal | Yes |
-| created_at | Audit | Yes |
+## Company
 
----
-
-# 8. Integration Domain
-
-## Data Provider Aggregate
-
-| Attribute | Category | Required |
-|----------|----------|----------|
-| provider_id | Identity | Yes |
-| provider_code | Naming | Yes |
-| provider_name | Naming | Yes |
-| provider_type | Classification | Yes |
-| is_active | Lifecycle | Yes |
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Reference | Yes |
+| Business | Yes |
+| Lifecycle | Yes |
+| External | Optional |
+| Audit | Inherited |
 
 ---
 
-## External Identifier Aggregate
+## Financial Instrument
 
-| Attribute | Category | Required |
-|----------|----------|----------|
-| external_identifier_id | Identity | Yes |
-| provider_id | Reference | Yes |
-| aggregate_name | Classification | Yes |
-| aggregate_id | Reference | Yes |
-| external_code | External | Yes |
-
----
-
-# 9. Validation Rules
-
-The following validations shall be performed:
-
-- Every Aggregate has one identity attribute.
-- Every reference points to an Aggregate Root.
-- All mandatory attributes are assigned.
-- All audit attributes comply with the Base Entity Standard.
-- Every attribute exists in the Enterprise Attribute Catalog.
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Naming | Yes |
+| Reference | Yes |
+| Classification | Yes |
+| Business | Yes |
+| Lifecycle | Yes |
+| External | Optional |
+| Audit | Inherited |
 
 ---
 
-# 10. Relationship with Other Artifacts
+# 5.3 Market Domain
 
-This document shall be maintained together with:
+## Daily Market Data
 
-- AggregateCatalog
-- EnterpriseAttributeStandard
-- AttributeCatalog
-- AttributeDictionary
-- LogicalDatabaseModel
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Reference | Yes |
+| Business | Yes |
+| Temporal | Yes |
+| Audit | Inherited |
+
+---
+
+## Corporate Action
+
+| Attribute Category | Required |
+|--------------------|----------|
+| Identity | Yes |
+| Reference | Yes |
+| Classification | Yes |
+| Business | Yes |
+| Temporal | Yes |
+| Audit | Inherited |
+
+---
+
+# 6. Attribute Inheritance
+
+All Aggregate Roots shall inherit common enterprise attributes through the Base Entity Pattern.
+
+Inherited attributes include, but are not limited to:
+
+- Audit attributes
+- Versioning attributes
+- Concurrency control attributes
+- Common lifecycle metadata
+
+Inheritance ensures architectural consistency while eliminating duplicated attribute definitions.
+
+Aggregate-specific business attributes shall extend the inherited profile without modifying the Base Entity Pattern.
+
+---
+
+# 7. Validation Rules
+
+Every Aggregate Attribute Profile shall satisfy the following validation rules.
+
+## AAM-VR-001
+
+Every Aggregate shall define exactly one business identity.
+
+---
+
+## AAM-VR-002
+
+Every Reference attribute shall reference another Aggregate Root.
+
+---
+
+## AAM-VR-003
+
+Attribute categories shall align with the Aggregate's business responsibility.
+
+---
+
+## AAM-VR-004
+
+Business attributes shall originate from the Enterprise Attribute Catalog.
+
+---
+
+## AAM-VR-005
+
+Audit attributes shall not be redefined within Aggregate profiles.
+
+---
+
+## AAM-VR-006
+
+Derived attributes shall never be persisted as canonical business attributes unless explicitly approved by an Architecture Decision Record (ADR).
+
+---
+
+# 8. Traceability
+
+The Aggregate Attribute Matrix maintains traceability with the following architectural artifacts.
+
+| Artifact | Relationship |
+|----------|--------------|
+| BusinessCapabilityMap | Defines business capabilities supported by each Aggregate |
+| CanonicalDomainModel | Defines Aggregate boundaries |
+| AggregateCatalog | Defines Aggregate ownership and responsibilities |
+| EntityClassification | Classifies Aggregate entities |
+| EnterpriseAttributeCatalog | Defines enterprise attribute semantics |
+| ConceptualDataModel | Maps Aggregate profiles to conceptual entities |
+| LogicalDatabaseModel | Refines conceptual attributes into logical structures |
+| PhysicalDatabaseModel | Implements logical attributes as physical database objects |
+
+---
+
+# 9. Success Criteria
+
+The Aggregate Attribute Matrix is considered complete when:
+
+- Every Aggregate Root has an approved attribute profile.
+- All attribute categories conform to enterprise standards.
+- No Aggregate defines implementation-specific attributes.
+- All business attributes are traceable to the Enterprise Attribute Catalog.
+- Attribute inheritance is consistently applied across all Aggregates.
+- Validation rules have been verified through architectural review.
 
 ---
 
@@ -290,4 +335,5 @@ This document shall be maintained together with:
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial Aggregate Attribute Matrix |
+| 2026.1 | 2026-07-09 | Initial version. |
+| 2026.2 | 2026-07-18 | Complete architectural redesign. Converted from implementation-oriented attribute lists to technology-independent enterprise attribute profiles aligned with the Canonical Domain Model and Enterprise Attribute Catalog. |

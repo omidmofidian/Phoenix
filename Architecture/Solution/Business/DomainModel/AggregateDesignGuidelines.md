@@ -5,297 +5,526 @@
 | Project | Phoenix Platform |
 | Artifact ID | DOM-007 |
 | Document | AggregateDesignGuidelines |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Domain Architecture Guideline |
-| Owner | Architecture Team |
-| Last Updated | 2026-07-07 |
+| Classification | Enterprise Domain Architecture Standard |
+| Owner | Enterprise Architecture |
+| Architecture Layer | Domain Architecture |
+| Depends On | BusinessCapabilityMap, CanonicalDomainModel, AggregateCatalog, AggregateDefinitions, ArchitecturalPrinciples |
+| Consumed By | ConceptualDataModel, LogicalDatabaseModel, ServiceDesign, Application Services |
+| Last Updated | 2026-07-18 |
 
 ---
 
 # 1. Purpose
 
-This document defines the architectural guidelines for designing Aggregates within the Phoenix Platform.
+This document establishes the enterprise standards for designing Aggregates within the Phoenix Platform.
 
-The objective is to establish a consistent Domain-Driven Design (DDD) approach across all business domains and services.
+Aggregates define the fundamental consistency boundaries of the business domain and represent one of the primary architectural building blocks of the platform's Domain-Driven Design (DDD) approach.
 
-These guidelines apply to every current and future domain of the platform.
+The objective of this standard is to ensure that all Aggregates are designed consistently across business domains, preserve business integrity, and remain independent of implementation technologies, persistence mechanisms, and deployment architecture.
+
+This document serves as the authoritative reference for Aggregate design and shall be applied to every current and future business domain within the Phoenix Platform.
 
 ---
 
-# 2. Definition
+# 2. Objectives
 
-An Aggregate is a cluster of closely related business entities that are treated as a single consistency boundary.
+The objectives of this standard are to:
+
+- Establish a consistent enterprise approach to Aggregate design.
+- Define architectural rules for Aggregate boundaries.
+- Preserve business consistency within transactional boundaries.
+- Standardize Aggregate Root responsibilities.
+- Promote high cohesion and low coupling across business domains.
+- Support long-term maintainability and extensibility.
+- Enable independent evolution of business domains.
+- Ensure alignment between Domain Models, Services, and Data Models.
+- Reduce architectural ambiguity during software implementation.
+
+---
+
+# 3. Scope
+
+This standard applies to every Aggregate defined within the Phoenix Platform, including but not limited to:
+
+- Reference Aggregates
+- Core Business Aggregates
+- Market Aggregates
+- Portfolio Aggregates
+- Analytics Aggregates
+- Strategy Aggregates
+- Research Aggregates
+- Integration Aggregates
+- Configuration Aggregates
+- Audit Aggregates
+
+This document governs conceptual and logical Aggregate design only.
+
+It does not define:
+
+- Database schemas
+- Table structures
+- Foreign keys
+- Object-relational mappings (ORM)
+- API contracts
+- Service implementations
+- Physical persistence strategies
+
+These concerns are addressed by their corresponding architecture and implementation artifacts.
+
+---
+
+# 4. Architectural Context
+
+Within the Phoenix Architecture Framework, Aggregate Design bridges the gap between business architecture and solution architecture.
+
+```
+
+Business Capability Map
+
+↓
+
+Canonical Domain Model
+
+↓
+
+Aggregate Catalog
+
+↓
+
+Aggregate Definitions
+
+↓
+
+Aggregate Design Guidelines
+
+↓
+
+Conceptual Data Model
+
+↓
+
+Logical Database Model
+
+↓
+
+Physical Database Model
+
+↓
+
+Application Services
+
+```
+
+Aggregate Design therefore serves as the primary mechanism for translating business concepts into consistent implementation boundaries while preserving enterprise architectural integrity.
+
+---
+
+# 5. Fundamental Definition
+
+An Aggregate is a cohesive cluster of business entities that collectively represent a single business consistency boundary.
 
 Each Aggregate:
 
-- Protects business invariants
-- Defines a transactional boundary
-- Has a single Aggregate Root
-- Owns the lifecycle of its child entities
+- encapsulates a single business concept;
+- contains exactly one Aggregate Root;
+- owns the lifecycle of all contained entities;
+- protects business invariants;
+- defines the transactional consistency boundary;
+- exposes business behavior through its Aggregate Root only.
+
+An Aggregate is a business construct rather than a database construct and shall never be designed according to physical persistence considerations.
 
 ---
 
-# 3. Aggregate Design Principles
+# 6. Relationship to Other Standards
 
-Every Aggregate shall comply with the following principles.
+This standard shall be used together with the following enterprise architecture artifacts:
 
-## 3.1 Single Responsibility
+- BusinessCapabilityMap
+- CanonicalDomainModel
+- AggregateCatalog
+- AggregateDefinitions
+- ServiceContextMap
+- ArchitecturalPrinciples
+- EnterpriseIdentityStandard
+- EnterpriseAttributeStandard
+- ConceptualDataModel
+- LogicalDatabaseModel
 
-Each Aggregate shall represent exactly one business concept.
-
-An Aggregate shall never combine unrelated responsibilities.
-
----
-
-## 3.2 Single Aggregate Root
-
-Each Aggregate shall have exactly one Aggregate Root.
-
-The Aggregate Root is responsible for:
-
-- Business validation
-- Consistency enforcement
-- Lifecycle management
-- External access
-
-Child entities shall never be accessed directly from outside the Aggregate.
+Collectively, these artifacts establish the complete enterprise governance model for Aggregate design.
 
 ---
 
-## 3.3 High Cohesion
+# 7. Aggregate Design Principles
 
-Entities inside an Aggregate shall have strong business relationships.
-
-If two entities rarely change together, they probably belong to different Aggregates.
+Every Aggregate defined within the Phoenix Platform shall comply with the following architectural principles.
 
 ---
 
-## 3.4 Low Coupling
+## AGG-001 — Single Business Responsibility
 
-Aggregates shall be independent.
+Each Aggregate shall represent exactly one business capability or one cohesive business concept.
 
-Business rules of one Aggregate shall not depend on internal state of another Aggregate.
+An Aggregate shall never combine unrelated responsibilities merely for implementation convenience.
 
----
-
-## 3.5 Transaction Boundary
-
-A single business transaction shall modify only one Aggregate whenever possible.
-
-Cross-Aggregate transactions shall be avoided.
+Business cohesion shall always take precedence over technical optimization.
 
 ---
 
-## 3.6 Consistency Boundary
+## AGG-002 — Single Aggregate Root
 
-Business invariants shall always be maintained inside one Aggregate.
+Every Aggregate shall contain exactly one Aggregate Root.
 
-No invariant shall require simultaneous updates across multiple Aggregates.
+The Aggregate Root is the only externally accessible entity and is responsible for:
 
----
+- enforcing business rules;
+- validating business operations;
+- maintaining aggregate consistency;
+- controlling lifecycle operations;
+- protecting business invariants.
 
-# 4. Aggregate Root Responsibilities
-
-The Aggregate Root shall:
-
-- Control entity creation
-- Control entity deletion
-- Validate business rules
-- Maintain consistency
-- Expose business behavior
-- Prevent invalid state transitions
+Direct access to internal entities from outside the Aggregate is prohibited.
 
 ---
 
-# 5. Child Entity Rules
+## AGG-003 — Explicit Consistency Boundary
 
-Child entities:
+Every Aggregate defines a transactional consistency boundary.
 
-- Cannot exist independently
-- Shall not be shared across Aggregates
-- Shall not reference other child entities outside their Aggregate
-- Shall always be owned by the Aggregate Root
+All business invariants contained within an Aggregate shall always remain valid at the completion of every business transaction.
 
----
-
-# 6. Aggregate Size
-
-Aggregates should remain small.
-
-Indicators of an oversized Aggregate include:
-
-- Many unrelated entities
-- Frequent unrelated updates
-- Complex lifecycle management
-- Numerous external dependencies
-
-Large Aggregates should be split when business consistency allows.
+Whenever possible, a business transaction shall modify only one Aggregate.
 
 ---
 
-# 7. Aggregate Communication
+## AGG-004 — High Cohesion
 
-Aggregates communicate only through:
+Entities belonging to the same Aggregate shall exhibit strong business cohesion.
 
-- Canonical Identifier
-- Domain Events
-- Published Services
-
-Direct object references between Aggregates are prohibited.
+Entities that rarely participate in the same business transaction or evolve independently should belong to different Aggregates.
 
 ---
 
-# 8. Cross-Aggregate References
+## AGG-005 — Low Coupling
 
-Cross-Aggregate references shall:
+Aggregates shall remain independent from one another.
 
-- Use immutable identifiers
-- Avoid navigation through object graphs
-- Never bypass Aggregate Roots
+Dependencies between Aggregates shall be minimized and limited to stable business identifiers or published service interfaces.
 
----
-
-# 9. Business Invariants
-
-Every Aggregate shall explicitly define its Business Invariants.
-
-Examples:
-
-- Currency codes are unique.
-- Exchange belongs to one Market.
-- Region belongs to one Country.
-- CurrencyPair contains exactly two currencies.
-
-Business Invariants are enforced exclusively by the Aggregate Root.
+Implementation details of one Aggregate shall never be visible to another.
 
 ---
 
-# 10. Lifecycle Management
+## AGG-006 — Reference by Identity
 
-The Aggregate Root owns the lifecycle of every child entity.
+Cross-Aggregate references shall always be established using immutable identifiers.
 
-A child entity:
+Aggregates shall never maintain direct object references to other Aggregate Roots or internal entities.
 
-- Cannot outlive its Aggregate Root
-- Cannot migrate to another Aggregate
-- Cannot be independently persisted
+Navigation across Aggregate boundaries through object graphs is prohibited.
 
 ---
 
-# 11. Aggregate Ownership
+## AGG-007 — Lifecycle Ownership
 
-Each Aggregate belongs to exactly one Domain.
+Every entity contained within an Aggregate is owned exclusively by its Aggregate Root.
 
-Ownership shall never be shared across Domains.
+The Aggregate Root controls:
 
-Cross-Domain modifications are prohibited.
+- creation;
+- modification;
+- activation;
+- deactivation;
+- archival;
+- deletion (where permitted).
+
+Child entities shall not exist independently of their owning Aggregate.
 
 ---
 
-# 12. Aggregate Identification
+## AGG-008 — Business Invariant Protection
 
-Every Aggregate shall use the Enterprise Identity Strategy.
+Business invariants shall be enforced exclusively by the Aggregate Root.
 
-Each Aggregate Root has:
+Validation logic shall never be delegated to child entities, repositories, database triggers, or infrastructure components.
 
-- Canonical Identifier
-- Business Identifier (when applicable)
+---
 
-External Identifiers are managed by the Integration Domain.
+## AGG-009 — Technology Independence
+
+Aggregate design shall remain independent of:
+
+- relational databases;
+- object-relational mapping frameworks;
+- messaging technologies;
+- APIs;
+- programming languages;
+- deployment models.
+
+Business modeling shall always precede implementation decisions.
+
+---
+
+## AGG-010 — Stable Public Interface
+
+An Aggregate exposes only its public business behaviors.
+
+Internal entities, implementation details, persistence structures, and lifecycle management mechanisms shall remain encapsulated.
+
+---
+
+# 8. Aggregate Root Responsibilities
+
+Every Aggregate Root shall perform the following responsibilities:
+
+- maintain business consistency;
+- enforce business invariants;
+- coordinate child entity lifecycle;
+- validate business operations;
+- expose domain behaviors;
+- prevent invalid state transitions;
+- protect Aggregate boundaries;
+- publish domain events when appropriate.
+
+Aggregate Roots shall not contain infrastructure concerns, persistence logic, or user interface behavior.
+
+---
+
+# 9. Child Entity Rules
+
+Entities contained within an Aggregate shall comply with the following rules.
+
+### Ownership
+
+Each child entity shall belong to exactly one Aggregate.
+
+Shared ownership is prohibited.
+
+### Lifecycle
+
+A child entity cannot exist independently from its Aggregate Root.
+
+Its lifecycle shall always be governed by the Aggregate Root.
+
+### Visibility
+
+Child entities are internal implementation details.
+
+External services shall never directly reference or manipulate them.
+
+### Identity
+
+Child entities may possess local identifiers, but enterprise identity belongs exclusively to the Aggregate Root.
+
+### Persistence
+
+Persistence of child entities shall always occur as part of Aggregate persistence.
+
+Independent persistence of child entities is prohibited.
+
+---
+
+# 10. Aggregate Classification
+
+Within the Phoenix Platform, Aggregates are classified into the following architectural categories:
+
+| Category | Purpose |
+|----------|---------|
+| Reference Aggregate | Stable enterprise reference information |
+| Core Aggregate | Core business concepts |
+| Transactional Aggregate | Business transactions and operational workflows |
+| Market Aggregate | Financial market observations and events |
+| Analytical Aggregate | Derived analytical information |
+| Strategy Aggregate | Investment and trading decision logic |
+| Research Aggregate | Experimental and quantitative research |
+| Integration Aggregate | External system interoperability |
+| Configuration Aggregate | Runtime configuration management |
+| Audit Aggregate | Enterprise traceability and auditability |
+
+Each category follows the same Aggregate Design principles while addressing different business responsibilities.
+
+---
+
+# 11. Aggregate Communication
+
+Aggregates shall collaborate only through well-defined architectural mechanisms.
+
+The following communication principles shall be observed throughout the platform.
+
+---
+
+## AGC-001 — Identity-Based References
+
+Aggregates shall reference other Aggregates only through their canonical identifiers.
+
+Direct references to internal entities are prohibited.
+
+---
+
+## AGC-002 — Service-Oriented Collaboration
+
+Business interactions between Aggregates shall be coordinated by Application Services or Domain Services.
+
+Aggregates shall not orchestrate other Aggregates directly.
+
+---
+
+## AGC-003 — Domain Events
+
+When business processes span multiple Aggregates, communication should be performed through published Domain Events whenever eventual consistency is acceptable.
+
+---
+
+## AGC-004 — Published Contracts
+
+Cross-domain communication shall occur only through published service contracts.
+
+Internal implementation details shall never be exposed outside the Aggregate boundary.
+
+---
+
+# 12. Aggregate Lifecycle
+
+Every Aggregate follows a well-defined business lifecycle.
+
+Although lifecycle stages vary by business domain, the following conceptual states are common across the platform.
+
+```
+Created
+      │
+      ▼
+Active
+      │
+      ▼
+Modified
+      │
+      ▼
+Suspended (Optional)
+      │
+      ▼
+Retired
+      │
+      ▼
+Archived
+```
+
+Deletion of Aggregate Roots should be avoided whenever historical traceability is required.
+
+Business deactivation is generally preferred over physical deletion.
 
 ---
 
 # 13. Aggregate Evolution
 
-Aggregates may evolve over time.
+Business models evolve continuously.
 
-Changes shall preserve:
+Aggregate evolution shall preserve:
 
-- Business meaning
-- Aggregate boundary
-- Business invariants
-- Published contracts
+- business meaning;
+- Aggregate boundaries;
+- public contracts;
+- business identifiers;
+- business invariants;
+- backward compatibility whenever practical.
 
-Breaking changes require architectural approval.
-
----
-
-# 14. Design Heuristics
-
-Create a new Aggregate when:
-
-- A separate consistency boundary exists.
-- Lifecycle differs.
-- Ownership differs.
-- Business invariants differ.
-- Transactions rarely overlap.
-
-Do not create a new Aggregate merely for organizational convenience.
+Changes that modify Aggregate ownership, boundaries, or responsibilities require approval through the Architecture Decision Record (ADR) process.
 
 ---
 
-# 15. Anti-Patterns
+# 14. Aggregate Design Heuristics
 
-The following practices are prohibited:
+Architects should consider creating a new Aggregate when one or more of the following conditions exist:
 
-- Multiple Aggregate Roots
-- Shared child entities
-- Cross-Aggregate object references
-- Circular Aggregate dependencies
-- Large "God Aggregates"
-- Technical entities mixed with business entities
-- Persistence-driven Aggregate design
+- a separate business consistency boundary is identified;
+- lifecycle differs from existing Aggregates;
+- business ownership differs;
+- transactional boundaries differ;
+- business invariants differ;
+- security boundaries differ;
+- independent evolution is expected.
 
----
+Conversely, entities should remain within the same Aggregate when they:
 
-# 16. Validation Checklist
-
-Every Aggregate shall answer "Yes" to the following questions:
-
-| Question | Yes/No |
-|----------|---------|
-| Does it have one Aggregate Root? | □ |
-| Does it represent one business concept? | □ |
-| Are business invariants clearly defined? | □ |
-| Is the lifecycle fully owned? | □ |
-| Is the Aggregate cohesive? | □ |
-| Are dependencies minimal? | □ |
-| Can transactions remain inside the Aggregate? | □ |
-| Does it comply with the Enterprise Identity Standard? | □ |
+- always change together;
+- participate in the same business transaction;
+- share identical lifecycle rules;
+- collectively enforce the same business invariants.
 
 ---
 
-# 17. Relationship to Other Standards
+# 15. Architectural Anti-Patterns
 
-This guideline shall be used together with:
+The following Aggregate design practices are prohibited within the Phoenix Platform.
 
-- PlatformArchitectureVision.md
-- ArchitecturalPrinciples.md
-- CanonicalDomainModel.md
-- CanonicalAggregateCatalog.md
-- EnterpriseIdentityStandard.md
-- EnterpriseDataDictionaryStandard.md
+- Multiple Aggregate Roots within a single Aggregate.
+- Aggregates representing multiple unrelated business concepts.
+- Shared child entities between Aggregates.
+- Direct object references across Aggregate boundaries.
+- Circular Aggregate dependencies.
+- Persistence-driven Aggregate design.
+- Infrastructure concerns embedded within Aggregate logic.
+- Business rules distributed across multiple Aggregates.
+- Excessively large ("God") Aggregates.
+- Aggregate boundaries determined solely by database normalization.
 
 ---
 
-# 18. Applicability
+# 16. Aggregate Validation Checklist
 
-This guideline applies to all Phoenix domains, including but not limited to:
+Every Aggregate shall satisfy the following architectural review criteria before approval.
 
-- Reference Domain
-- Market Domain
-- Portfolio Domain
-- Analytics Domain
-- Machine Learning Domain
-- Configuration Domain
-- Integration Domain
-- Reporting Domain
+| Validation Question | Required |
+|---------------------|----------|
+| Does the Aggregate represent a single business concept? | Yes |
+| Does it contain exactly one Aggregate Root? | Yes |
+| Are business invariants clearly identified? | Yes |
+| Is the consistency boundary well defined? | Yes |
+| Does the Aggregate fully own its child entities? | Yes |
+| Are cross-Aggregate references identity-based? | Yes |
+| Is business cohesion high? | Yes |
+| Are dependencies minimized? | Yes |
+| Can most business transactions remain inside the Aggregate? | Yes |
+| Is the Aggregate independent of persistence technology? | Yes |
+| Does it comply with the Canonical Domain Model? | Yes |
+| Does it comply with the Service Context Map? | Yes |
+
+All questions shall be answered positively before an Aggregate becomes part of the canonical architecture.
+
+---
+
+# 17. Compliance
+
+Compliance with this standard is mandatory for all business domains within the Phoenix Platform.
+
+Architecture reviews shall verify that every newly introduced Aggregate conforms to this document.
+
+Non-compliant Aggregate designs shall be rejected until corrective actions have been completed.
+
+---
+
+# 18. Traceability
+
+This standard is governed by and traceable to the following enterprise architecture artifacts:
+
+- PlatformArchitectureVision
+- ArchitecturalPrinciples
+- BusinessCapabilityMap
+- CanonicalDomainModel
+- AggregateCatalog
+- AggregateDefinitions
+- ServiceContextMap
+- EnterpriseIdentityStandard
+- EnterpriseAttributeStandard
+- ConceptualDataModel
+- LogicalDatabaseModel
 
 ---
 
 # Revision History
 
 | Version | Date | Description |
-|----------|------|-------------|
-| 2026.1 | 2026-07-07 | Initial Aggregate Design Guidelines for the Phoenix Platform. |
+|----------|------------|-----------------------------------------------|
+| 2026.1 | 2026-07-07 | Initial version. |
+| 2026.2 | 2026-07-18 | Complete architectural rewrite aligned with the canonical Phoenix Domain Architecture, Business Capability Model, and Aggregate governance standards. |

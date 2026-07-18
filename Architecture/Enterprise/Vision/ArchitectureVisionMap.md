@@ -8,11 +8,11 @@
 | Layer | Architecture Vision |
 | Classification | Architecture Landscape |
 | Status | Approved |
-| Version | 1.0 |
+| Version | 2.0 |
 | Owner | Architecture Team |
 | Depends On | PlatformArchitectureVision.md |
 | Used By | Entire Repository |
-| Last Updated | 2026-07-08 |
+| Last Updated | 2026-07-17 |
 
 ---
 
@@ -39,18 +39,18 @@ Rather than introducing new concepts, this document organizes and connects the e
                               │
         ┌─────────────────────┼─────────────────────┐
         ▼                     ▼                     ▼
-Quality Attributes   Knowledge Driven      Governance
+Quality Attributes   Knowledge Driven      Enterprise Governance
                      Architecture
         │                     │                     │
         └─────────────┬───────┘                     │
                       ▼                             ▼
-               Domain Architecture         Repository Governance
+               Domain Architecture          Project Governance
                       │
                       ▼
                Service Architecture
                       │
                       ▼
-                  Design Layer
+              Solution Architecture
                       │
                       ▼
                 Implementation
@@ -148,19 +148,23 @@ Vision
 
 ↓
 
-Reference Domain
+Business Architecture
 
 ↓
 
-Market Domain
+Solution Architecture
 
 ↓
 
-Core Domain
+Logical Data Architecture
 
 ↓
 
-Database Design
+Physical Data Architecture
+
+↓
+
+Implementation
 
 ↓
 
@@ -246,27 +250,22 @@ Every architectural artifact shall be traceable to one or more vision documents.
 Example:
 
 ```text
-VIS-001
 PlatformArchitectureVision
 
 ↓
 
-VIS-002
 ArchitecturalPrinciples
 
 ↓
 
-VIS-004
 KnowledgeDrivenArchitecture
 
 ↓
 
-DOM-001
 ReferenceDomainArchitecture
 
 ↓
 
-SRV-003
 Market Service
 
 ↓
@@ -302,9 +301,9 @@ The recommended reading order for new contributors is:
 4. ArchitecturalPrinciples.md
 5. KnowledgeDrivenArchitecture.md
 6. QualityAttributes.md
-7. Governance documents
-8. Domain Architecture
-9. Design documentation
+7. Enterprise Governance
+8. Solution Architecture
+9. Architecture Validation
 
 ---
 
@@ -319,7 +318,7 @@ The recommended reading order for new contributors is:
 
 ### Governance
 
-- RepositoryStructure.md
+- ArchitectureRepositoryStructure.md
 - ArtifactCatalog.md
 
 ### Knowledge

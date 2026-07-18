@@ -6,77 +6,119 @@
 | Artifact ID | VIS-004 |
 | Domain | Enterprise Architecture |
 | Layer | Architecture Vision |
-| Classification | Architectural Vision |
+| Classification | Enterprise Architecture Vision |
 | Status | Approved |
-| Version | 1.0 |
-| Owner | Architecture Team |
-| Depends On | PlatformArchitectureVision.md, ArchitecturalPrinciples.md |
-| Used By | All Architecture, Design and Implementation Artifacts |
-| Last Updated | 2026-07-08 |
+| Version | 2.0 |
+| Owner | Phoenix Architecture Board |
+| Depends On | ProjectOverview.md, PlatformArchitectureVision.md, ArchitecturalPrinciples.md |
+| Used By | Entire Enterprise Architecture Repository |
+| Last Updated | 2026-07-17 |
 
 ---
 
 # 1. Purpose
 
-Knowledge Driven Architecture (KDA) defines the architectural philosophy of the Phoenix Platform.
+This document defines the Knowledge-Driven Architecture (KDA) adopted by the Phoenix Platform.
 
-It establishes **knowledge as the primary architectural asset** from which business concepts, domain models, services, databases, and software implementations are derived.
+Knowledge-Driven Architecture establishes enterprise knowledge as the highest architectural asset from which business architecture, service architecture, data architecture, implementation, and operational capabilities are systematically derived.
 
-Rather than designing software directly from technical requirements, Phoenix first models business knowledge, ensuring that every implementation is grounded in a shared understanding of the financial domain.
+Rather than allowing technology or implementation constraints to shape the platform, Phoenix treats knowledge as the primary source of architectural truth.
 
----
-
-# 2. Vision
-
-Phoenix is not merely a software application.
-
-It is an **Enterprise Financial Intelligence Platform** whose long-term value depends on preserving and evolving business knowledge independently of technology.
-
-Knowledge is treated as a strategic asset rather than supporting documentation.
+This document defines the philosophy, principles, lifecycle, and governance of enterprise knowledge throughout the Phoenix Platform.
 
 ---
 
-# 3. Core Philosophy
+# 2. Enterprise Knowledge Vision
 
-Phoenix follows the principle:
+Phoenix is designed as an enterprise financial intelligence platform whose long-term value depends on preserving, organizing, and continuously evolving knowledge.
 
-> **Knowledge before Architecture.  
-> Architecture before Design.  
-> Design before Implementation.**
+Knowledge is considered a strategic enterprise asset rather than project documentation.
 
-Every software component shall ultimately trace back to documented business knowledge.
+Business understanding precedes architectural modeling.
+
+Architectural modeling precedes technical implementation.
+
+Every software artifact ultimately represents documented enterprise knowledge.
+
+The architecture therefore evolves through controlled knowledge evolution rather than through uncontrolled software changes.
 
 ---
 
-# 4. Knowledge Layers
+# 3. Knowledge-Driven Philosophy
 
-The Knowledge layer is composed of multiple knowledge domains.
+Phoenix follows the following architectural philosophy:
+
+> **Knowledge before Architecture.**
+>
+> **Architecture before Design.**
+>
+> **Design before Implementation.**
+>
+> **Implementation before Operations.**
+
+Knowledge provides the semantic foundation for every architectural decision.
+
+Architecture organizes that knowledge.
+
+Design transforms architecture into implementable specifications.
+
+Implementation realizes the approved design.
+
+Operations execute and continuously improve the implemented platform.
+
+---
+
+# 4. Enterprise Knowledge Principles
+
+The Knowledge-Driven Architecture of Phoenix is governed by the following principles.
+
+- Knowledge is the primary enterprise asset.
+- Business meaning always precedes technology.
+- Every business concept shall have one canonical definition.
+- Knowledge shall remain independent of implementation technologies.
+- Business vocabulary shall be standardized across the repository.
+- Knowledge shall evolve through governance rather than implementation.
+- Every architectural artifact shall trace back to enterprise knowledge.
+- Knowledge shall remain reusable across multiple business services.
+- Repository organization shall preserve enterprise knowledge.
+- Architectural evolution shall occur through knowledge refinement.
+
+These principles apply across every architectural layer of the Phoenix Platform.
+
+---
+
+# 5. Enterprise Knowledge Model
+
+Phoenix organizes enterprise knowledge into multiple complementary knowledge domains.
 
 ```text
-Knowledge
-│
-├── Business Knowledge
-├── Financial Market Knowledge
-├── Trading Knowledge
-├── Analytics Knowledge
-├── Artificial Intelligence Knowledge
-├── Risk Management Knowledge
-├── Portfolio Management Knowledge
-├── Regulatory Knowledge
-├── Data Provider Knowledge
-└── Research Knowledge
+Enterprise Knowledge
+        │
+        ├── Business Knowledge
+        ├── Financial Market Knowledge
+        ├── Quantitative Analysis Knowledge
+        ├── Investment Knowledge
+        ├── Artificial Intelligence Knowledge
+        ├── Risk Management Knowledge
+        ├── Portfolio Management Knowledge
+        ├── Data Provider Knowledge
+        ├── Regulatory Knowledge
+        ├── Research Knowledge
+        └── Enterprise Reference Knowledge
 ```
 
-Each layer contributes to the architectural foundation of the platform.
+Each knowledge domain contributes to the enterprise business architecture while remaining independently maintainable.
+
+Knowledge domains collectively define the conceptual foundation upon which the entire Phoenix Platform is built.
 
 ---
 
-# 5. Knowledge Flow
+# 6. Knowledge Lifecycle
 
-The Phoenix development lifecycle follows a knowledge-first approach.
+Knowledge progresses through a controlled architectural lifecycle.
 
 ```text
-Knowledge
+Enterprise Knowledge
         │
         ▼
 Business Vocabulary
@@ -85,13 +127,202 @@ Business Vocabulary
 Canonical Business Rules
         │
         ▼
-Reference Domain
+Business Capability Architecture
         │
         ▼
-Domain Model
+Canonical Domain Architecture
         │
         ▼
 Service Architecture
+        │
+        ▼
+Canonical Data Architecture
+        │
+        ▼
+Implementation
+        │
+        ▼
+Operations
+```
+
+Knowledge remains the authoritative source throughout the entire lifecycle.
+
+Lower architectural layers shall refine enterprise knowledge but shall never redefine it.
+
+---
+
+# 7. Enterprise Knowledge Architecture
+
+The Enterprise Knowledge Architecture defines how business knowledge is identified, organized, governed, and transformed into enterprise architecture.
+
+Knowledge is considered an architectural asset rather than supporting documentation.
+
+The architecture distinguishes between knowledge itself and the artifacts that represent that knowledge.
+
+Enterprise knowledge shall be:
+
+- Business-oriented
+- Canonical
+- Technology independent
+- Version controlled
+- Governed
+- Traceable
+- Reusable
+- Extensible
+
+Knowledge architecture provides the semantic foundation for every business capability, domain model, service, and data model within the Phoenix Platform.
+
+---
+
+# 8. Knowledge Layers
+
+Enterprise knowledge is organized into multiple logical layers.
+
+```text
+Enterprise Knowledge
+        │
+        ├── Business Knowledge
+        ├── Market Knowledge
+        ├── Analytical Knowledge
+        ├── Artificial Intelligence Knowledge
+        ├── Operational Knowledge
+        ├── Regulatory Knowledge
+        ├── Research Knowledge
+        └── Reference Knowledge
+```
+
+Each layer has a distinct responsibility while contributing to the overall enterprise knowledge model.
+
+### Business Knowledge
+
+Defines business concepts, terminology, business capabilities, and enterprise business rules.
+
+### Market Knowledge
+
+Defines financial market structures, instruments, exchanges, trading sessions, calendars, classifications, and market-specific concepts.
+
+### Analytical Knowledge
+
+Defines quantitative methods, indicators, feature engineering, statistical models, and analytical methodologies.
+
+### Artificial Intelligence Knowledge
+
+Defines AI concepts, feature semantics, model governance, explainability, evaluation strategies, and machine learning knowledge.
+
+### Operational Knowledge
+
+Defines operational procedures, deployment knowledge, runbooks, monitoring, maintenance, and platform operations.
+
+### Regulatory Knowledge
+
+Defines legal requirements, market regulations, compliance rules, and governance constraints.
+
+### Research Knowledge
+
+Captures research findings, experimental results, architectural evaluations, and accumulated organizational learning.
+
+### Reference Knowledge
+
+Defines reusable classifications, taxonomies, reference entities, metadata standards, and enterprise dictionaries.
+
+---
+
+# 9. Knowledge Repository
+
+The Phoenix Knowledge repository serves as the authoritative source for enterprise knowledge.
+
+Its purpose is to preserve organizational understanding independently of implementation technologies.
+
+The repository supports:
+
+- Enterprise business terminology
+- Financial market knowledge
+- Canonical business rules
+- Reference taxonomies
+- Research documentation
+- Market classifications
+- Regulatory references
+- AI knowledge assets
+- Operational knowledge
+- Future knowledge expansion
+
+Knowledge artifacts shall remain independent from software implementation and database design.
+
+---
+
+# 10. Business Vocabulary
+
+Every enterprise business concept shall have one approved canonical definition.
+
+Business vocabulary establishes the common language used across the Phoenix Platform.
+
+Examples include:
+
+- Market
+- Exchange
+- Financial Instrument
+- Trading Symbol
+- Trading Session
+- Portfolio
+- Position
+- Opportunity
+- Indicator
+- Feature
+- Prediction
+- Business Capability
+- Domain
+- Service
+
+Business terminology shall never be duplicated with conflicting meanings.
+
+The Enterprise Business Glossary serves as the authoritative source for business terminology.
+
+---
+
+# 11. Canonical Business Knowledge
+
+Canonical Business Knowledge represents the enterprise-wide understanding of financial markets and investment analysis.
+
+It defines:
+
+- Business concepts
+- Business semantics
+- Business relationships
+- Enterprise classifications
+- Business constraints
+- Business rules
+- Enterprise definitions
+
+Canonical knowledge is implementation independent and remains stable over long periods.
+
+Architectural artifacts shall refine canonical knowledge but shall never contradict it.
+
+---
+
+# 12. Knowledge-to-Architecture Transformation
+
+Knowledge is progressively transformed into executable enterprise architecture.
+
+```text
+Enterprise Knowledge
+        │
+        ▼
+Business Vocabulary
+        │
+        ▼
+Canonical Business Rules
+        │
+        ▼
+Business Capability Architecture
+        │
+        ▼
+Canonical Domain Architecture
+        │
+        ▼
+Service Architecture
+        │
+        ▼
+Canonical Data Architecture
         │
         ▼
 Logical Design
@@ -101,238 +332,194 @@ Physical Design
         │
         ▼
 Implementation
+```
+
+Each transformation stage increases implementation detail while preserving business meaning.
+
+Architectural governance ensures that no transformation introduces semantic inconsistencies.
+
+---
+
+# 13. Knowledge Governance
+
+Enterprise knowledge shall be governed with the same level of rigor as enterprise architecture.
+
+Knowledge governance ensures that business understanding remains accurate, consistent, reusable, and traceable throughout the lifecycle of the Phoenix Platform.
+
+The governance objectives are:
+
+- Preserve enterprise knowledge.
+- Maintain semantic consistency.
+- Prevent conflicting business definitions.
+- Control knowledge evolution.
+- Ensure architectural traceability.
+- Support long-term maintainability.
+
+Knowledge changes shall be reviewed before becoming part of the canonical repository.
+
+---
+
+# 14. Architectural Traceability
+
+Every architectural artifact within the Phoenix Platform shall be traceable to its originating enterprise knowledge.
+
+The enterprise traceability hierarchy is illustrated below.
+
+```text
+Enterprise Knowledge
         │
         ▼
-Testing
+Business Vocabulary
+        │
+        ▼
+Canonical Business Rules
+        │
+        ▼
+Business Capability Architecture
+        │
+        ▼
+Canonical Domain Architecture
+        │
+        ▼
+Service Architecture
+        │
+        ▼
+Canonical Data Architecture
+        │
+        ▼
+Implementation
         │
         ▼
 Operations
 ```
 
-Knowledge is the origin of every architectural decision.
+No implementation artifact shall exist without a corresponding architectural lineage.
+
+Architectural traceability supports governance, validation, impact analysis, auditing, and long-term maintainability.
 
 ---
 
-# 6. Business Vocabulary
+# 15. Enterprise Knowledge Evolution
 
-Every business concept shall first be defined within the Enterprise Business Glossary.
+Enterprise knowledge is expected to evolve throughout the lifetime of the Phoenix Platform.
 
-Examples include:
+Knowledge evolution shall occur through controlled refinement rather than uncontrolled modification.
 
-- Instrument
-- Exchange
-- Market
-- Portfolio
-- Position
-- Order
-- Candle
-- Quote
-- Corporate Action
-- Trading Session
+The following principles govern knowledge evolution:
 
-No architectural artifact shall redefine an approved business term.
+- Extend before replacing.
+- Refine before redesigning.
+- Preserve semantic consistency.
+- Maintain backward compatibility whenever practical.
+- Record significant knowledge changes.
+- Validate architectural impacts before approval.
 
----
+Knowledge shall evolve more slowly than implementation technologies.
 
-# 7. Canonical Business Rules
-
-Business rules shall be documented before software implementation.
-
-Examples include:
-
-- Trading session definitions
-- Market calendars
-- Settlement rules
-- Instrument lifecycle
-- Corporate action processing
-- Portfolio valuation rules
-
-Business rules remain independent of implementation technologies.
+Stable knowledge enables stable architecture.
 
 ---
 
-# 8. Domain Modeling
+# 16. Alignment with Enterprise Architecture
 
-Domain models are derived from approved knowledge.
+Knowledge-Driven Architecture provides the conceptual foundation for every architectural layer of the Phoenix Platform.
 
-Every aggregate, entity and value object shall correspond to documented business concepts.
-
-No entity shall exist solely because it is convenient for database implementation.
-
----
-
-# 9. Service Design
-
-Business services are derived from domain models.
-
-Each service represents a business capability rather than a technical function.
-
-Examples include:
-
-- Market Service
-- Portfolio Service
-- Analytics Service
-- Risk Service
-- AI Service
-
----
-
-# 10. Database Design
-
-The database is an implementation detail.
-
-Database schemas, tables and relationships shall reflect approved domain models rather than define them.
-
----
-
-# 11. Artificial Intelligence
-
-Knowledge serves as the foundation for intelligent services.
-
-Future AI capabilities shall utilize:
-
-- Business Vocabulary
-- Market Taxonomy
-- Canonical Business Rules
-- Historical Knowledge
-- Research Knowledge
-
-This ensures explainable and maintainable AI models.
-
----
-
-# 12. Multi-Market Strategy
-
-Phoenix is designed to support multiple financial markets.
-
-Knowledge is divided into:
-
-```text
-Common Knowledge
-        │
-        ├── Iran Capital Market
-        ├── Forex
-        ├── Cryptocurrency
-        ├── Commodities
-        ├── Fixed Income
-        ├── Derivatives
-        └── Future Markets
-```
-
-Common concepts are defined once and specialized where necessary.
-
----
-
-# 13. Governance Principles
-
-Knowledge shall be:
-
-- Authoritative
-- Traceable
-- Technology-independent
-- Version controlled
-- Reviewable
-- Reusable
-
-Knowledge documents shall evolve without compromising backward compatibility whenever practical.
-
----
-
-# 14. Architectural Principles
-
-The following principles govern Phoenix:
-
-1. Knowledge Before Code
-2. Business Before Technology
-3. Domain Before Database
-4. Services Around Business Capabilities
-5. Single Source of Truth
-6. Explicit Business Vocabulary
-7. Canonical Business Rules
-8. Technology Independence
-9. Traceability Across Layers
-10. Evolution Without Redesign
-
----
-
-# 15. Traceability
-
-Every implementation artifact shall be traceable to its origin.
+Its relationships are summarized below.
 
 ```text
 Knowledge
         │
         ▼
-Business Rule
+Platform Architecture Vision
         │
         ▼
-Domain Model
+Architectural Principles
         │
         ▼
-Service
+Business Capability Architecture
         │
         ▼
-Database
+Canonical Domain Architecture
         │
         ▼
-Source Code
+Canonical Data Architecture
         │
         ▼
-Test Cases
+Services
+        │
+        ▼
+Implementation
+        │
+        ▼
+Operations
 ```
 
-This traceability supports governance, maintenance and auditing.
+Every architectural layer refines enterprise knowledge while preserving its business meaning.
+
+Knowledge therefore remains the highest semantic layer of the Phoenix enterprise architecture.
 
 ---
 
-# 16. Success Criteria
+# 17. Related Artifacts
 
-The architecture is considered successful when:
+## Vision
 
-- Business terminology is consistent across the platform.
-- Every implementation has a documented business justification.
-- New financial markets can be added without redesigning the architecture.
-- AI models are based on documented knowledge rather than implicit assumptions.
-- Business knowledge remains independent of technology.
-
----
-
-# 17. Governance
-
-Changes to this architectural vision require:
-
-- Architecture Review
-- Governance Approval
-- Impact Assessment
-- Repository Update
-
-This document is classified as an Architecture Vision artifact.
-
----
-
-# 18. Related Documents
-
-### Vision
-
+- ProjectOverview.md
 - PlatformArchitectureVision.md
+- ArchitectureVisionMap.md
+- ReferenceArchitecture.md
+
+## Principles
+
 - ArchitecturalPrinciples.md
+- EngineeringPrinciples.md
 - QualityAttributes.md
 
-### Governance
+## Governance
 
 - RepositoryStructure.md
+- GovernanceFramework.md
 - ArtifactCatalog.md
+- DependencyRules.md
+- TraceabilityMatrix.md
 
-### Knowledge
+## Business Architecture
 
-- FinancialMarketTaxonomy.md
-- BusinessGlossary.md
+- BusinessCapabilityMap.md
+- CanonicalDomainModel.md
+- DomainModel.md
+- ServiceContextMap.md
+- CanonicalServiceCatalog.md
+
+## Data Architecture
+
+- ConceptualModel.md
+- LogicalDatabaseModel.md
+- PhysicalDatabaseModel.md
+- EnterpriseDataDictionary.md
+- CanonicalEnterpriseERD.md
+
+## Knowledge Repository
+
 - CanonicalBusinessRules.md
+- BusinessGlossary.md
+- MarketClassificationModel.md
+- FinancialMarketTaxonomy.md
 
-### Design
+---
 
-- EnterpriseDataDictionaryStandard.md
-- ReferenceDomainArchitecture.md
+# 18. Success Criteria
+
+The Knowledge-Driven Architecture is considered successful when:
+
+- Enterprise knowledge remains the authoritative source of architectural truth.
+- Business terminology is consistent throughout the repository.
+- Every architectural artifact is traceable to documented knowledge.
+- Business capabilities evolve without semantic inconsistencies.
+- New financial markets can be supported through knowledge extension rather than architectural redesign.
+- Artificial Intelligence capabilities are grounded in governed enterprise knowledge.
+- Repository evolution preserves enterprise knowledge integrity.
+- Architectural decisions remain aligned with the enterprise knowledge model.
 
 ---
 
@@ -340,4 +527,9 @@ This document is classified as an Architecture Vision artifact.
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.0 | 2026-07-08 | Initial Knowledge Driven Architecture vision document. |
+| 1.0 | 2026-07-08 | Initial Knowledge Driven Architecture document. |
+| 2.0 | 2026-07-17 | Complete enterprise rewrite aligned with the Capability-Centric repository architecture, Enterprise Knowledge model, Service-Oriented Architecture, Canonical Domain Architecture, and Canonical Data Architecture. |
+
+---
+
+**End of Document**

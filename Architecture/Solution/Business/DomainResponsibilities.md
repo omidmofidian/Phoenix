@@ -3,200 +3,451 @@
 | Property | Value |
 |----------|-------|
 | Project | Phoenix Platform |
-| Artifact ID | KNW-001 |
+| Artifact ID | DOM-002 |
 | Document | DomainResponsibilities |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
 | Classification | Enterprise Business Architecture |
-| Owner | Enterprise Architecture |
-| Depends On | CanonicalDomainModel, CanonicalServiceCatalog, ServiceContextMap |
-| Last Updated | 2026-07-09 |
+| Architecture Layer | Business Architecture |
+| Owner | Architecture Team |
+| Depends On | BusinessCapabilityMap.md, DomainModel.md |
+| Consumed By | ServiceContextMap.md, CanonicalServiceCatalog.md, AggregateCatalog.md, AggregateDefinitions.md |
+| Last Updated | 2026-07-17 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical business responsibilities of each enterprise domain.
+This document defines the canonical business responsibilities of every enterprise domain within the Phoenix Platform.
 
-It establishes clear ownership boundaries, business capabilities and interaction rules to ensure a consistent Domain-Driven Design architecture.
+Its primary objective is to establish explicit business ownership boundaries, eliminate responsibility overlap, and provide the authoritative source for assigning business capabilities, aggregates, entities, and services to enterprise domains.
 
----
-
-# 2. Domain Responsibility Matrix
-
-| Domain | Primary Responsibility | Owns Business Data | Publishes Information | Consumes Information |
-|----------|-----------------------|--------------------|-----------------------|----------------------|
-| Reference | Enterprise reference data | Yes | Yes | No |
-| Core | Enterprise master business entities | Yes | Yes | Yes |
-| Market | Market observations and trading information | Yes | Yes | Yes |
-| Integration | External provider integration and identity mapping | No | Yes | Yes |
-| Audit | Audit trail and domain events | Yes | Yes | Yes |
-| Configuration | Runtime configuration | Yes | Yes | No |
-| Reporting | Read-only analytical projections | Yes (Derived) | Yes | Yes |
+The responsibility model defined in this document is independent of software implementation, database technologies, deployment architecture, and organizational structure.
 
 ---
 
-# 3. Responsibilities
+# 2. Architectural Position
 
-## 3.1 Reference Domain
+Domain Responsibilities translate the Enterprise Domain Model into explicit business ownership.
+
+```text
+Business Capability Map
+        │
+        ▼
+Domain Model
+        │
+        ▼
+Domain Responsibilities
+        │
+        ├──────────────┐
+        ▼              ▼
+Aggregate Ownership    Service Ownership
+        │              │
+        └──────┬───────┘
+               ▼
+Enterprise Data Architecture
+```
+
+Every aggregate, business entity, service, and database object shall ultimately inherit its ownership from the responsibilities defined in this document.
+
+---
+
+# 3. Responsibility Principles
+
+The responsibility model follows the principles below.
+
+## DRP-001 — Explicit Ownership
+
+Every business responsibility shall belong to exactly one enterprise domain.
+
+---
+
+## DRP-002 — No Responsibility Overlap
+
+Business domains shall never share ownership of the same business capability.
+
+---
+
+## DRP-003 — Stable Responsibilities
+
+Business responsibilities shall evolve significantly more slowly than implementation technologies.
+
+---
+
+## DRP-004 — Capability Alignment
+
+Every business responsibility shall support one or more approved business capabilities.
+
+---
+
+## DRP-005 — Service Alignment
+
+Enterprise services shall implement responsibilities owned by their corresponding business domain.
+
+---
+
+# 4. Enterprise Responsibility Matrix
+
+| Domain | Primary Responsibility | Business Ownership | Publishes Information | Consumes Information |
+|---------|------------------------|-------------------|----------------------|----------------------|
+| Reference Domain | Enterprise reference information | Yes | Yes | No |
+| Market Domain | Market structure and historical market information | Yes | Yes | Yes |
+| Core Business Domain | Investment intelligence and business analysis | Yes | Yes | Yes |
+| Configuration Domain | Runtime behavior and configuration | Yes | Yes | No |
+| Reporting Domain | Analytical presentation and reporting | Derived Only | Yes | Yes |
+| Integration Domain | External communication and synchronization | No | Yes | Yes |
+| Audit Domain | Enterprise auditability and traceability | Yes | Yes | Yes |
+
+---
+
+# 5. Enterprise Domain Responsibilities
+
+## 5.1 Reference Domain
 
 ### Mission
 
-Provide stable enterprise reference data.
+The Reference Domain establishes and maintains the canonical enterprise reference information shared across the entire Phoenix Platform.
+
+It defines the business vocabulary, classification systems, and master reference structures upon which every operational domain depends.
+
+### Primary Responsibilities
+
+- Exchange Management
+- Market Management
+- Trading Board Management
+- Industry Classification
+- Sector Classification
+- Instrument Type Classification
+- Trading Calendar Management
+- Currency Management
+- Country Management
+- Enterprise Taxonomies
 
 ### Owns
 
 - Exchange
-- Trading Board
-- Sector
+- Market
+- Board
 - Industry
-- Trading Calendar
+- Sector
+- InstrumentType
+- TradingCalendar
 - Currency
 - Country
 
-### Rules
+### Business Rules
 
-- Independent.
-- Shared by all operational domains.
-- Business identifiers remain immutable.
+- Owns all enterprise reference data.
+- Provides shared business definitions.
+- Shall not depend on operational domains.
+- Business identifiers remain stable and immutable whenever practical.
 
 ---
 
-## 3.2 Core Domain
+## 5.2 Market Domain
 
 ### Mission
 
-Manage enterprise master business entities.
+The Market Domain manages the structure of financial markets and preserves historical market information.
+
+It owns the enterprise representation of companies, tradable instruments, historical observations, and corporate events.
+
+### Primary Responsibilities
+
+- Company Management
+- Financial Instrument Management
+- Historical Market Data
+- Corporate Actions
+- Financial Statements
+- Market Events
 
 ### Owns
 
 - Company
-- Instrument
-- Instrument Listing
+- FinancialInstrument
+- DailyMarketData
+- CorporateAction
+- FinancialStatement
 
-### Rules
+### Business Rules
 
-- Depends only on Reference.
-- Owns enterprise identity.
+- Depends only on the Reference Domain.
+- Historical market observations are immutable.
+- Does not redefine enterprise reference information.
+- Preserves historical business facts.
 
 ---
 
-## 3.3 Market Domain
+## 5.3 Core Business Domain
 
 ### Mission
 
-Capture market activity.
+The Core Business Domain transforms validated market information into investment knowledge and decision-support information.
+
+This domain represents the primary analytical capabilities of the Phoenix Platform.
+
+### Primary Responsibilities
+
+- Technical Indicators
+- Feature Engineering
+- Quantitative Analysis
+- Investment Scoring
+- Strategy Definition
+- Portfolio Evaluation
+- Risk Assessment
+- Decision Support
 
 ### Owns
 
-- Daily Market Data
-- Corporate Action
+- IndicatorDefinition
+- IndicatorResult
+- FeatureDefinition
+- FeatureValue
+- Strategy
+- OpportunityScore
+- Portfolio
+- RiskModel
 
-### Rules
+### Business Rules
 
-- Historical records are immutable.
-- Depends on Core and Reference.
+- Consumes information from the Market Domain.
+- Shall not modify historical market information.
+- Produces derived analytical information.
+- Maintains complete analytical traceability.
 
 ---
 
-## 3.4 Integration Domain
+## 5.4 Configuration Domain
 
 ### Mission
 
-Integrate external providers.
+The Configuration Domain controls configurable platform behavior while remaining independent of business ownership.
+
+### Primary Responsibilities
+
+- Runtime Configuration
+- Business Parameters
+- System Parameters
+- Environment Configuration
+- Feature Flags
+- Configuration Versioning
 
 ### Owns
 
-- Data Provider
-- External Identifier
-- Import Session
+- ConfigurationProfile
+- ConfigurationGroup
+- ConfigurationParameter
+- FeatureFlag
 
-### Rules
+### Business Rules
 
-- Does not own business entities.
-- Responsible for identifier mapping.
-- Isolates external systems.
+- Independent of operational domains.
+- Controls platform behavior only.
+- Does not own business processes.
+- Does not contain analytical data.
 
 ---
 
-## 3.5 Audit Domain
+## 5.5 Reporting Domain
 
 ### Mission
 
-Provide enterprise auditability.
+The Reporting Domain delivers enterprise reporting, dashboards, and analytical presentations.
+
+### Primary Responsibilities
+
+- Operational Reports
+- Executive Reports
+- Analytical Dashboards
+- Business Intelligence Views
+- Published Metrics
+- Reporting Snapshots
 
 ### Owns
 
-- Audit Session
-- Audit Event
+- ReportDefinition
+- Dashboard
+- ReportingDataset
+- ReportingSnapshot
 
-### Rules
+### Business Rules
 
-- Append-only.
-- Observational.
-- Independent from business logic.
+- Consumes information from operational domains.
+- Owns only reporting artifacts.
+- Shall never modify operational business information.
+- All reporting information is derived.
 
 ---
 
-## 3.6 Configuration Domain
+## 5.6 Integration Domain
 
 ### Mission
 
-Manage runtime configuration.
+The Integration Domain provides controlled communication between the Phoenix Platform and external systems while protecting the integrity of the enterprise business model.
+
+### Primary Responsibilities
+
+- External Market Data Providers
+- Broker Connectivity
+- Data Import
+- Data Export
+- External API Integration
+- Messaging Interfaces
+- Synchronization Services
+- External Identifier Mapping
 
 ### Owns
 
-- Configuration Group
-- Configuration Item
+- ExternalProvider
+- IntegrationEndpoint
+- ImportSession
+- ExportSession
+- ExternalIdentifier
 
-### Rules
+### Business Rules
 
-- Independent.
-- No business ownership.
+- Does not own enterprise business entities.
+- Shall isolate external systems from internal business domains.
+- Performs translation and mapping between external and canonical models.
+- All imported information shall be validated before entering operational domains.
 
 ---
 
-## 3.7 Reporting Domain
+## 5.7 Audit Domain
 
 ### Mission
 
-Provide analytical and reporting projections.
+The Audit Domain preserves enterprise accountability, traceability, and regulatory compliance across the entire platform.
+
+### Primary Responsibilities
+
+- Audit Logging
+- Business Event Recording
+- Security Event Recording
+- Change History
+- Data Lineage
+- Compliance Monitoring
+- Operational Traceability
 
 ### Owns
 
-- Report Definition
-- Report Snapshot
+- AuditSession
+- AuditEvent
+- ChangeHistory
+- SecurityEvent
 
-### Rules
+### Business Rules
 
-- Read-only.
-- Derived from operational domains.
-
----
-
-# 4. Responsibility Principles
-
-- Every business capability shall belong to exactly one domain.
-- Domain ownership shall never overlap.
-- Cross-domain collaboration shall occur through published interfaces.
-- Reporting shall never modify operational data.
-- Audit shall never own business workflows.
+- Operates independently of business workflows.
+- Records enterprise events without changing business state.
+- Audit information is append-only.
+- Complete traceability shall be maintained throughout the lifecycle of every business object.
 
 ---
 
-# 5. Traceability
+# 6. Cross-Domain Collaboration Principles
 
-| Artifact | Purpose |
-|----------|---------|
-| CanonicalDomainModel | Domain definitions |
-| AggregateCatalog | Aggregate ownership |
-| CanonicalServiceCatalog | Service alignment |
-| DomainDependencyMatrix | Dependency validation |
+Enterprise domains collaborate through explicit business responsibilities while preserving ownership boundaries.
+
+## DRC-001 — Single Business Ownership
+
+Every business capability, aggregate, and business entity shall belong to one—and only one—enterprise domain.
 
 ---
 
-# Revision History
+## DRC-002 — Explicit Information Publishing
+
+Domains publish business information without transferring business ownership.
+
+---
+
+## DRC-003 — Controlled Information Consumption
+
+Domains consume published information but shall not redefine or duplicate business ownership.
+
+---
+
+## DRC-004 — Derived Information
+
+Reporting and analytical domains may derive new information but shall never alter the original business facts.
+
+---
+
+## DRC-005 — Independent Support Domains
+
+Configuration, Integration, and Audit support operational domains without assuming ownership of their business processes.
+
+---
+
+# 7. Responsibility Traceability
+
+Every enterprise responsibility shall be traceable throughout the architecture.
+
+```text
+Business Capability
+        │
+        ▼
+Enterprise Domain
+        │
+        ▼
+Aggregate
+        │
+        ▼
+Business Entity
+        │
+        ▼
+Service
+        │
+        ▼
+Database Object
+        │
+        ▼
+Implementation
+```
+
+This traceability ensures consistency across the Business Architecture, Data Architecture, Service Architecture, and implementation layers.
+
+---
+
+# 8. Related Artifacts
+
+## Vision
+
+- PlatformArchitectureVision.md
+- ArchitectureVisionMap.md
+- KnowledgeDrivenArchitecture.md
+- ReferenceArchitecture.md
+
+## Business Architecture
+
+- BusinessCapabilityMap.md
+- DomainModel.md
+- ServiceContextMap.md
+
+## Domain Architecture
+
+- CanonicalDomainModel.md
+- AggregateCatalog.md
+- AggregateDefinitions.md
+- EntityCatalog.md
+- BoundedContextDefinition.md
+
+## Data Architecture
+
+- ConceptualModel.md
+- LogicalDatabaseModel.md
+- PhysicalDatabaseModel.md
+- EnterpriseDataDictionary.md
+
+---
+
+# 9. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial version |
+| 2026.1 | 2026-07-09 | Initial version. |
+| 2026.2 | 2026-07-18 | Complete enterprise rewrite aligned with the Business Capability Map, Domain Model, Platform Architecture Vision, Service-Oriented Architecture, and Enterprise Domain Ownership principles. |
+
+---
+
+**End of Document**

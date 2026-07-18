@@ -5,7 +5,7 @@
 | Artifact ID | ART-000 |
 | Project | Phoenix Platform |
 | Document | PlatformArchitectureVision |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
 | Classification | Enterprise Architecture |
 | Architecture Layer | Vision |
@@ -13,7 +13,7 @@
 | Sprint | Sprint 2 |
 | Depends On | Project Charter |
 | Consumed By | All Architecture Artifacts |
-| Last Updated | 2026-07-04 |
+| Last Updated | 2026-07-17 |
 
 ---
 
@@ -92,7 +92,7 @@ Phoenix is designed as:
 
 # 7. Service-Oriented Vision
 
-The Phoenix Platform is composed of independent business services.
+The Phoenix Platform is composed of autonomous business services aligned with bounded business capabilities.
 
 Each service owns a well-defined business capability and communicates with other services through explicit interfaces.
 
@@ -108,7 +108,7 @@ Business capabilities shall never be duplicated across services.
 
 Every service within Phoenix exists to implement a specific business capability.
 
-Examples include:
+Illustrative business capabilities include::
 
 - Market Data Management
 - Instrument Management
@@ -130,9 +130,9 @@ Business capabilities are considered stable architectural assets and shall evolv
 
 Phoenix is designed to support multiple financial markets using a unified business architecture.
 
-The platform shall initially support:
+The first implementation priority is the Iran Capital Market.
 
-- Iran Capital Market
+The enterprise architecture is designed to support additional financial markets without architectural redesign.
 
 Future expansion includes:
 
@@ -151,7 +151,7 @@ Support for additional markets shall require extension of existing business capa
 
 Artificial intelligence is considered a core analytical capability of the platform.
 
-AI services shall assist—not replace—business decision-making.
+AI services augment human and rule-based decision-making rather than replacing it.
 
 Artificial intelligence may be used for:
 
@@ -238,7 +238,7 @@ Changes affecting architectural structure require formal review.
 
 Repository organization shall remain stable.
 
-Documentation is considered part of the software product.
+Documentation is treated as a first-class architectural artifact and an integral part of the software product.
 
 Architectural traceability shall be maintained throughout the entire development lifecycle.
 
@@ -272,6 +272,21 @@ The architecture of Phoenix is considered successful when:
 - Artificial intelligence integrates naturally into analytical workflows.
 - Architectural traceability is preserved from business vision to implementation.
 - The platform remains maintainable for many years without significant structural changes.
+
+---
+
+# Related Artifacts
+
+This vision is elaborated through the following canonical architecture artifacts:
+
+- ProjectOverview.md
+- ArchitecturalPrinciples.md
+- QualityAttributes.md
+- ReferenceArchitecture.md
+- ArchitectureVisionMap.md
+- CanonicalServiceCatalog.md
+- ServiceContextMap.md
+- ADR Catalog
 
 ---
 

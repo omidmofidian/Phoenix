@@ -602,7 +602,23 @@ Repository compliance shall verify the following.
 
 ---
 
-# 21. Related Documents
+# 21. Repository Maturity
+
+| Capability | Status |
+|------------|--------|
+| Architecture | Complete |
+| Data | Complete |
+| Domain | Complete |
+| Knowledge | Complete |
+| Operations | Complete |
+| Platform | Complete |
+| Project | Complete |
+| Repository Governance | Complete |
+| Repository Certification | In Progress |
+| Software | Not Started |
+
+---
+# 22. Related Documents
 
 This document shall be used together with:
 
@@ -617,7 +633,7 @@ This document shall be used together with:
 
 ---
 
-# 22. Revision History
+# 23. Revision History
 
 | Version | Date | Description |
 |----------|------------|----------------------------------------------|
@@ -626,7 +642,7 @@ This document shall be used together with:
 
 ---
 
-# 23. Approval
+# 24. Approval
 
 This document defines the official repository structure of the Phoenix Platform.
 
