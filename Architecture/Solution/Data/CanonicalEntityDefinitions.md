@@ -3,471 +3,272 @@
 | Property | Value |
 |----------|-------|
 | Project | Phoenix Platform |
-| Artifact ID | ARC-ENT-001 |
+| Artifact ID | ENT-001 |
 | Document | CanonicalEntityDefinitions |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Architecture |
+| Classification | Enterprise Logical Data Architecture |
+| Architecture Layer | Enterprise Information Architecture |
 | Owner | Enterprise Architecture |
-| Depends On | CanonicalDomainModel, AggregateCatalog, EntityDictionary, CanonicalBusinessRules |
-| Last Updated | 2026-07-09 |
+| Repository Path | Architecture/Data/LogicalModel/CanonicalEntityDefinitions.md |
+| Depends On | CanonicalDomainModel, AggregateCatalog, AggregateDefinitions, BusinessGlossary, CanonicalBusinessRules |
+| Consumed By | LogicalDatabaseModel, CanonicalEnterpriseERD, EnterpriseRelationshipCatalog, EntityDictionary |
+| Approval Authority | Enterprise Architecture Board |
+| Last Updated | 2026-07-19 |
 
 ---
 
 # 1. Purpose
 
-This document provides the canonical architectural catalog of all enterprise entities within the Phoenix Platform.
+This document defines the canonical set of enterprise entities within the Phoenix Platform.
 
-It establishes the authoritative classification of business entities across all enterprise domains.
+It establishes the authoritative business identity, ownership, architectural classification, and lifecycle responsibility of every canonical entity participating in the Enterprise Information Model.
 
-This document defines entity ownership, business responsibility and architectural classification.
+This specification serves as the single architectural reference for entity ownership across all business domains and provides the foundation for logical data modeling, relationship analysis, aggregate validation, and physical database design.
 
-Detailed business definitions remain in the Entity Dictionary.
-
----
-
-# 2. Principles
-
-The following principles govern all enterprise entities.
-
-- Every Entity belongs to exactly one Domain.
-- Every Entity belongs to exactly one Aggregate.
-- Every Aggregate has exactly one Aggregate Root.
-- Every Entity has one authoritative business owner.
-- Business identity is independent of implementation technology.
-- Entity definitions are technology independent.
+Detailed business semantics, attributes, and implementation details are intentionally maintained in their respective authoritative artifacts.
 
 ---
 
-# 3. Domain Overview
+# 2. Scope
 
-| Domain | Purpose |
-|---------|---------|
-| Reference | Enterprise reference data |
-| Core | Core business entities |
-| Market | Historical market information |
-| Integration | External provider integration |
-| Audit | Enterprise audit and traceability |
-| Configuration | Enterprise business configuration |
-| Reporting | Reporting and analytical presentation |
+This specification defines:
 
----
+- Canonical enterprise entities
+- Domain ownership
+- Aggregate ownership
+- Aggregate Root identification
+- Entity classifications
+- Business responsibilities
+- Architectural constraints
+- Traceability to related architecture artifacts
 
-# 4. Canonical Entity Catalog
+This specification does not define:
 
-## 4.1 Reference Domain
-
-### Exchange
-
-**Purpose**
-
-Represents a regulated securities exchange.
-
-**Aggregate**
-
-Exchange
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reference Entity
+- Business attributes
+- Data types
+- Database tables
+- Keys and constraints
+- Physical storage
+- Service implementation
+- APIs
+- Persistence mechanisms
 
 ---
 
-### Trading Board
+# 3. Architectural Principles
 
-**Purpose**
+The Canonical Entity Definitions are governed by the following principles.
 
-Represents a trading board operated by an Exchange.
-
-**Aggregate**
-
-Trading Board
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reference Entity
+| Principle ID | Principle |
+|--------------|-----------|
+| ENT-001 | Every Entity belongs to exactly one Business Domain. |
+| ENT-002 | Every Entity belongs to exactly one Aggregate. |
+| ENT-003 | Every Aggregate has exactly one Aggregate Root. |
+| ENT-004 | Every Entity has one authoritative business owner. |
+| ENT-005 | Entity identity is independent of implementation technology. |
+| ENT-006 | Entity definitions represent business concepts only. |
+| ENT-007 | Entity ownership shall remain stable across architecture baselines. |
+| ENT-008 | Every Entity shall be traceable to approved architecture artifacts. |
 
 ---
 
-### Sector
+# 4. Enterprise Domain Overview
 
-**Purpose**
-
-Represents a business sector.
-
-**Aggregate**
-
-Sector
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reference Entity
+| Domain | Primary Responsibility | Entity Category |
+|---------|------------------------|-----------------|
+| Reference Domain | Enterprise reference information | Reference Entities |
+| Core Domain | Enterprise master business information | Master Entities |
+| Market Domain | Trading and market operational information | Transactional & Historical Entities |
+| Integration Domain | External system integration | Integration Entities |
+| Audit Domain | Enterprise traceability | Audit Entities |
+| Configuration Domain | Enterprise configuration | Configuration Entities |
+| Reporting Domain | Analytical presentation | Reporting Entities |
 
 ---
 
-### Industry
+# 5. Canonical Entity Catalog
 
-**Purpose**
+## 5.1 Reference Domain
 
-Represents an industry classification.
+The Reference Domain provides stable enterprise reference information shared across all business domains.
 
-**Aggregate**
-
-Industry
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reference Entity
-
----
-
-### Trading Calendar
-
-**Purpose**
-
-Defines official trading days and market sessions.
-
-**Aggregate**
-
-Trading Calendar
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reference Entity
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Exchange | Exchange | Yes | Reference Entity | Represents a regulated securities exchange. |
+| Trading Board | Exchange | No | Reference Entity | Represents a trading board operated by an Exchange. |
+| Market | Exchange | No | Reference Entity | Represents a securities market administered by an Exchange. |
+| Trading Calendar | Trading Calendar | Yes | Reference Entity | Defines official trading days and trading sessions. |
+| Trading Session | Trading Calendar | No | Reference Entity | Represents an individual trading session within a trading day. |
+| Country | Country | Yes | Reference Entity | Represents sovereign countries. |
+| Currency | Currency | Yes | Reference Entity | Represents supported monetary currencies. |
+| Time Zone | Country | No | Reference Entity | Represents official time zones associated with countries. |
+| Sector | Sector | Yes | Reference Entity | Represents the highest level of business sector classification. |
+| Industry | Sector | No | Reference Entity | Represents industry classifications within a business sector. |
+| Instrument Type | Instrument Type | Yes | Reference Entity | Represents supported financial instrument categories. |
+| Data Provider Type | Data Provider Type | Yes | Reference Entity | Classifies external market data providers. |
+| External Identifier Type | External Identifier Type | Yes | Reference Entity | Defines supported external identifier classifications. |
 
 ---
 
-# 4.2 Core Domain
+## 5.2 Core Domain
 
-### Company
+The Core Domain contains the principal business entities representing listed companies and tradable financial instruments.
 
-**Purpose**
-
-Represents a legal business entity.
-
-**Aggregate**
-
-Company
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Master Entity
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Company | Company | Yes | Master Entity | Represents a legal issuer or listed company. |
+| Instrument | Instrument | Yes | Master Entity | Represents a tradable financial instrument issued by a company. |
 
 ---
 
-### Instrument
+## 5.3 Market Domain
 
-**Purpose**
+The Market Domain manages listing information, historical market activity, and corporate events.
 
-Represents a tradable financial instrument.
-
-**Aggregate**
-
-Instrument
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Master Entity
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Instrument Listing | Instrument Listing | Yes | Transactional Entity | Represents the listing of an Instrument on a Trading Board. |
+| Daily Market Data | Instrument Listing | No | Historical Entity | Represents official daily trading statistics for an Instrument Listing. |
+| Corporate Action | Corporate Action | Yes | Historical Event | Represents corporate events affecting listed securities. |
 
 ---
 
-# 4.3 Market Domain
+## 5.4 Integration Domain
 
-### Instrument Listing
+The Integration Domain manages communication with external systems and maintains mappings between enterprise and external identifiers.
 
-**Purpose**
-
-Represents the listing of an Instrument on a Trading Board.
-
-**Aggregate**
-
-Instrument Listing
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Transactional Entity
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Data Provider | Data Provider | Yes | Integration Entity | Represents an external market data provider. |
+| External Identifier | External Identifier | Yes | Integration Entity | Maps enterprise entities to provider-specific identifiers. |
+| Import Session | Import Session | Yes | Operational Entity | Represents an enterprise data import execution. |
+| Import Batch | Import Session | No | Operational Entity | Represents a logical batch processed during an import session. |
 
 ---
 
-### Daily Market Data
+## 5.5 Audit Domain
 
-**Purpose**
+The Audit Domain provides enterprise-wide traceability and preserves immutable historical records.
 
-Represents official daily trading information.
-
-**Aggregate**
-
-Daily Market Data
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Historical Entity
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Audit Session | Audit Session | Yes | Audit Entity | Represents the execution context for audit activities. |
+| Audit Event | Audit Session | No | Audit Entity | Represents an immutable audit record generated by the platform. |
 
 ---
 
-### Corporate Action
+## 5.6 Configuration Domain
 
-**Purpose**
+The Configuration Domain manages enterprise configuration information.
 
-Represents official corporate events affecting an Instrument.
-
-**Aggregate**
-
-Corporate Action
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Historical Event
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Configuration Group | Configuration Group | Yes | Configuration Entity | Represents a logical grouping of configuration items. |
+| Configuration Item | Configuration Group | No | Configuration Entity | Represents an individual configurable enterprise parameter. |
 
 ---
 
-# 4.4 Integration Domain
+## 5.7 Reporting Domain
 
-### Data Provider
+The Reporting Domain provides analytical and reporting capabilities derived from enterprise business information.
 
-**Purpose**
-
-Represents an external source of enterprise information.
-
-**Aggregate**
-
-Data Provider
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reference Entity
+| Entity | Aggregate | Aggregate Root | Entity Type | Business Responsibility |
+|---------|-----------|----------------|-------------|-------------------------|
+| Report Definition | Report Definition | Yes | Reporting Entity | Represents a reusable enterprise report specification. |
+| Report Snapshot | Report Definition | No | Reporting Entity | Represents a generated immutable report instance. |
 
 ---
 
-### External Identifier
+# 6. Entity Classification Summary
 
-**Purpose**
+The Phoenix Platform Enterprise Information Model currently defines the following canonical entity categories.
 
-Maps enterprise entities to provider-specific identifiers.
-
-**Aggregate**
-
-External Identifier
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Integration Entity
-
----
-
-# 4.5 Audit Domain
-
-### Audit Session
-
-**Purpose**
-
-Represents a logical execution context.
-
-**Aggregate**
-
-Audit Session
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Audit Entity
+| Entity Category | Count | Description |
+|-----------------|------:|-------------|
+| Reference Entity | 13 | Stable enterprise reference information shared across business domains. |
+| Master Entity | 2 | Core enterprise business entities. |
+| Transactional Entity | 1 | Operational business entities participating in business processes. |
+| Historical Entity | 1 | Immutable historical business records. |
+| Historical Event | 1 | Business events affecting enterprise entities. |
+| Integration Entity | 2 | External system integration and identity mapping entities. |
+| Operational Entity | 2 | Operational entities supporting enterprise integration workflows. |
+| Audit Entity | 2 | Enterprise audit and traceability entities. |
+| Configuration Entity | 2 | Enterprise configuration entities. |
+| Reporting Entity | 2 | Reporting and analytical entities. |
 
 ---
 
-### Audit Event
+# 7. Architectural Constraints
 
-**Purpose**
+The following architectural constraints apply to every canonical entity.
 
-Represents an immutable enterprise audit record.
-
-**Aggregate**
-
-Audit Event
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Audit Entity
+| Constraint ID | Constraint |
+|---------------|------------|
+| ENT-CST-001 | Every Entity shall belong to exactly one Business Domain. |
+| ENT-CST-002 | Every Entity shall belong to exactly one Aggregate. |
+| ENT-CST-003 | Every Aggregate shall define exactly one Aggregate Root. |
+| ENT-CST-004 | Aggregate ownership shall never overlap. |
+| ENT-CST-005 | Aggregate boundaries shall remain stable across architecture baselines. |
+| ENT-CST-006 | Cross-Aggregate references shall occur only through Aggregate Root identifiers. |
+| ENT-CST-007 | Business identity shall remain independent of implementation technology. |
+| ENT-CST-008 | Entity definitions shall not depend on database implementation or programming languages. |
+| ENT-CST-009 | Every Entity shall remain traceable to approved architecture artifacts. |
 
 ---
 
-# 4.6 Configuration Domain
+# 8. Traceability
 
-### Configuration Group
+The Canonical Entity Definitions are derived from and validated against the following authoritative architectural artifacts.
 
-**Purpose**
-
-Represents a logical collection of enterprise configuration items.
-
-**Aggregate**
-
-Configuration Group
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Configuration Entity
-
----
-
-### Configuration Item
-
-**Purpose**
-
-Represents a configurable enterprise parameter.
-
-**Aggregate**
-
-Configuration Item
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Configuration Entity
-
----
-
-# 4.7 Reporting Domain
-
-### Report Definition
-
-**Purpose**
-
-Represents a reusable enterprise report specification.
-
-**Aggregate**
-
-Report Definition
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reporting Entity
-
----
-
-### Report Snapshot
-
-**Purpose**
-
-Represents an immutable generated report instance.
-
-**Aggregate**
-
-Report Snapshot
-
-**Aggregate Root**
-
-Yes
-
-**Entity Type**
-
-Reporting Entity
-
----
-
-# 5. Entity Classification Summary
-
-| Entity Type | Entities |
-|-------------|----------|
-| Reference Entity | Exchange, Trading Board, Sector, Industry, Trading Calendar, Data Provider |
-| Master Entity | Company, Instrument |
-| Transactional Entity | Instrument Listing |
-| Historical Entity | Daily Market Data |
-| Historical Event | Corporate Action |
-| Integration Entity | External Identifier |
-| Audit Entity | Audit Session, Audit Event |
-| Configuration Entity | Configuration Group, Configuration Item |
-| Reporting Entity | Report Definition, Report Snapshot |
-
----
-
-# 6. Architectural Constraints
-
-The following constraints apply to every enterprise entity.
-
-- Every Entity belongs to exactly one Domain.
-- Every Entity belongs to exactly one Aggregate.
-- Aggregate Roots own their Aggregate.
-- Cross-domain access occurs only through Aggregate Roots.
-- Business identifiers remain immutable.
-- Enterprise identifiers remain authoritative.
-
----
-
-# 7. Traceability
-
-| Artifact | Purpose |
-|----------|---------|
+| Source Artifact | Purpose |
+|-----------------|---------|
+| BusinessGlossary | Canonical business terminology |
+| CanonicalBusinessConcepts | Business concepts |
+| CanonicalBusinessRules | Enterprise business rules |
 | CanonicalDomainModel | Domain ownership |
 | AggregateCatalog | Aggregate ownership |
-| EntityDictionary | Detailed entity definitions |
-| EnterpriseRelationshipCatalog | Entity relationships |
-| EnterpriseRelationshipMatrix | Cardinality |
-| CanonicalBusinessRules | Business constraints |
+| AggregateDefinitions | Aggregate responsibilities |
+| EnterpriseRelationshipCatalog | Approved business relationships |
+| EnterpriseRelationshipMatrix | Relationship validation |
+| BusinessConstraintMatrix | Business constraints |
+| CanonicalEnterpriseERD | Enterprise logical representation |
+| EntityDictionary | Detailed business definitions |
+| AttributeCatalog | Enterprise attribute catalog |
+
+---
+
+# 9. Governance
+
+The Canonical Entity Definitions constitute an Enterprise Architecture Baseline artifact.
+
+Any modification to this specification shall require:
+
+- Architecture Review
+- Domain Impact Analysis
+- Aggregate Boundary Validation
+- Enterprise Relationship Validation
+- Architecture Board Approval
+- Repository Baseline Update (if applicable)
+
+---
+
+# 10. Related Artifacts
+
+This document should be used together with:
+
+- CanonicalDomainModel
+- AggregateCatalog
+- AggregateDefinitions
+- AggregateBoundaryValidation
+- EnterpriseRelationshipCatalog
+- EnterpriseRelationshipMatrix
+- BusinessConstraintMatrix
+- CanonicalEnterpriseERD
+- LogicalDomainModels
+- EntityDictionary
+- AttributeCatalog
+- AttributeDictionary
 
 ---
 
@@ -475,4 +276,5 @@ The following constraints apply to every enterprise entity.
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial enterprise canonical entity catalog |
+| 2026.1 | 2026-07-09 | Initial version. |
+| 2026.2 | 2026-07-19 | Repository-wide architecture refactoring. Standardized metadata, governance model, traceability, entity catalog structure, architectural constraints, and alignment with the canonical enterprise architecture baseline. |

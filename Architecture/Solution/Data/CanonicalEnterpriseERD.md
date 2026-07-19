@@ -5,296 +5,373 @@
 | Project | Phoenix Platform |
 | Artifact ID | ERD-005 |
 | Document | CanonicalEnterpriseERD |
+| Title | Canonical Enterprise Entity Relationship Diagram |
 | Version | 2026.1 |
 | Status | Approved |
 | Classification | Enterprise Logical Data Architecture |
-| Owner | Enterprise Architecture |
-| Phase | Stage 9 — Canonical Enterprise ERD |
-| Depends On | ERD-001, ERD-002, ERD-003, ERD-004 |
-| Last Updated | 2026-07-09 |
+| Architecture Layer | Data Architecture |
+| Architecture Style | Domain-Driven Design (DDD) |
+| Owner | Enterprise Architecture Team |
+| Repository Path | Architecture/Data/ERD/CanonicalEnterpriseERD.md |
+| Depends On | CanonicalDomainModel, AggregateCatalog, AggregateAttributeMatrix, AggregateDependencyMatrix, BusinessConstraintMatrix, DomainDependencyMatrix, EnterpriseRelationshipCatalog, EnterpriseRelationshipMatrix, CardinalityMatrix |
+| Consumed By | LogicalDatabaseModel, PhysicalDatabaseModel, CanonicalEnterpriseERD.drawio, CanonicalEnterpriseERD.svg, Database Implementation |
+| Last Updated | 2026-07-19 |
 
 ---
 
 # 1. Purpose
 
-This document defines the Canonical Enterprise Entity Relationship Diagram (ERD) for the Phoenix Platform.
+The Canonical Enterprise Entity Relationship Diagram (ERD) defines the authoritative logical representation of business entities and their relationships across the Phoenix Platform.
 
-The Canonical Enterprise ERD represents the official logical information model of the platform and serves as the architectural baseline for all future physical database models.
+It serves as the enterprise-wide logical data architecture baseline from which all subsequent database models, service contracts, integration mappings, and implementation artifacts are derived.
 
-This document defines the governing principles, modeling conventions, architectural constraints and traceability rules for the enterprise logical data model.
+The Canonical Enterprise ERD integrates all approved business domains into a single, technology-independent logical model while preserving Domain-Driven Design (DDD) principles, Aggregate boundaries, Domain ownership, and enterprise business semantics.
 
-It intentionally avoids duplicating business definitions that are maintained in their authoritative source artifacts.
-
----
-
-# 2. Scope
-
-This specification applies to every logical entity participating in the Phoenix Enterprise Architecture.
-
-It governs:
-
-- Domain representation
-- Aggregate representation
-- Entity representation
-- Relationship representation
-- Cardinality representation
-- Cross-domain dependencies
-- Aggregate boundaries
-- Enterprise traceability
-
-This document is technology independent.
+This specification intentionally excludes implementation-specific details such as database objects, storage mechanisms, indexing strategies, and physical optimization techniques.
 
 ---
 
-# 3. Objectives
+# 2. Objectives
 
-The Canonical Enterprise ERD shall:
+The objectives of the Canonical Enterprise ERD are to:
 
-- represent the complete enterprise logical information model;
-- provide a consistent view across all business domains;
-- preserve Domain-Driven Design principles;
-- establish the baseline for physical database design;
-- ensure architectural consistency across future releases.
+- establish the official logical information model for the Phoenix Platform;
+- provide a unified enterprise-wide representation of business entities;
+- preserve Domain and Aggregate ownership boundaries;
+- validate approved business relationships and cardinalities;
+- ensure consistency across all logical data models;
+- provide traceability to business architecture artifacts;
+- serve as the architectural baseline for physical database design;
+- support future architectural evolution while maintaining backward compatibility.
 
 ---
 
-# 4. Design Principles
+# 3. Scope
 
-The Canonical Enterprise ERD is governed by the following principles.
+This specification governs the logical representation of all enterprise business entities participating in the Phoenix Platform.
 
-## DP-001 Business First
+The scope includes:
 
-The model represents business concepts rather than implementation details.
+- Business Domains
+- Aggregates
+- Aggregate Roots
+- Canonical Business Entities
+- Approved Relationships
+- Relationship Cardinalities
+- Cross-Domain Dependencies
+- Aggregate Boundaries
+- Enterprise Traceability
 
-## DP-002 Technology Neutral
+This specification does not define:
 
-The model shall not depend on PostgreSQL, ORM frameworks or programming languages.
+- Physical database schemas
+- Database tables
+- Columns
+- Data types
+- Keys
+- Constraints
+- Indexes
+- Database performance optimization
+- Service implementation
+- API contracts
 
-## DP-003 Canonical Representation
+---
 
-Every business entity shall appear only once.
+# 4. Architectural Principles
 
-## DP-004 Single Source of Truth
+The Canonical Enterprise ERD follows the architectural principles defined by the Phoenix Architecture Baseline.
 
-Business definitions shall remain in their authoritative artifacts.
+## ERD-001 — Business First
 
-This document references those artifacts rather than duplicating them.
+The ERD represents business concepts rather than implementation structures.
 
-## DP-005 Domain Ownership
+---
 
-Every entity belongs to exactly one Domain.
+## ERD-002 — Technology Independence
 
-## DP-006 Aggregate Ownership
+The model shall remain independent of PostgreSQL, ORM frameworks, programming languages, and infrastructure technologies.
 
-Every entity belongs to exactly one Aggregate.
+---
 
-## DP-007 Aggregate Boundary Preservation
+## ERD-003 — Canonical Representation
 
-Aggregate boundaries shall not be violated.
+Each business entity shall appear exactly once within the enterprise logical model.
 
-## DP-008 Explicit Relationships
+---
+
+## ERD-004 — Domain Ownership
+
+Every business entity shall belong to exactly one Business Domain.
+
+---
+
+## ERD-005 — Aggregate Ownership
+
+Every business entity shall belong to exactly one Aggregate.
+
+---
+
+## ERD-006 — Aggregate Boundary Preservation
+
+Relationships shall never violate approved Aggregate boundaries.
+
+---
+
+## ERD-007 — Explicit Relationships
 
 Every relationship shall be explicitly defined and validated.
 
-## DP-009 Explicit Cardinality
+---
 
-Every relationship shall define its approved cardinality.
+## ERD-008 — Explicit Cardinality
 
-## DP-010 Traceability
-
-Every modeled element shall be traceable to approved architectural artifacts.
+Every relationship shall define an approved business cardinality.
 
 ---
 
-# 5. Architectural Scope
+## ERD-009 — Enterprise Traceability
 
-The Canonical Enterprise ERD includes:
-
-- Reference Domain
-- Core Domain
-- Market Domain
-- Integration Domain
-- Configuration Domain
-- Reporting Domain
-- Audit Domain
+Every element appearing in the ERD shall be traceable to approved enterprise architecture artifacts.
 
 ---
 
-# 6. Source Artifacts
+# 5. Architectural Context
 
-The Canonical Enterprise ERD is derived from the following authoritative artifacts.
+The Canonical Enterprise ERD represents the logical integration point between Business Architecture and Data Architecture.
+
+It consolidates the approved logical structures originating from multiple architecture artifacts while preserving ownership, consistency boundaries, and enterprise semantics.
+
+The ERD acts as the authoritative logical model used throughout the Architecture-First development lifecycle.
+
+---
+
+# 6. Enterprise Architecture Coverage
+
+The Canonical Enterprise ERD integrates the logical entities of all approved business domains within the Phoenix Platform.
+
+The current architecture baseline includes the following domains:
+
+| Domain | Description |
+|----------|-------------|
+| Reference Domain | Enterprise reference and master data |
+| Core Domain | Core business entities and market participants |
+| Market Domain | Market structure, listings and trading data |
+| Integration Domain | External providers and identifier mappings |
+| Configuration Domain | Platform configuration and system settings |
+| Audit Domain | Enterprise audit and operational traceability |
+| Reporting Domain | Analytical and reporting structures |
+
+Future architecture baselines may introduce additional business domains while preserving backward architectural compatibility.
+
+---
+
+# 7. Source Architecture Artifacts
+
+The Canonical Enterprise ERD is derived exclusively from approved enterprise architecture artifacts.
 
 | Artifact | Purpose |
 |----------|---------|
-| BusinessGlossary | Business terminology |
-| CanonicalBusinessConcepts | Canonical concepts |
-| CanonicalBusinessRules | Business rules |
-| AggregateCatalog | Aggregate definitions |
-| CanonicalEntityDefinitions | Entity definitions |
+| CanonicalDomainModel | Enterprise business structure |
+| AggregateCatalog | Aggregate ownership |
+| AggregateDefinitions | Aggregate responsibilities |
+| AggregateAttributeMatrix | Aggregate attribute allocation |
 | AttributeCatalog | Enterprise attributes |
-| AttributeDictionary | Attribute metadata |
-| EnterpriseRelationshipCatalog | Relationship definitions |
+| AttributeDictionary | Attribute definitions |
+| EnterpriseRelationshipCatalog | Approved business relationships |
 | EnterpriseRelationshipMatrix | Relationship mapping |
-| CardinalityMatrix | Relationship cardinalities |
-| BusinessConstraintMatrix | Business constraints |
-| Domain Logical Models | Domain ownership |
+| CardinalityMatrix | Relationship multiplicity |
 | AggregateDependencyMatrix | Aggregate dependencies |
 | DomainDependencyMatrix | Domain dependencies |
+| BusinessConstraintMatrix | Business constraints |
+| CanonicalBusinessRules | Enterprise business rules |
+| Domain Logical Models | Domain-specific logical structures |
+
+These artifacts collectively constitute the authoritative source from which the Canonical Enterprise ERD is produced.
 
 ---
 
-# 7. Representation Rules
+# 8. Representation Standards
 
-The diagram shall represent only:
+The Canonical Enterprise ERD shall represent only approved logical architecture elements.
 
-- Domains
+## Included Elements
+
+The following elements are represented:
+
+- Business Domains
 - Aggregates
-- Canonical Entities
-- Approved Relationships
-- Approved Cardinalities
+- Aggregate Roots
+- Canonical Business Entities
+- Approved Business Relationships
+- Relationship Cardinalities
+- Aggregate Boundaries
+- Cross-Domain Relationships
 
-The following shall not appear:
+---
 
+## Excluded Elements
+
+The following implementation artifacts shall not appear in the logical ERD:
+
+- Database Schemas
+- Tables
+- Columns
+- Data Types
+- Primary Keys
+- Foreign Keys
+- Check Constraints
+- Indexes
 - Value Objects
 - Domain Events
 - Services
 - Repositories
+- APIs
 - Infrastructure Components
-- Database Objects
-- Indexes
-- Foreign Keys
-- Audit Columns
-- Physical Constraints
-- Derived Attributes
+- Physical Storage Objects
 
 ---
 
-# 8. Diagram Conventions
+# 9. Diagram Conventions
 
-The ERD shall follow these conventions.
+The Canonical Enterprise ERD follows a standardized enterprise notation to ensure readability and architectural consistency.
 
-## Domains
+| Element | Representation |
+|----------|----------------|
+| Domain | Logical ownership boundary |
+| Aggregate | Consistency boundary |
+| Aggregate Root | Primary business entity of an Aggregate |
+| Entity | Canonical business entity |
+| Relationship | Approved business association |
+| Cardinality | Business multiplicity |
+| Cross-Domain Relationship | Explicit dependency between Domains |
 
-Represent logical ownership.
-
-## Aggregates
-
-Represent consistency boundaries.
-
-## Entities
-
-Represent canonical business entities.
-
-## Relationships
-
-Represent approved business associations.
-
-## Cardinalities
-
-Represent approved multiplicity only.
+Only approved business relationships shall appear in the published ERD.
 
 ---
 
-# 9. Diagram Legend
+# 10. Diagram Legend
 
 | Symbol | Meaning |
-|---------|---------|
-| Rectangle | Entity |
-| Grouping | Aggregate |
-| Boundary | Domain |
-| Solid Line | Business Relationship |
+|----------|---------|
+| Rectangle | Canonical Entity |
+| Group Container | Aggregate Boundary |
+| Domain Boundary | Business Domain |
+| Solid Line | Approved Business Relationship |
+| Dashed Line | Cross-Domain Relationship |
 | 1 | Exactly One |
-| 0..1 | Optional |
+| 0..1 | Zero or One |
 | 1..* | One or Many |
 | 0..* | Zero or Many |
 
----
-
-# 10. Canonical Enterprise ERD
-
-The logical Enterprise ERD is maintained as the authoritative enterprise diagram.
-
-Supporting files:
-
-- CanonicalEnterpriseERD.drawio
-- CanonicalEnterpriseERD.svg
-
-The published diagram forms an integral part of this specification.
+The notation defined above shall be applied consistently across all enterprise logical diagrams published within the Phoenix Platform repository.
 
 ---
 
-# 11. Design Constraints
+# 11. Architectural Constraints
 
-The following architectural constraints are mandatory.
+The Canonical Enterprise ERD shall comply with the following enterprise architectural constraints.
 
-- Every entity shall belong to exactly one Aggregate.
-- Every Aggregate shall belong to exactly one Domain.
-- Aggregate boundaries shall remain stable.
-- Circular Aggregate dependencies are prohibited.
-- Circular Domain dependencies are prohibited unless explicitly approved.
-- Cross-domain relationships shall remain intentional and documented.
-- Every relationship shall satisfy approved business constraints.
+| Constraint ID | Constraint |
+|---------------|------------|
+| ERD-001 | Every Entity shall belong to exactly one Aggregate. |
+| ERD-002 | Every Aggregate shall belong to exactly one Domain. |
+| ERD-003 | Every Aggregate shall define exactly one Aggregate Root. |
+| ERD-004 | Aggregate boundaries shall not be violated by internal relationships. |
+| ERD-005 | Cross-Aggregate relationships shall reference Aggregate Roots only. |
+| ERD-006 | Circular Aggregate dependencies are prohibited. |
+| ERD-007 | Circular Domain dependencies are prohibited unless explicitly approved by an Architecture Decision Record (ADR). |
+| ERD-008 | Every relationship shall comply with the approved Cardinality Matrix. |
+| ERD-009 | Every relationship shall comply with the approved Business Constraint Matrix. |
+| ERD-010 | Domain ownership shall remain stable throughout the enterprise baseline. |
+| ERD-011 | The logical model shall remain independent of implementation technologies. |
+| ERD-012 | Every modeled element shall be traceable to its authoritative architecture artifact. |
 
 ---
 
-# 12. Traceability
+# 12. Enterprise Traceability
 
-Every element appearing in the ERD shall be traceable to approved architectural artifacts.
+Every component represented within the Canonical Enterprise ERD shall be traceable to an approved enterprise architecture artifact.
 
-| ERD Element | Source Artifact |
-|------------|-----------------|
-| Domain | Domain Logical Model |
+| ERD Element | Authoritative Artifact |
+|--------------|-----------------------|
+| Business Domain | CanonicalDomainModel |
 | Aggregate | AggregateCatalog |
-| Entity | CanonicalEntityDefinitions |
-| Attribute | AttributeDictionary |
-| Relationship | EnterpriseRelationshipCatalog |
+| Aggregate Root | AggregateDefinitions |
+| Canonical Entity | Domain Logical Models |
+| Business Attribute | AttributeCatalog / AttributeDictionary |
+| Business Relationship | EnterpriseRelationshipCatalog |
+| Relationship Mapping | EnterpriseRelationshipMatrix |
 | Cardinality | CardinalityMatrix |
-| Constraint | BusinessConstraintMatrix |
+| Aggregate Dependency | AggregateDependencyMatrix |
+| Domain Dependency | DomainDependencyMatrix |
+| Business Constraint | BusinessConstraintMatrix |
+| Business Rule | CanonicalBusinessRules |
+
+This traceability model guarantees that the ERD remains synchronized with the enterprise architecture baseline and avoids duplicated business definitions.
 
 ---
 
-# 13. Baseline Relationship
+# 13. Enterprise Baseline Governance
 
-This document is part of:
+The Canonical Enterprise ERD is governed as part of the Phoenix Enterprise Architecture Baseline.
 
-Enterprise Architecture Baseline
+| Property | Value |
+|----------|-------|
+| Baseline | EA-BL-2026-01 |
+| Architecture Layer | Enterprise Logical Data Architecture |
+| Governance Authority | Enterprise Architecture Board |
+| Change Control | Architecture Review Process |
+| Approval Requirement | Architecture Board Approval |
+| Repository Status | Canonical Artifact |
 
-EA-BL-2026-01
-
-Any modification requires:
-
-- Architecture Review
-- Validation
-- Approval
-- New Baseline (if applicable)
+Any modification to the Canonical Enterprise ERD shall follow the approved architecture governance process and shall remain fully traceable.
 
 ---
 
 # 14. Future Evolution
 
-Future Enterprise Architecture Baselines may extend the ERD by introducing:
+Future architecture baselines may extend the Canonical Enterprise ERD through:
 
-- Additional Domains
-- Additional Aggregates
+- Additional Business Domains
+- New Aggregate Definitions
 - Additional Canonical Entities
-- Additional Relationships
+- New Enterprise Relationships
+- Extended Business Constraints
+- New Attribute Standards
+- Additional Enterprise Reference Data
 
-Extensions shall preserve backward architectural compatibility whenever possible.
+Future extensions shall preserve:
+
+- Domain ownership
+- Aggregate boundaries
+- Business semantics
+- Enterprise traceability
+- Backward architectural compatibility
+
+Breaking architectural changes require a new approved Enterprise Architecture Baseline.
 
 ---
 
 # 15. Approval
 
-The Canonical Enterprise ERD Specification is approved as the official logical data architecture specification for the Phoenix Platform.
+The Canonical Enterprise ERD Specification is approved as the authoritative logical data architecture specification of the Phoenix Platform.
 
-Status
+Approval of this specification confirms that:
 
-**APPROVED**
+- the enterprise logical information model is complete;
+- domain ownership is validated;
+- aggregate boundaries are preserved;
+- business relationships are approved;
+- enterprise constraints are satisfied;
+- traceability to all governing architecture artifacts has been established.
+
+**Status:** APPROVED
 
 ---
 
 # Revision History
 
-| Version | Date | Description |
-|----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial Canonical Enterprise ERD Specification. |
+| Version | Date | Description | Author |
+|----------|------------|----------------------------------------------|------------------------|
+| 2026.1 | 2026-07-09 | Initial release of the Canonical Enterprise ERD Specification. | Enterprise Architecture Team |
+| 2026.2 | 2026-07-19 | Repository-wide architectural standardization, metadata normalization, governance alignment, traceability enhancement, and document restructuring. | Enterprise Architecture Team |

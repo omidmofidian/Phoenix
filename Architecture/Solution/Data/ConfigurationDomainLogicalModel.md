@@ -5,209 +5,310 @@
 | Project | Phoenix Platform |
 | Artifact ID | LDM-006 |
 | Document | ConfigurationDomainLogicalModel |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Logical Data Model |
-| Owner | Architecture Team |
-| Depends On | ReferenceDomainLogicalModel, CoreDomainLogicalModel, MarketDomainLogicalModel, IntegrationDomainLogicalModel, CanonicalBusinessRules |
-| Last Updated | 2026-07-09 |
+| Classification | Enterprise Logical Data Architecture |
+| Architecture Layer | Logical Data Architecture |
+| Owner | Enterprise Architecture |
+| Repository | Phoenix Platform Repository |
+| Architecture Style | Domain-Driven Design (DDD) |
+| Depends On | ConceptualDatabaseModel, CanonicalDomainModel, AggregateCatalog, CanonicalEntityDefinitions, CanonicalBusinessRules, ReferenceDomainLogicalModel |
+| Consumed By | LogicalDatabaseModel, PhysicalDatabaseModel, EnterpriseRelationshipMatrix, CanonicalEnterpriseERD |
+| Phase | Enterprise Data Architecture |
+| Sprint | Sprint 2 |
+| Last Updated | 2026-07-19 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical logical representation of the Configuration Domain within the Phoenix Platform.
+The **Configuration Domain Logical Model** defines the canonical logical structure of the Configuration Domain within the Phoenix Platform Enterprise Architecture.
 
-The Configuration Domain manages enterprise configuration required by business services and analytical processes. It centralizes configurable business parameters while keeping application code independent of implementation-specific settings.
+This document establishes the logical representation of enterprise configuration information that supports configurable business behavior while remaining independent of implementation technologies, programming languages, database platforms, deployment models and infrastructure components.
 
-This model is technology independent and serves as the logical foundation for enterprise configuration management.
+The Configuration Domain centralizes enterprise configuration required by business capabilities, analytical processes and platform services while preserving governance, consistency, traceability and architectural integrity.
+
+This specification serves as the authoritative logical foundation for all configuration-related data structures and provides the basis for subsequent logical and physical database design.
+
+Implementation details are intentionally excluded from this document.
 
 ---
 
 # 2. Scope
 
-## Included Aggregates
+This document defines the logical architecture of the Configuration Domain and includes:
 
-- Configuration Group
-- Configuration Item
+- Configuration Aggregates
+- Configuration Entities
+- Logical Responsibilities
+- Business Identifiers
+- Cross-Domain Relationships
+- Domain Constraints
+- Domain Invariants
+- Enterprise Traceability
 
-## Excluded Aggregates
+The following topics are intentionally excluded from this document:
 
-- Infrastructure configuration
+- Physical database schemas
+- Database tables
+- Columns
+- Primary Keys
+- Foreign Keys
+- Indexes
+- Database constraints
+- Application configuration files
 - Docker configuration
-- PostgreSQL configuration
+- Infrastructure configuration
 - Operating system configuration
-- Application source code
+- Runtime implementation details
 
 ---
 
-# 3. Architectural Role
+# 3. Architectural Context
 
-The Configuration Domain is a supporting domain responsible for managing configurable business behavior.
+The Configuration Domain is a **Supporting Domain** within the Phoenix Platform Enterprise Architecture.
 
-It provides centralized configuration that may be shared by multiple services while preserving governance, traceability and consistency.
+Its primary responsibility is to manage enterprise configuration information that controls configurable business behavior without becoming part of the business model itself.
 
-Configuration does not own business entities and does not execute business logic.
+The Configuration Domain provides centralized governance for configuration assets while remaining independent of business ownership and business processing.
 
----
+Configuration information may be referenced throughout the platform but remains exclusively governed by the Configuration Domain.
 
-# 4. Aggregate Summary
-
-| Aggregate | Responsibility | Business Identifier |
-|------------|---------------|---------------------|
-| Configuration Group | Organizes related configuration items | Group Code |
-| Configuration Item | Defines a configurable business parameter | Configuration Key |
+Business semantics, business rules and business ownership remain within their respective domains and are never transferred to configuration artifacts.
 
 ---
 
-# 5. Aggregate Specifications
+# 4. Architectural Objectives
 
-## 5.1 Configuration Group
+The Configuration Domain Logical Model has the following objectives:
+
+- Establish a canonical logical representation of enterprise configuration information.
+- Centralize the governance of configuration assets.
+- Maintain technology-independent logical definitions.
+- Preserve clear ownership boundaries between business information and configuration information.
+- Support enterprise-wide consistency and reuse.
+- Provide the logical foundation for downstream database architecture artifacts.
+- Ensure complete traceability across the Enterprise Architecture baseline.
+
+---
+
+# 5. Aggregate Catalog
+
+The Configuration Domain consists of the following canonical Aggregates.
+
+| Aggregate | Description | Aggregate Root | Primary Responsibility |
+|------------|-------------|----------------|-------------------------|
+| Configuration Group | Organizes related enterprise configuration items into a logical business category. | Configuration Group | Configuration organization and governance |
+| Configuration Item | Represents an individual configurable business parameter managed within a Configuration Group. | Configuration Item | Enterprise configuration management |
+
+---
+
+# 6. Aggregate Specifications
+
+## 6.1 Configuration Group
 
 ### Business Purpose
 
-Represents a logical collection of related enterprise configuration items.
+Configuration Groups provide the logical organization of enterprise configuration information.
+
+They establish a consistent governance structure that allows related configuration items to be managed as a coherent business collection.
 
 ### Business Responsibilities
 
-- Organize configuration.
-- Provide business categorization.
-- Support governance.
-- Support lifecycle management.
+- Organize enterprise configuration.
+- Classify configuration by business capability.
+- Support enterprise governance.
+- Maintain logical consistency.
+- Enable centralized configuration management.
 
 ### Business Identifier
 
-Group Code
+**Group Code**
 
 ### Logical Characteristics
 
-- Aggregate Root
-- Enterprise reference entity
-- Shared across services
+- Enterprise Configuration Aggregate
+- Shared Enterprise Resource
+- Stable Business Identity
+- Technology Independent
 
 ### Business Rules
 
-- Group Code shall be unique.
-- A Configuration Group may contain multiple Configuration Items.
-- Configuration Groups shall remain stable across releases.
+- Every Configuration Group shall have a unique business identifier.
+- A Configuration Group may organize multiple Configuration Items.
+- Configuration Groups shall remain stable across enterprise releases.
+- Configuration Groups define logical organization only and shall not contain business logic.
 
 ---
 
-## 5.2 Configuration Item
+## 6.2 Configuration Item
 
 ### Business Purpose
 
-Represents a configurable enterprise business parameter.
+Configuration Items define configurable enterprise parameters that influence platform behavior while remaining independent of application implementation.
 
 ### Business Responsibilities
 
-- Maintain configurable values.
-- Support feature activation.
-- Support analytical parameters.
-- Support business policies.
-- Support runtime configuration.
+- Maintain configurable business parameters.
+- Support configurable platform behavior.
+- Centralize enterprise configuration.
+- Enable controlled configuration changes.
+- Support enterprise governance.
 
 ### Business Identifier
 
-Configuration Key
+**Configuration Key**
 
 ### Logical Characteristics
 
-- Aggregate Root
-- Managed lifecycle
-- Shared configuration entity
+- Enterprise Configuration Aggregate
+- Shared Enterprise Resource
+- Managed Lifecycle
+- Technology Independent
 
 ### Business Rules
 
-- Every Configuration Item belongs to exactly one Configuration Group.
-- Configuration Keys shall be unique within a Configuration Group.
-- Configuration changes shall be auditable.
-- Historical configuration values shall remain traceable.
-- Configuration shall never replace business rules.
+- Every Configuration Item shall belong to one Configuration Group.
+- Configuration Keys shall be unique within their Configuration Group.
+- Configuration values shall be governed centrally.
+- Configuration changes shall remain fully traceable.
+- Configuration information shall never replace Canonical Business Rules.
+- Configuration shall not own business entities.
 
 ---
 
-# 6. Cross-Domain Relationships
+# 7. Cross-Domain Relationships
 
-| Parent Aggregate | Child Aggregate | Cardinality |
-|------------------|-----------------|-------------|
-| Configuration Group | Configuration Item | 1 : N |
+The Configuration Domain supports multiple business domains through controlled configuration services while maintaining clear ownership boundaries.
 
-Referenced by:
+| Referencing Domain | Purpose |
+|--------------------|---------|
+| Reference Domain | Reference configuration values |
+| Core Domain | Business configuration |
+| Market Domain | Market behavior configuration |
+| Integration Domain | Integration parameter configuration |
+| Audit Domain | Audit-related configuration |
+| Reporting Domain | Reporting configuration |
 
-- Analytics Services
-- Strategy Services
-- Feature Engineering
-- Market Data Services
-- Portfolio Services
-- AI Services
-
-Configuration does not own these services.
+The Configuration Domain provides configuration information but never assumes ownership of business entities belonging to other domains.
 
 ---
 
-# 7. Domain Constraints
+# 8. Domain Constraints
 
-The following logical constraints govern the Configuration Domain:
+The following logical constraints govern the Configuration Domain.
 
-- Every Configuration Item belongs to one Configuration Group.
-- Configuration values shall be centrally managed.
-- Configuration shall not duplicate business rules.
-- Configuration shall remain technology independent.
-- Configuration changes shall be traceable.
-
----
-
-# 8. Domain Invariants
-
-The following invariants shall always hold:
-
-- Every Aggregate has exactly one Aggregate Root.
-- Configuration identity remains stable.
-- Configuration is shared across services.
-- Configuration references Aggregate Roots only when required.
-- Business semantics remain technology independent.
+- Every Configuration Item shall belong to one Configuration Group.
+- Configuration ownership shall remain within the Configuration Domain.
+- Configuration information shall remain technology independent.
+- Configuration shall never duplicate enterprise business semantics.
+- Configuration shall support enterprise governance and traceability.
+- Configuration shall not modify business ownership or Aggregate boundaries.
 
 ---
 
-# 9. Traceability
+# 9. Domain Invariants
 
-| Source Artifact | Traceability |
-|-----------------|--------------|
-| AggregateCatalog | Aggregate responsibilities |
-| AggregateAttributeMatrix | Attribute assignment |
-| AttributeCatalog | Approved enterprise attributes |
-| EnterpriseAttributeStandard | Attribute compliance |
-| CanonicalBusinessRules | Business constraints |
+The following invariants shall always hold throughout the Configuration Domain.
 
----
-
-# 10. Transition to Physical Design
-
-This document provides the logical foundation for:
-
-- Configuration Schema Design
-- Configuration Tables
-- Runtime Configuration Management
-- Enterprise Parameter Storage
-- Feature Toggle Storage
-
-Implementation-specific decisions are intentionally excluded.
+- Configuration identity remains stable throughout its lifecycle.
+- Configuration ownership remains unique.
+- Configuration information is centrally governed.
+- Business ownership shall never migrate to the Configuration Domain.
+- Configuration relationships shall preserve Domain boundaries.
+- Enterprise semantics remain independent of implementation technologies.
 
 ---
 
-# 11. Related Artifacts
+# 10. Traceability
 
+The Configuration Domain Logical Model maintains complete traceability to the authoritative Enterprise Architecture artifacts.
+
+| Source Artifact | Traceability Purpose |
+|-----------------|----------------------|
+| ConceptualDatabaseModel | Enterprise conceptual foundation |
+| CanonicalDomainModel | Domain ownership |
+| AggregateCatalog | Aggregate ownership and responsibilities |
+| CanonicalEntityDefinitions | Canonical entity definitions |
+| CanonicalBusinessRules | Enterprise business semantics |
+| EnterpriseRelationshipCatalog | Business relationship definitions |
+| EnterpriseRelationshipMatrix | Relationship validation |
+| CardinalityMatrix | Relationship cardinalities |
+| AggregateDependencyMatrix | Aggregate dependencies |
+| BusinessConstraintMatrix | Enterprise business constraints |
+| CanonicalEnterpriseERD | Enterprise logical relationships |
+
+---
+
+# 11. Transition to Physical Data Architecture
+
+This logical model provides the architectural foundation for the following implementation artifacts:
+
+- Logical Database Model
+- Physical Database Model
+- Configuration Database Schema
+- Enterprise Data Dictionary
+- Database Constraint Definitions
+- Database Migration Specifications
+
+Implementation-specific decisions—including physical tables, columns, indexes, foreign keys, storage strategies and performance optimizations—are intentionally deferred to the Physical Data Architecture.
+
+---
+
+# 12. Related Artifacts
+
+This document shall be used together with the following Enterprise Architecture specifications:
+
+- ConceptualDatabaseModel
+- CanonicalDomainModel
 - ReferenceDomainLogicalModel
 - CoreDomainLogicalModel
 - MarketDomainLogicalModel
 - IntegrationDomainLogicalModel
 - AuditDomainLogicalModel
 - AggregateCatalog
-- AggregateAttributeMatrix
-- AttributeCatalog
-- AttributeDictionary
-- CanonicalBusinessRules
+- CanonicalEntityDefinitions
+- EnterpriseRelationshipCatalog
+- EnterpriseRelationshipMatrix
+- CardinalityMatrix
+- AggregateDependencyMatrix
+- BusinessConstraintMatrix
+- CanonicalEnterpriseERD
+- LogicalDatabaseModel
+- PhysicalDatabaseModel
+- EnterpriseDataDictionary
+
+---
+
+# 13. Architectural Governance
+
+The Configuration Domain Logical Model is a controlled Enterprise Architecture artifact.
+
+Any modification affecting:
+
+- Domain boundaries
+- Aggregate boundaries
+- Configuration ownership
+- Business semantics
+- Enterprise relationships
+- Enterprise constraints
+
+shall require:
+
+- Enterprise Architecture Review
+- Impact Analysis
+- Architecture Board Approval
+- Repository Baseline Update
+
+---
+
+# 14. Approval
+
+The Enterprise Architecture Board approves this document as the official logical specification of the Configuration Domain for the Phoenix Platform.
+
+**Approval Status**
+
+**APPROVED**
 
 ---
 
@@ -215,4 +316,5 @@ Implementation-specific decisions are intentionally excluded.
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial canonical Configuration Domain Logical Model |
+| 2026.1 | 2026-07-09 | Initial Configuration Domain Logical Model. |
+| 2026.2 | 2026-07-19 | Repository-standard rewrite aligned with the Enterprise Architecture baseline, including standardized metadata, governance, traceability, logical architecture, and repository documentation conventions. |

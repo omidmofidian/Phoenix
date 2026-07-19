@@ -1,1037 +1,573 @@
 # Conceptual Database Model
 
----
-
-# Document Information
-
-| Item | Value |
-|------|-------|
-| Document | Conceptual Database Model |
-| Project | Phoenix |
-| Version | 1.1 |
-| Status | Architecture Freeze |
-| Last Updated | 2026-06-29 |
-
----
-
-# Purpose
-
-The Conceptual Database Model defines the business entities of the Phoenix platform and the relationships between them.
-
-This model is independent of any database technology and focuses exclusively on business concepts.
-
-It serves as the foundation for:
-
-- Logical Database Model
-- Physical Database Model
-- Data Dictionary
-- API Design
-- Domain Model
-- DDL Generation
+| Property | Value |
+|----------|-------|
+| Project | Phoenix Platform |
+| Artifact ID | CDM-001 |
+| Document | ConceptualDatabaseModel |
+| Version | 2026.2 |
+| Status | Approved |
+| Classification | Enterprise Conceptual Data Architecture |
+| Architecture Layer | Conceptual Data Architecture |
+| Owner | Enterprise Architecture |
+| Repository Path | Architecture/Data/Conceptual/ConceptualDatabaseModel.md |
+| Depends On | PlatformArchitectureVision, CanonicalDomainModel, BoundedContextDefinition, CanonicalBusinessRules |
+| Consumed By | LogicalDatabaseModel, PhysicalDatabaseModel, CanonicalEnterpriseERD, EntityCatalog, AggregateCatalog |
+| Approval Authority | Enterprise Architecture Board |
+| Last Updated | 2026-07-19 |
 
 ---
 
-# Scope
+# 1. Purpose
 
-This document describes the conceptual structure of the following domains:
+The Conceptual Database Model defines the canonical business information model of the Phoenix Platform.
 
-- Market Master Data
-- Trading Reference Data
-- Integration Layer
+It identifies the enterprise business concepts that are required to support all current and future market engines while remaining completely independent of implementation technologies, database products and software architecture.
 
-The following domains are intentionally excluded and will be documented separately:
+The Conceptual Database Model establishes the semantic foundation from which all subsequent data architecture artifacts are derived.
 
-- Authentication
-- Authorization
-- User Management
-- Configuration
-- Analytics
-- Machine Learning
-- Audit
+It serves as the authoritative reference for enterprise data analysis, logical modeling and business information governance.
 
 ---
 
-# Design Principles
+# 2. Scope
 
-The Phoenix conceptual model follows these principles.
+This document defines the conceptual representation of enterprise information across all approved business domains of the Phoenix Platform.
 
-## Business First
+The scope includes:
 
-Business concepts take precedence over technical implementation.
+- Enterprise business concepts
+- Business entities
+- Business ownership
+- Information ownership
+- Business relationships
+- Aggregate boundaries
+- Domain boundaries
+- Enterprise information governance
+- Conceptual business rules
 
----
+The scope explicitly excludes:
 
-## Technology Independent
-
-No database-specific implementation details are included.
-
-Examples intentionally omitted:
-
+- Database schemas
+- Tables
+- Columns
+- Primary Keys
+- Foreign Keys
 - Data types
 - Indexes
-- Constraints
-- Storage engines
-
-These belong to the Logical and Physical Database Models.
-
----
-
-## Single Source of Truth
-
-Every business concept exists only once.
-
-No duplicated entities are allowed.
+- Database constraints
+- Physical storage
+- ORM mappings
+- Service implementations
+- APIs
+- Infrastructure components
 
 ---
 
-## High Cohesion
+# 3. Objectives
 
-Each entity has a single responsibility.
+The objectives of the Conceptual Database Model are to:
 
----
-
-## Low Coupling
-
-Relationships between entities are minimized while preserving business integrity.
-
----
-
-## Future Extensibility
-
-The model is designed to support future modules without structural redesign.
-
-Examples include:
-
-- Analytics
-- Machine Learning
-- Multi-Market Support
-- Multi-Country Support
-- Multiple Data Providers
+- establish a common enterprise business vocabulary;
+- define the conceptual structure of enterprise information;
+- identify business ownership of information assets;
+- establish enterprise information boundaries;
+- provide the foundation for logical database modeling;
+- support Domain-Driven Design (DDD);
+- ensure long-term architectural consistency;
+- enable future expansion without conceptual redesign.
 
 ---
 
-# Architecture Overview
+# 4. Conceptual Modeling Principles
 
-Phoenix separates its data model into independent business domains.
+The Conceptual Database Model is governed by the following architectural principles.
+
+| Principle ID | Principle |
+|--------------|-----------|
+| CMP-001 | Business concepts shall be modeled independently of implementation technology. |
+| CMP-002 | Every business entity shall represent exactly one business concept. |
+| CMP-003 | Every business entity shall belong to exactly one Domain. |
+| CMP-004 | Every business entity shall belong to exactly one Aggregate. |
+| CMP-005 | Every Aggregate shall have exactly one Aggregate Root. |
+| CMP-006 | Every business concept shall have one authoritative owner. |
+| CMP-007 | Business semantics shall remain stable across technology changes. |
+| CMP-008 | The conceptual model shall serve as the single source of truth for enterprise information architecture. |
+
+---
+
+# 5. Enterprise Conceptual Architecture
+
+The Phoenix Platform organizes enterprise information into independent business domains that collaborate through well-defined business relationships while preserving ownership boundaries.
 
 ```text
-Market Domain
-│
-├── Exchange
-├── Trading Board
-├── Sector
-├── Industry
-├── Company
-├── Instrument
-└── Instrument Listing
+                    Phoenix Platform
 
-Trading Domain
-│
-├── Trading Calendar
-├── Daily Market Data
-└── Corporate Action
+        ┌────────────────────────────────────┐
+        │        Enterprise Domains          │
+        └────────────────────────────────────┘
 
-Integration Infrastructure
-│
-└── External Identifier
-
-Future Domains
-│
-├── Analytics
-├── System
-└── AI
+                Reference Domain
+                        │
+                        ▼
+                  Core Domain
+                        │
+                        ▼
+                 Market Domain
+                        │
+         ┌──────────────┼──────────────┐
+         ▼              ▼              ▼
+ Configuration      Audit Domain   Reporting
+     Domain                           Domain
+         │                              ▲
+         └──────────────┬───────────────┘
+                        │
+                        ▼
+              Integration Domain
 ```
 
----
+Each Domain owns its business concepts while collaborating through approved enterprise relationships.
 
-# Domain Layers
-
-## Market Domain
-
-Responsible for static master data.
-
-Entities rarely change and define the structure of financial markets.
-
-Contained entities:
-
-- Exchange
-- Trading Board
-- Sector
-- Industry
-- Company
-- Instrument
-- Instrument Listing
+No Domain owns information belonging to another Domain.
 
 ---
 
-## Trading Domain
+# 6. Enterprise Information Architecture
 
-Responsible for operational market information.
+Enterprise information within the Phoenix Platform is classified into the following conceptual categories.
 
-Contained entities:
+| Information Category | Description |
+|----------------------|-------------|
+| Reference Information | Stable enterprise reference data shared across multiple domains and market engines. |
+| Master Information | Canonical business entities representing long-lived enterprise objects. |
+| Operational Information | Business information generated during daily platform operation. |
+| Historical Information | Immutable records preserving historical business activity. |
+| Configuration Information | Enterprise configuration governing platform behavior. |
+| Audit Information | Immutable records supporting governance, compliance and traceability. |
+| Analytical Information | Derived information supporting reporting and decision making. |
 
-- Trading Calendar
-- Daily Market Data
-- Corporate Action
-
----
-
-## Integration Infrastructure
-
-Responsible for mapping Phoenix entities to external systems.
-
-The Integration Infrastructure isolates Phoenix from external data providers.
-
-Instead of embedding provider-specific identifiers inside business entities, all mappings are maintained separately.
-
-Current entity:
-
-- External Identifier
-
-Future entities may include:
-
-- Data Provider
-- Import Job
-- Synchronization Log
-- Mapping Rule
-- ETL Pipeline
+These categories provide the conceptual foundation for enterprise information governance and subsequent logical data modeling.
 
 ---
 
-# Information Ownership
+# 7. Canonical Business Domains
 
-Every conceptual business entity has a single information owner responsible for
-its lifecycle, governance, integrity, and business definition.
+The Conceptual Database Model is organized into independent business domains that collectively represent the enterprise information architecture of the Phoenix Platform.
 
-Information ownership is defined at the conceptual level and is independent of
-implementation technology.
+| Domain | Primary Responsibility | Information Type |
+|---------|------------------------|------------------|
+| Reference Domain | Enterprise reference information | Reference Data |
+| Core Domain | Enterprise business entities | Master Data |
+| Market Domain | Market activity and historical information | Operational Data |
+| Integration Domain | External system integration | Integration Data |
+| Configuration Domain | Enterprise configuration | Configuration Data |
+| Audit Domain | Governance and traceability | Historical Data |
+| Reporting Domain | Enterprise reporting and analytics | Analytical Data |
 
-| Business Entity | Information Owner | Rationale |
-|-----------------|-------------------|-----------|
-| Exchange | Phoenix Platform | Enterprise reference data shared across all market engines |
-| Trading Board | Phoenix Platform | Enterprise market structure |
-| Sector | Phoenix Platform | Enterprise classification reference |
-| Industry | Phoenix Platform | Enterprise classification reference |
-| Company | Phoenix Platform | Enterprise master data |
-| Instrument | Iran Stock Engine | Managed by the Iran Stock Engine and extensible for future engines |
-| Instrument Listing | Iran Stock Engine | Listing lifecycle is engine-specific |
-| Trading Calendar | Phoenix Platform | Shared trading calendar service |
-| Daily Market Data | Iran Stock Engine | Operational market data generated by the engine |
-| Corporate Action | Iran Stock Engine | Operational business events managed by the engine |
-| External Identifier | Integration Infrastructure | Integration-owned mapping between Phoenix and external providers |
+Each Domain owns its business concepts, terminology, lifecycle and information governance.
+
+No Domain may assume ownership of information belonging to another Domain.
 
 ---
 
-# Information Scope
+# 8. Conceptual Business Entities
 
-The Phoenix conceptual architecture distinguishes between shared enterprise
-information and engine-specific operational information.
+The following conceptual entities constitute the canonical enterprise information model.
 
-Shared information may be reused by multiple market engines, whereas
-engine-specific information belongs to a single market engine.
+## 8.1 Reference Domain
 
-| Business Entity | Scope | Notes |
-|-----------------|-------|-------|
-| Exchange | Shared | Common across all market engines |
-| Trading Board | Shared | Enterprise market structure |
-| Sector | Shared | Shared classification |
-| Industry | Shared | Shared classification |
-| Company | Shared | Enterprise master data |
-| Instrument | Engine Specific | Engine-owned financial instrument |
-| Instrument Listing | Engine Specific | Depends on market engine |
-| Trading Calendar | Shared | Enterprise calendar |
-| Daily Market Data | Engine Specific | Produced by market engine |
-| Corporate Action | Engine Specific | Produced by market engine |
-| External Identifier | Shared Infrastructure | Shared integration component |
+| Entity | Business Purpose |
+|----------|-----------------|
+| Exchange | Represents a regulated securities exchange. |
+| Trading Board | Represents a trading board operating within an Exchange. |
+| Sector | Represents a high-level economic sector classification. |
+| Industry | Represents an industry classification within a Sector. |
+| Trading Calendar | Defines official trading days and market sessions. |
 
 ---
 
-# Conceptual Modeling Rules
+## 8.2 Core Domain
 
-The following rules apply throughout the conceptual model.
-
-- Every entity represents one business concept.
-- Every entity owns its lifecycle.
-- Relationships express business meaning only.
-- No implementation details appear in this document.
-- Primary keys are not modeled conceptually.
-- Foreign keys are not modeled conceptually.
-- Database normalization is addressed in later design phases.
-
----
-# Core Business Entities
+| Entity | Business Purpose |
+|----------|-----------------|
+| Company | Represents a legal business organization. |
+| Instrument | Represents a tradable financial instrument. |
 
 ---
 
-## Exchange
+## 8.3 Market Domain
 
-Represents a securities exchange.
-
-Examples:
-
-- Tehran Stock Exchange
-- Iran Fara Bourse
-
-Responsibilities
-
-- Defines the trading venue.
-- Owns one or more trading boards.
+| Entity | Business Purpose |
+|----------|-----------------|
+| Instrument Listing | Represents the listing of an Instrument on a Trading Board. |
+| Daily Market Data | Represents historical daily trading information. |
+| Corporate Action | Represents business events affecting an Instrument. |
 
 ---
 
-## Trading Board
+## 8.4 Integration Domain
 
-Represents a trading board operated by an exchange.
-
-Responsibilities
-
-- Belongs to one exchange.
-- Hosts one or more instrument listings.
+| Entity | Business Purpose |
+|----------|-----------------|
+| Data Provider | Represents an external provider of business information. |
+| External Identifier | Maps enterprise entities to provider-specific identifiers. |
 
 ---
 
-## Sector
+## 8.5 Configuration Domain
 
-Represents the highest level of business classification.
-
-Responsibilities
-
-- Groups related industries.
-- Acts as the top-level economic classification.
+| Entity | Business Purpose |
+|----------|-----------------|
+| Configuration Group | Groups related enterprise configuration items. |
+| Configuration Item | Represents a configurable enterprise parameter. |
 
 ---
 
-## Industry
+## 8.6 Audit Domain
 
-Represents an economic industry.
-
-Responsibilities
-
-- Belongs to one sector.
-- Groups related companies.
+| Entity | Business Purpose |
+|----------|-----------------|
+| Audit Session | Represents an execution context for auditing. |
+| Audit Event | Represents an immutable audit record. |
 
 ---
 
-## Company
+## 8.7 Reporting Domain
 
-Represents a legal business entity.
-
-Responsibilities
-
-- Belongs to one industry.
-- Issues one or more financial instruments.
-
-A company is **not** a tradable asset.
+| Entity | Business Purpose |
+|----------|-----------------|
+| Report Definition | Defines a reusable enterprise report. |
+| Report Snapshot | Represents an immutable generated report instance. |
 
 ---
 
-## Instrument
+# 9. Conceptual Business Relationships
 
-Represents a tradable financial instrument.
+Conceptual relationships express business semantics rather than implementation details.
 
-Examples
+The primary enterprise relationships are summarized below.
 
-- Common Stock
-- Preferred Stock
-- ETF
-- Bond
-- Option
-- Future
-
-Responsibilities
-
-- Belongs to one company.
-- May be listed on one or more trading boards.
-
----
-
-## Instrument Listing
-
-Represents the listing of an instrument on a trading board.
-
-Responsibilities
-
-- Connects instruments and trading boards.
-- Maintains listing lifecycle.
-
-Examples
-
-- Listing date
-- Delisting date
-- Listing status
+| Parent Entity | Child Entity | Business Meaning |
+|---------------|--------------|------------------|
+| Exchange | Trading Board | An Exchange operates one or more Trading Boards. |
+| Sector | Industry | A Sector groups one or more Industries. |
+| Industry | Company | A Company belongs to one Industry. |
+| Company | Instrument | A Company issues one or more Instruments. |
+| Instrument | Instrument Listing | An Instrument may have one or more Listings. |
+| Trading Board | Instrument Listing | A Trading Board hosts Instrument Listings. |
+| Instrument Listing | Daily Market Data | Market Data belongs to an Instrument Listing. |
+| Trading Calendar | Daily Market Data | Market Data is recorded for one Trading Day. |
+| Instrument | Corporate Action | Corporate Actions affect Instruments. |
+| Data Provider | External Identifier | Providers assign External Identifiers. |
+| Enterprise Entity | External Identifier | Enterprise entities may have multiple External Identifiers. |
+| Audit Session | Audit Event | Audit Sessions contain Audit Events. |
+| Configuration Group | Configuration Item | Configuration Groups organize Configuration Items. |
+| Report Definition | Report Snapshot | Report Definitions produce Report Snapshots. |
 
 ---
 
-## Trading Calendar
+# 10. Aggregate Boundaries
 
-Represents official trading sessions.
+Enterprise information is organized into Aggregates that define business consistency boundaries.
 
-Responsibilities
+| Aggregate | Aggregate Root | Domain |
+|------------|----------------|--------|
+| Exchange | Exchange | Reference |
+| Trading Board | Trading Board | Reference |
+| Sector | Sector | Reference |
+| Industry | Industry | Reference |
+| Trading Calendar | Trading Calendar | Reference |
+| Company | Company | Core |
+| Instrument | Instrument | Core |
+| Instrument Listing | Instrument Listing | Market |
+| Daily Market Data | Daily Market Data | Market |
+| Corporate Action | Corporate Action | Market |
+| Data Provider | Data Provider | Integration |
+| External Identifier | External Identifier | Integration |
+| Audit Session | Audit Session | Audit |
+| Audit Event | Audit Event | Audit |
+| Configuration Group | Configuration Group | Configuration |
+| Configuration Item | Configuration Item | Configuration |
+| Report Definition | Report Definition | Reporting |
+| Report Snapshot | Report Snapshot | Reporting |
 
-- Defines trading days.
-- Defines holidays.
-- Defines market sessions.
+Aggregate boundaries define transactional consistency and business ownership.
 
----
-
-## Daily Market Data
-
-Represents end-of-day trading information.
-
-Responsibilities
-
-- Stores daily OHLC prices.
-- Stores trading volume.
-- Stores trading value.
-- Stores market statistics.
-
-Each record belongs to exactly one instrument and one trading day.
-
----
-
-## Corporate Action
-
-Represents events affecting financial instruments.
-
-Examples
-
-- Cash Dividend
-- Stock Dividend
-- Capital Increase
-- Stock Split
-- Reverse Split
-- Rights Offering
-
-Responsibilities
-
-- Belongs to one instrument.
-- Occurs on a specific effective date.
+Cross-Aggregate communication shall occur exclusively through Aggregate Roots.
 
 ---
 
-## External Identifier
+# 11. Business Ownership
 
-Represents identifiers assigned by external data providers.
+Business ownership is assigned at the Domain level.
 
-Examples
+Each business entity has exactly one authoritative owner responsible for its lifecycle, governance and semantic integrity.
 
-- TSE
-- IFB
-- CSDI
-- Bloomberg
-- Refinitiv
-- Yahoo Finance
-
-Responsibilities
-
-- Maps Phoenix entities to external systems.
-- Allows multiple providers.
-- Keeps provider-specific identifiers outside business entities.
+| Domain | Business Owner |
+|---------|----------------|
+| Reference Domain | Enterprise Reference Service |
+| Core Domain | Core Business Service |
+| Market Domain | Market Service |
+| Integration Domain | Integration Service |
+| Configuration Domain | Configuration Service |
+| Audit Domain | Audit Service |
+| Reporting Domain | Reporting Service |
 
 ---
 
-# Business Relationships
+# 12. Information Ownership
 
-The conceptual relationships are shown below.
+## 12.1 Purpose
 
-```text
-Exchange
-    │
-    │ 1
-    ▼
-Trading Board
-    │
-    │ 1
-    ▼
-Instrument Listing
-    ▲
-    │
-    │ N
-Instrument
-    ▲
-    │
-    │ N
-Company
-    ▲
-    │
-    │ N
-Industry
-    ▲
-    │
-    │ N
-Sector
-```
+Information ownership establishes the authoritative responsibility for the governance, lifecycle, quality, and business meaning of conceptual information assets across the Phoenix Platform.
+
+Each information category shall have exactly one owning Domain. Ownership is defined at the business architecture level and remains independent of logical or physical implementation.
+
+No information asset shall have multiple business owners.
 
 ---
 
-# Relationship Cardinalities
+## 12.2 Information Ownership Matrix
 
-## Exchange → Trading Board
-
-One Exchange
-
-↓
-
-Many Trading Boards
-
-Cardinality
-
-```text
-1 : N
-```
+| Information Category | Owning Domain | Ownership Scope |
+|----------------------|---------------|-----------------|
+| Reference Information | Reference Domain | Enterprise reference data |
+| Master Information | Core Domain | Enterprise master entities |
+| Operational Information | Market Domain | Market operations and historical market data |
+| Integration Information | Integration Domain | External system mappings and provider metadata |
+| Configuration Information | Configuration Domain | Enterprise configuration and system parameters |
+| Audit Information | Audit Domain | Compliance, governance, and traceability |
+| Analytical Information | Reporting Domain | Reporting models and analytical views |
 
 ---
 
-## Trading Board → Instrument Listing
+## 12.3 Ownership Principles
 
-One Trading Board
+The following principles govern conceptual information ownership.
 
-↓
-
-Many Listings
-
-Cardinality
-
-```text
-1 : N
-```
+- Every information asset shall have exactly one owning Domain.
+- Ownership defines business responsibility rather than implementation responsibility.
+- Information ownership shall remain stable throughout the enterprise architecture lifecycle.
+- Ownership shall not be duplicated across Domains.
+- Cross-domain access shall never imply ownership transfer.
+- Business semantics shall always be governed by the owning Domain.
 
 ---
 
-## Company → Instrument
+# 13. Domain Invariants
 
-One Company
+## 13.1 Enterprise Invariants
 
-↓
+The following enterprise-wide invariants apply to every business Domain.
 
-Many Instruments
-
-Cardinality
-
-```text
-1 : N
-```
+- Business ownership is unique.
+- Aggregate ownership is unique.
+- Business identity is immutable.
+- Canonical business semantics shall remain consistent across the platform.
+- Domain boundaries shall not be violated.
 
 ---
 
-## Industry → Company
-
-One Industry
-
-↓
-
-Many Companies
-
-Cardinality
-
-```text
-1 : N
-```
-
----
-
-## Sector → Industry
-
-One Sector
-
-↓
-
-Many Industries
-
-Cardinality
-
-```text
-1 : N
-```
-
----
-
-## Instrument → Daily Market Data
-
-One Instrument
-
-↓
-
-Many Daily Market Data Records
-
-Cardinality
-
-```text
-1 : N
-```
-
----
-
-## Instrument → Corporate Action
-
-One Instrument
-
-↓
-
-Many Corporate Actions
-
-Cardinality
-
-```text
-1 : N
-```
-
----
-
-## Business Hierarchy
-
-```text
-Sector
-
-↓
-
-Industry
-
-↓
-
-Company
-
-↓
-
-Instrument
-
-↓
-
-Instrument Listing
-
-↓
-
-Daily Market Data
-```
-
----
-# Aggregate Boundaries
-
-The Phoenix domain is organized into independent aggregates.
-
-Each aggregate owns its lifecycle and business consistency.
-
----
-
-## Market Aggregate
-
-Root Entities
-
-- Exchange
-- Sector
-- Company
-- Instrument
-
-Supporting Entities
-
-- Trading Board
-- Industry
-- Instrument Listing
-
-Responsibilities
-
-- Market structure
-- Company master data
-- Instrument master data
-- Listing information
-
----
-
-## Trading Aggregate
-
-Root Entities
-
-- Trading Calendar
-- Daily Market Data
-- Corporate Action
-
-Responsibilities
-
-- Trading sessions
-- Daily market activity
-- Corporate events
-
-Trading data is operational and grows continuously.
-
----
-
-## Integration Aggregate
-
-Root Entity
-
-- External Identifier
-
-Responsibilities
-
-- External provider mappings
-- Provider-independent architecture
-- Identifier normalization
-
-The Integration Aggregate never owns business entities.
-
-It only maintains references to business entities.
-
----
-
-# Integration Infrastructure
-
-The Integration Infrastructure isolates Phoenix from external systems.
-
-External providers never become part of the business model.
-
-Instead, provider-specific identifiers are mapped through the Integration Infrastructure.
-
-```text
-External Provider
-
-        │
-
-        ▼
-
-External Identifier
-
-        │
-
-        ▼
-
-Phoenix Business Entity
-```
-
-Supported provider examples
-
-- Tehran Stock Exchange
-- Iran Fara Bourse
-- CSDI
-- Bloomberg
-- Refinitiv
-- Yahoo Finance
-
-Future providers can be added without modifying business entities.
-
----
-
-# External Infrastructure Relationships
-
-The External Infrastructure component may reference:
-
-- Exchange
-- Trading Board
-- Sector
-- Industry
-- Company
-- Instrument
-
-Conceptually
-
-```text
-External Provider
-
-        │
-
-        ▼
-
-External Identifier
-
-        │
-
-        ├────────► Exchange
-
-        ├────────► Trading Board
-
-        ├────────► Sector
-
-        ├────────► Industry
-
-        ├────────► Company
-
-        └────────► Instrument
-```
-
-This design completely decouples Phoenix from provider-specific identifiers.
-
----
-
-# Trading Layer
-
-The Trading Layer contains operational market information.
-
-Conceptually
-
-```text
-Trading Calendar
-
-        │
-
-        ▼
-
-Daily Market Data
-
-        ▲
-
-        │
-
-Corporate Action
-```
-
-Characteristics
-
-- Time-series oriented
-- High growth
-- Immutable history
-- Optimized for analytics
-
----
-
-# Domain Invariants
-
-The following business rules must always hold.
-
-## Market Rules
+## 13.2 Reference Domain
 
 - Every Trading Board belongs to exactly one Exchange.
 - Every Industry belongs to exactly one Sector.
+- Trading Calendars define valid trading sessions.
+- Reference information is centrally governed.
+
+---
+
+## 13.3 Core Domain
+
 - Every Company belongs to exactly one Industry.
 - Every Instrument belongs to exactly one Company.
+- Business identity remains immutable throughout the entity lifecycle.
+
+---
+
+## 13.4 Market Domain
+
+- Every Instrument Listing references exactly one Instrument.
 - Every Instrument Listing belongs to exactly one Trading Board.
+- Daily Market Data cannot exist without an Instrument Listing.
+- Corporate Actions always reference one Instrument.
+- Published historical market information is immutable.
 
 ---
 
-## Trading Rules
+## 13.5 Integration Domain
 
-- Daily Market Data cannot exist without an Instrument.
-- Corporate Actions cannot exist without an Instrument.
-- Trading Calendar defines valid trading sessions.
-
----
-
-## Integration Rules
-
-- Business entities never store provider-specific identifiers.
-- External identifiers belong exclusively to the Integration Layer.
-- One business entity may have multiple external identifiers.
-- One provider may define identifiers for multiple business entities.
+- Enterprise entities never store provider-specific identifiers.
+- External Identifiers are owned exclusively by the Integration Domain.
+- One enterprise entity may be mapped to multiple external providers.
+- Provider identifiers never redefine enterprise identity.
 
 ---
 
-# Business Lifecycle
+## 13.6 Configuration Domain
 
-Master Data
+- Every Configuration Item belongs to exactly one Configuration Group.
+- Configuration information is centrally governed.
 
-```text
-Exchange
+---
+
+## 13.7 Audit Domain
+
+- Audit information is append-only.
+- Audit records are immutable.
+- Historical audit information shall never be modified.
+- Audit entities never own operational business data.
+
+---
+
+## 13.8 Reporting Domain
+
+- Reporting information is read-only.
+- Reports consume enterprise information without modifying it.
+- Analytical views shall never become the authoritative business source.
+
+---
+
+# 14. Enterprise Conceptual Design Rules
+
+The following architectural rules govern the evolution of the Conceptual Database Model.
+
+| Rule ID | Rule |
+|----------|------|
+| CDR-001 | Every business entity shall belong to exactly one Domain. |
+| CDR-002 | Every business entity shall belong to exactly one Aggregate. |
+| CDR-003 | Every Aggregate shall define one Aggregate Root. |
+| CDR-004 | Business ownership shall remain unique. |
+| CDR-005 | Information ownership shall remain unique. |
+| CDR-006 | Conceptual relationships shall represent business semantics only. |
+| CDR-007 | Implementation details shall not appear in the conceptual model. |
+| CDR-008 | Conceptual changes shall preserve business meaning. |
+| CDR-009 | The conceptual model shall remain technology independent. |
+| CDR-010 | All derived architectural artifacts shall conform to this conceptual model. |
+
+---
+
+# 15. Transition to Logical Data Architecture
+
+The Conceptual Database Model provides the architectural foundation for all subsequent data architecture artifacts.
+
+The following artifacts are derived directly from this model:
+
+- Canonical Entity Definitions
+- Aggregate Catalog
+- Enterprise Relationship Catalog
+- Enterprise Relationship Matrix
+- Cardinality Matrix
+- Aggregate Dependency Matrix
+- Business Constraint Matrix
+- Domain Logical Models
+- Canonical Enterprise ERD
+- Logical Database Model
+- Physical Database Model
+
+Implementation-specific concerns are intentionally deferred to later architecture phases.
+
+This model serves as the highest-level representation of enterprise information and provides the conceptual baseline from which all logical and physical data architecture artifacts are derived.
+
+---
+
+# 16. Traceability
+
+Every conceptual business concept shall be traceable to its corresponding architectural artifacts.
+
+Platform Architecture Vision
 
 ↓
 
-Trading Board
+Architectural Principles
 
 ↓
 
-Sector
+Bounded Context Definition
 
 ↓
 
-Industry
+Canonical Domain Model
 
 ↓
 
-Company
+Conceptual Database Model
 
 ↓
 
-Instrument
+Logical Database Model
 
 ↓
 
-Instrument Listing
-```
+Physical Database Model
 
-Operational Data
-
-```text
-Trading Calendar
-
-↓
-
-Daily Market Data
-
-↓
-
-Corporate Action
-```
-
-Integration Data
-
-```text
-External Provider
-
-↓
-
-External Identifier
-
-↓
-
-Business Entity
-```
+| Source Artifact | Traceability Purpose |
+|-----------------|----------------------|
+| Platform Architecture Vision | Enterprise architectural vision |
+| Architectural Principles | Architectural governance |
+| Bounded Context Definition | Domain ownership |
+| Canonical Domain Model | Business domains |
+| Canonical Business Rules | Business semantics |
+| Canonical Entity Definitions | Enterprise entities |
+| Aggregate Catalog | Aggregate ownership |
+| Canonical Enterprise ERD | Enterprise relationships |
+| Logical Database Model | Logical realization |
+| Physical Database Model | Physical realization |
 
 ---
 
-# Conceptual Design Principles
+# 17. Related Artifacts
 
-The Conceptual Model follows these principles.
+This document shall be used together with the following Enterprise Architecture specifications:
 
-- Technology independent
-- Business-oriented
-- Provider independent
-- Fully normalized at the conceptual level
-- Future extensible
-- Domain-driven
-- Single source of truth
-- Stable business boundaries
-
----
-# Conceptual Overview
-
-The conceptual architecture of Phoenix is illustrated below.
-
-```text
-                        +----------------------+
-                        |    Market Domain     |
-                        +----------------------+
-
-Exchange
-    │
-    ▼
-Trading Board
-    │
-    ▼
-Instrument Listing
-    ▲
-    │
-Instrument
-    ▲
-    │
-Company
-    ▲
-    │
-Industry
-    ▲
-    │
-Sector
-
-
-                        +----------------------+
-                        |    Trading Domain    |
-                        +----------------------+
-
-Trading Calendar
-        │
-        ▼
-Daily Market Data
-        ▲
-        │
-Corporate Action
-
-
-                     +---------------------------+
-                     |   Integration Domain      |
-                     +---------------------------+
-
-External Provider
-
-        │
-
-        ▼
-
-External Identifier
-
-        │
-
-        ├────────► Exchange
-
-        ├────────► Trading Board
-
-        ├────────► Sector
-
-        ├────────► Industry
-
-        ├────────► Company
-
-        └────────► Instrument
-```
+- PlatformArchitectureVision
+- ArchitecturalPrinciples
+- BoundedContextDefinition
+- CanonicalDomainModel
+- CanonicalEntityDefinitions
+- AggregateCatalog
+- EnterpriseRelationshipCatalog
+- EnterpriseRelationshipMatrix
+- CardinalityMatrix
+- AggregateDependencyMatrix
+- BusinessConstraintMatrix
+- CanonicalEnterpriseERD
+- LogicalDatabaseModel
+- PhysicalDatabaseModel
+- EnterpriseDataDictionary
 
 ---
 
-# Business Constraints
+# 18. Architectural Governance
 
-The following conceptual constraints govern the Phoenix domain model.
+The Conceptual Database Model is a controlled Enterprise Architecture artifact.
 
-## Master Data
+Any modification affecting:
 
-- Every Exchange owns one or more Trading Boards.
-- Every Trading Board belongs to exactly one Exchange.
-- Every Sector owns one or more Industries.
-- Every Industry belongs to exactly one Sector.
-- Every Company belongs to exactly one Industry.
-- Every Instrument belongs to exactly one Company.
-- Every Instrument Listing references one Instrument and one Trading Board.
+- Business concepts
+- Domain boundaries
+- Aggregate boundaries
+- Information ownership
+- Business relationships
+- Enterprise semantics
+- Information ownership
 
----
+shall require:
 
-## Trading Data
-
-- Trading Calendar defines valid trading sessions.
-- Daily Market Data exists only for listed instruments.
-- Corporate Actions affect exactly one instrument.
-
----
-
-## Integration
-
-- External identifiers are never stored inside business entities.
-- External providers are isolated from the business model.
-- Multiple providers may identify the same business entity.
-- Provider identifiers may change without affecting business entities.
+- Enterprise Architecture Review
+- Business Impact Analysis
+- Architecture Board Approval
+- Repository Baseline Update
 
 ---
 
-# Mapping to Logical Database Model
+# 19. Approval
 
-The Conceptual Model is transformed into the Logical Database Model according to the following rules.
+The Enterprise Architecture Board approves this Conceptual Database Model as the official conceptual information architecture baseline for the Phoenix Platform.
 
-| Conceptual Entity | Logical Table |
-|-------------------|---------------|
-| Exchange | market.exchange |
-| Trading Board | market.trading_board |
-| Sector | market.sector |
-| Industry | market.industry |
-| Company | market.company |
-| Instrument | market.instrument |
-| Instrument Listing | market.instrument_listing |
-| Trading Calendar | trading.trading_calendar |
-| Daily Market Data | trading.daily_market_data |
-| Corporate Action | trading.corporate_action |
-| External Identifier | integration.external_identifier |
+**Approval Status**
 
----
-
-# Related Documents
-
-- DomainModel.md
-- LogicalDatabaseModel.md
-- PhysicalDatabaseModel.md
-- DataDictionary/README.md
-- ADR-015 – Public Identifier Strategy
-- ADR-016 – Primary Key Strategy
-- ADR-017 – External Identifier Mapping Strategy
-- ArchitectureFreeze-v1.1.md
-
----
-
-# Architecture Status
-
-This document represents the conceptual baseline for Phoenix Architecture v1.1.
-
-Future database design, DDL generation, ORM implementation, API design and integration architecture shall conform to this conceptual model.
+**APPROVED**
 
 ---
 
@@ -1039,5 +575,6 @@ Future database design, DDL generation, ORM implementation, API design and integ
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.0 | 2026-06-12 | Initial Conceptual Model |
-| 1.1 | 2026-06-29 | Architecture Freeze v1.1, Integration Layer introduced, DailyPrice renamed to DailyMarketData, External Identifier Mapping Strategy adopted |
+| 1.0 | 2026-06-12 | Initial Conceptual Database Model. |
+| 1.1 | 2026-06-29 | Architecture Freeze baseline introducing the Integration Layer and External Identifier strategy. |
+| 2026.2 | 2026-07-19 | Repository-wide architectural rewrite aligned with the Phoenix Enterprise Architecture baseline and repository standards. |
