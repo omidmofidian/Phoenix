@@ -5,22 +5,23 @@
 | Project | Phoenix Platform |
 | Artifact ID | LDM-001 |
 | Document | ReferenceDomainLogicalModel |
-| Version | 2026.2 |
+| Version | 2026.3 |
 | Status | Approved |
 | Classification | Enterprise Logical Data Model |
-| Owner | Architecture Team |
-| Depends On | CanonicalDomainModel, AggregateCatalog, AggregateAttributeMatrix, CanonicalBusinessRules |
-| Last Updated | 2026-07-09 |
+| Owner | Enterprise Architecture Team |
+| Repository | Phoenix Enterprise Repository |
+| Depends On | CanonicalDomainModel, AggregateCatalog, AggregateAttributeMatrix, ReferenceEntityDefinitions, CanonicalBusinessRules |
+| Last Updated | 2026-07-20 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical logical representation of the Reference Domain within the Phoenix Platform.
+This document defines the canonical logical representation of the **Reference Domain** within the Phoenix Platform.
 
-The Reference Domain provides stable enterprise reference data shared across all business domains.
+The Reference Domain contains the enterprise master data shared by all bounded contexts and business services. It establishes the logical structure of the domain by defining aggregates, aggregate boundaries, ownership, responsibilities and business constraints independently of any implementation technology.
 
-It establishes the logical structure, aggregate responsibilities, business identifiers, relationships and business constraints independently of any database technology or implementation.
+This document serves as the authoritative logical specification for conceptual modeling, logical database modeling and subsequent physical database implementation.
 
 ---
 
@@ -28,280 +29,592 @@ It establishes the logical structure, aggregate responsibilities, business ident
 
 ## Included Aggregates
 
-- Exchange
-- Trading Board
-- Sector
-- Industry
-- Trading Calendar
+- Geographic
+- Localization
+- Financial
+- Market
+- Classification
+- Calendar
+- Provider
 
-## Excluded Aggregates
+## Included Topics
 
-- Company
-- Instrument
-- Instrument Listing
-- Daily Market Data
-- Corporate Action
-- External Identifier
-- Data Provider
+- Aggregate definitions
+- Aggregate responsibilities
+- Aggregate boundaries
+- Aggregate ownership
+- Business identifiers
+- Cross-aggregate relationships
+- Domain constraints
+- Domain invariants
+
+## Excluded Topics
+
+The following subjects are defined in separate enterprise artifacts.
+
+- Individual entity definitions
+- Attribute definitions
+- Physical tables
+- Database schemas
+- PostgreSQL implementation
+- SQL scripts
+- Foreign key implementation
 
 ---
 
 # 3. Architectural Role
 
-The Reference Domain acts as the enterprise foundation for classification and reference information.
+The Reference Domain provides the enterprise foundation upon which all other business domains depend.
 
-Reference Aggregates provide reusable master data for all downstream business domains.
+Unlike operational domains, the Reference Domain contains stable business concepts that evolve slowly and are reused across multiple services and bounded contexts.
 
-Reference data is expected to change infrequently and shall be governed through controlled business processes.
+Its primary responsibilities include:
 
----
+- Establishing canonical business terminology.
+- Providing reusable enterprise master data.
+- Supporting cross-domain consistency.
+- Eliminating duplicated reference information.
+- Defining authoritative aggregate ownership.
 
-# 4. Aggregate Summary
-
-| Aggregate | Responsibility | Business Identifier |
-|------------|---------------|---------------------|
-| Exchange | Securities exchange | Exchange Code |
-| Trading Board | Trading board within an Exchange | Board Code |
-| Sector | Business sector classification | Sector Code |
-| Industry | Business industry classification | Industry Code |
-| Trading Calendar | Official trading calendar | Trading Date |
+The Reference Domain shall never depend upon operational or transactional domains.
 
 ---
 
-# 5. Aggregate Specifications
+# 4. Domain Overview
 
-## 5.1 Exchange
+The Reference Domain is composed of multiple aggregates, each representing a cohesive business capability.
 
-### Business Purpose
+Each aggregate owns its internal entities and business rules while exposing a single Aggregate Root to external consumers.
 
-Represents a regulated securities exchange responsible for operating one or more trading boards.
+The domain follows the principles of Domain-Driven Design (DDD):
 
-### Business Responsibilities
+- Clear aggregate boundaries.
+- Single Aggregate Root.
+- Strong consistency inside an aggregate.
+- Loose coupling between aggregates.
+- Technology independence.
 
-- Maintain exchange identity.
-- Maintain exchange business information.
-- Own Trading Boards.
-- Provide enterprise reference information.
+---
+
+# 5. Aggregate Summary
+
+| Aggregate | Aggregate Root | Business Identifier | Primary Responsibility |
+|------------|----------------|---------------------|------------------------|
+| Geographic | Country | ISO Country Code | Geographic reference information |
+| Localization | Language | ISO Language Code | Languages and localization |
+| Financial | Currency | ISO Currency Code | Financial reference data |
+| Market | Market | Market Code | Financial market structure |
+| Classification | AssetClass | Asset Class Code | Enterprise classifications |
+| Calendar | HolidayCalendar | Calendar Code | Business calendars |
+| Provider | DataProvider | Provider Code | External information providers |
+
+---
+
+# 6. Geographic Aggregate
+
+## Business Purpose
+
+The Geographic Aggregate provides standardized geographical reference information used throughout the enterprise.
+
+It supports localization, reporting, scheduling and market operations by maintaining canonical geographical structures.
+
+### Aggregate Characteristics
+
+| Property | Value |
+|----------|-------|
+| Aggregate Root | Country |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Limited |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain country definitions.
+- Maintain regional hierarchy.
+- Maintain city hierarchy.
+- Maintain enterprise time zones.
+- Provide reusable geographical reference data.
 
 ### Business Identifier
 
-Exchange Code
+**ISO 3166-1 Alpha-2**
 
-### Logical Characteristics
+### Aggregate Rules
 
-- Stable reference entity
-- Aggregate Root
-- Enterprise owned
-- Shared across domains
-
-### Business Rules
-
-- Exchange Code shall be unique.
-- Exchange shall remain uniquely identifiable during its lifecycle.
-- Exchange may own one or more Trading Boards.
-- Exchange cannot be removed while referenced by other Aggregates.
+- Every Region belongs to exactly one Country.
+- Every City belongs to one Region.
+- Time Zones shall comply with IANA standards.
+- Geographic identifiers shall remain stable.
+- Geographic entities shall never depend on operational domains.
 
 ---
 
-## 5.2 Trading Board
+# 7. Localization Aggregate
 
-### Business Purpose
+## Business Purpose
 
-Represents an operational trading board belonging to a single Exchange.
+The Localization Aggregate defines the enterprise language and regional formatting standards.
 
-### Business Responsibilities
+It enables multilingual support and internationalization across all Phoenix services.
 
-- Classify listed instruments.
-- Define trading environment.
-- Support market segmentation.
+### Aggregate Characteristics
+
+| Property | Value |
+|----------|-------|
+| Aggregate Root | Language |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Rarely |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain supported languages.
+- Maintain enterprise locales.
+- Support internationalization.
+- Support regional formatting.
+- Standardize language identifiers.
 
 ### Business Identifier
 
-Board Code
+**ISO 639-1**
 
-### Logical Characteristics
+### Aggregate Rules
 
-- Aggregate Root
-- Child of Exchange
-- Shared reference entity
-
-### Business Rules
-
-- Every Trading Board belongs to exactly one Exchange.
-- Board Code shall be unique within an Exchange.
-- Trading Board cannot exist without its parent Exchange.
+- Every Locale belongs to one Language.
+- Language definitions are enterprise-wide.
+- Locale identifiers shall remain stable.
+- Localization entities shall remain technology independent.
 
 ---
 
-## 5.3 Sector
+# 8. Financial Aggregate
 
-### Business Purpose
+## Business Purpose
 
-Represents the highest level of enterprise business classification.
+The Financial Aggregate defines standardized financial reference information shared throughout the platform.
 
-### Business Responsibilities
+It provides canonical definitions for currencies and related financial classifications.
 
-- Organize industries.
+### Aggregate Characteristics
+
+| Property | Value |
+|----------|-------|
+| Aggregate Root | Currency |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Rarely |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain currency definitions.
+- Maintain currency pair definitions.
+- Support financial reporting.
+- Support analytical services.
+- Support multi-market architecture.
+
+### Business Identifier
+
+**ISO 4217**
+
+### Aggregate Rules
+
+- Currency identifiers shall comply with ISO standards.
+- Currency Pairs reference two valid currencies.
+- Currency definitions are immutable except for metadata.
+- Financial reference entities are shared enterprise assets.
+
+---
+
+# 9. Market Aggregate
+
+## Business Purpose
+
+The Market Aggregate defines the enterprise structure of financial markets supported by the Phoenix Platform.
+
+It establishes the canonical representation of markets, exchanges, trading calendars and trading sessions that are shared across all market engines.
+
+### Aggregate Characteristics
+
+| Property | Value |
+|----------|-------|
+| Aggregate Root | Market |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Limited |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain supported financial markets.
+- Maintain exchange definitions.
+- Maintain trading calendars.
+- Maintain trading sessions.
+- Support market governance.
+- Support multi-market architecture.
+
+### Business Identifier
+
+**Market Code**
+
+### Aggregate Rules
+
+- Every Exchange belongs to exactly one Market.
+- Every Trading Calendar belongs to one Exchange.
+- Every Trading Session belongs to one Trading Calendar.
+- Market identifiers shall remain stable.
+- Market definitions shall be independent of trading activity.
+
+---
+
+# 10. Classification Aggregate
+
+## Business Purpose
+
+The Classification Aggregate provides standardized business classifications used throughout the Phoenix Platform.
+
+These classifications support reporting, analytics, portfolio management and enterprise-wide categorization.
+
+### Aggregate Characteristics
+
+| Property | Value |
+|----------|-------|
+| Aggregate Root | AssetClass |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Rarely |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain Asset Classes.
+- Maintain Instrument Types.
+- Maintain Sector hierarchy.
+- Maintain Industry hierarchy.
 - Support enterprise reporting.
-- Support market classification.
+- Support analytical grouping.
 
 ### Business Identifier
 
-Sector Code
+**Asset Class Code**
 
-### Logical Characteristics
+### Aggregate Rules
 
-- Aggregate Root
-- Enterprise classification entity
-
-### Business Rules
-
-- Sector Code shall be unique.
-- Sector may contain multiple Industries.
-- Sector cannot depend on transactional entities.
+- Instrument Types belong to an Asset Class.
+- Industries belong to a Sector.
+- Classification entities shall not depend upon operational entities.
+- Classification structures shall remain consistent across all business domains.
 
 ---
 
-## 5.4 Industry
+# 11. Calendar Aggregate
 
-### Business Purpose
+## Business Purpose
 
-Represents a detailed business classification within a Sector.
+The Calendar Aggregate defines enterprise calendars governing business operations, trading activities and scheduling.
 
-### Business Responsibilities
+### Aggregate Characteristics
 
-- Organize companies.
-- Support financial classification.
-- Enable analytical grouping.
+| Property | Value |
+|----------|-------|
+| Aggregate Root | HolidayCalendar |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Yes |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain public holidays.
+- Maintain market holidays.
+- Support scheduling.
+- Support trading operations.
+- Provide enterprise calendar services.
 
 ### Business Identifier
 
-Industry Code
+**Calendar Code**
 
-### Logical Characteristics
+### Aggregate Rules
 
-- Aggregate Root
-- Child of Sector
-
-### Business Rules
-
-- Every Industry belongs to exactly one Sector.
-- Industry Code shall be unique within a Sector.
-- Industry cannot exist without a parent Sector.
+- Holiday calendars shall be unique.
+- Calendar definitions shall remain historically traceable.
+- Calendar changes shall follow enterprise governance procedures.
 
 ---
 
-## 5.5 Trading Calendar
+# 12. Provider Aggregate
 
-### Business Purpose
+## Business Purpose
 
-Defines the official trading schedule used throughout the platform.
+The Provider Aggregate defines external organizations supplying market data, reference information or integration services.
 
-### Business Responsibilities
+It provides a standardized abstraction over external systems.
 
-- Identify trading days.
-- Identify holidays.
-- Support historical market processing.
-- Support business time management.
+### Aggregate Characteristics
+
+| Property | Value |
+|----------|-------|
+| Aggregate Root | DataProvider |
+| Shared Across Domains | Yes |
+| Lifecycle | Long-lived |
+| Mutable | Limited |
+| Domain | Reference |
+
+### Aggregate Responsibilities
+
+- Maintain provider definitions.
+- Maintain data source definitions.
+- Support external integrations.
+- Provide canonical provider identities.
 
 ### Business Identifier
 
-Trading Date
+**Provider Code**
 
-### Logical Characteristics
+### Aggregate Rules
 
-- Enterprise calendar
-- Shared reference entity
-
-### Business Rules
-
-- One calendar entry shall exist for each trading day.
-- A calendar day cannot simultaneously be a trading day and a market holiday.
-- Historical calendar entries shall not be modified without governance approval.
+- Every Data Source belongs to one Data Provider.
+- Provider identifiers shall remain stable.
+- Provider definitions shall be reusable across services.
+- External provider changes shall not affect business identifiers.
 
 ---
 
-# 6. Cross-Aggregate Relationships
+# 13. Cross-Aggregate Relationships
+
+Reference Aggregates collaborate through well-defined business relationships while preserving aggregate independence.
 
 | Parent Aggregate | Child Aggregate | Cardinality |
 |------------------|-----------------|-------------|
-| Exchange | Trading Board | 1 : N |
+| Geographic | Localization | 1 : N |
+| Market | Exchange | 1 : N |
+| Exchange | TradingCalendar | 1 : N |
+| TradingCalendar | TradingSession | 1 : N |
+| Classification | InstrumentType | 1 : N |
+| Classification | Sector | 1 : N |
 | Sector | Industry | 1 : N |
+| Provider | DataSource | 1 : N |
 
-The remaining business domains reference these Aggregates but do not own them.
+Reference aggregates expose only their Aggregate Root to external domains.
 
 ---
 
-# 7. Domain Constraints
+# 14. Aggregate Dependencies
 
-The following logical constraints govern the Reference Domain:
+Reference aggregates may depend only on other reference aggregates when required by business semantics.
 
-- Every Trading Board shall reference one Exchange.
-- Every Industry shall reference one Sector.
-- Business identifiers shall remain stable.
-- Reference entities shall not depend on transactional entities.
+Dependency rules are intentionally restrictive to preserve loose coupling.
+
+## Dependency Principles
+
+- Dependencies shall remain unidirectional.
+- Circular aggregate dependencies are prohibited.
+- Aggregate Roots are the only externally visible entry points.
+- Internal entities shall never be referenced directly.
+- Dependencies shall remain technology independent.
+
+---
+
+# 15. Aggregate Ownership
+
+Each aggregate has a single authoritative owner responsible for its lifecycle, governance and business correctness.
+
+## Ownership Rules
+
+- Every aggregate belongs to exactly one domain.
+- Ownership shall never be ambiguous.
+- Aggregate ownership cannot be delegated.
+- Cross-domain usage does not transfer ownership.
+- Ownership changes require Architecture Board approval.
+
+---
+
+# 16. Aggregate Lifecycle
+
+Reference aggregates are long-lived enterprise assets.
+
+Lifecycle changes occur infrequently and follow controlled governance processes.
+
+## Lifecycle States
+
+- Proposed
+- Approved
+- Active
+- Suspended
+- Deprecated
+- Retired
+
+Aggregate lifecycle transitions shall preserve historical integrity and business continuity.
+
+---
+
+# 17. Aggregate Boundaries
+
+Aggregate boundaries define transactional consistency and ownership within the Reference Domain.
+
+These boundaries ensure that each aggregate remains cohesive and independently maintainable.
+
+## Boundary Principles
+
+- Each aggregate has exactly one Aggregate Root.
+- Business invariants are enforced within aggregate boundaries.
+- Cross-aggregate communication occurs through Aggregate Roots.
+- Aggregate boundaries shall not overlap.
+- Aggregate boundaries shall remain stable unless superseded by an approved ADR.
+
+---
+
+# 18. Domain Constraints
+
+The following logical constraints govern the Reference Domain and apply to every aggregate.
+
+## General Constraints
+
+- Every aggregate shall have exactly one Aggregate Root.
+- Every aggregate shall expose a stable business identifier.
+- Every aggregate shall belong exclusively to the Reference Domain.
+- Aggregate ownership shall be unique and unambiguous.
 - Aggregate boundaries shall remain independent.
-
----
-
-# 8. Domain Invariants
-
-The following invariants shall always hold:
-
-- Every Aggregate has exactly one Aggregate Root.
-- Every Aggregate has exactly one Business Identifier.
-- Aggregate ownership shall never be ambiguous.
-- Aggregate references shall target Aggregate Roots only.
-- Reference data shall remain enterprise consistent.
+- Reference aggregates shall not depend on operational or transactional domains.
+- Cross-domain references shall target Aggregate Roots only.
 - Business semantics shall remain technology independent.
 
+## Consistency Constraints
+
+- Business identifiers shall remain unique within their defined scope.
+- Aggregate relationships shall preserve referential consistency.
+- Reference data shall remain authoritative across the enterprise.
+- Duplicate business concepts are prohibited.
+- Changes affecting business semantics require enterprise governance approval.
+
 ---
 
-# 9. Traceability
+# 19. Domain Invariants
+
+The following invariants shall always hold throughout the lifecycle of the Reference Domain.
+
+## Aggregate Invariants
+
+- Every aggregate has one and only one Aggregate Root.
+- Aggregate ownership is immutable unless superseded by an approved Architecture Decision Record (ADR).
+- Aggregate boundaries remain stable.
+- Internal entities shall not be referenced directly by external domains.
+
+## Business Invariants
+
+- Business identifiers remain stable.
+- Canonical business definitions remain consistent.
+- Shared reference data shall have a single authoritative source.
+- Historical business meaning shall never be lost through implementation changes.
+
+## Architectural Invariants
+
+- The Reference Domain remains independent of implementation technology.
+- Logical models shall not contain physical database details.
+- Domain models shall remain independent of application services.
+- Reference aggregates shall continue to provide reusable enterprise master data.
+
+---
+
+# 20. Traceability
+
+This document maintains complete traceability to the Phoenix Enterprise Architecture repository.
 
 | Source Artifact | Traceability |
 |-----------------|--------------|
-| CanonicalDomainModel | Aggregate definitions |
-| AggregateCatalog | Aggregate responsibilities |
-| AggregateAttributeMatrix | Logical attribute assignment |
-| AttributeCatalog | Approved enterprise attributes |
-| CanonicalBusinessRules | Business constraints |
-| EnterpriseAttributeStandard | Attribute compliance |
+| CanonicalDomainModel | Domain concepts and aggregate boundaries |
+| ReferenceEntityDefinitions | Canonical entity definitions |
+| AggregateCatalog | Aggregate ownership and responsibilities |
+| AggregateAttributeMatrix | Aggregate-to-attribute allocation |
+| EnterpriseAttributeDictionary | Canonical enterprise attributes |
+| EnterpriseRelationshipCatalog | Cross-aggregate relationships |
+| EnterpriseRelationshipMatrix | Relationship validation |
+| CanonicalBusinessRules | Enterprise business constraints |
+| LogicalDatabaseModel | Enterprise logical data model alignment |
+| PhysicalDatabaseModel | Physical implementation traceability |
+
+Traceability ensures consistency between business architecture, logical modeling and physical implementation.
 
 ---
 
-# 10. Transition to Physical Design
+# 21. Transition to Physical Design
 
-This document provides the authoritative logical foundation for:
+The Reference Domain Logical Model provides the authoritative logical foundation for physical database implementation.
 
-- Physical Database Model
-- PostgreSQL Schema Design
+The following implementation activities derive directly from this document:
+
+- Physical Database Modeling
+- Schema Design
 - Table Design
+- Primary Key Strategy
 - Foreign Key Design
-- Constraint Design
-- Migration Planning
+- Constraint Definition
+- Index Strategy
+- Data Governance Implementation
 
-No implementation-specific decisions are defined in this document.
+Implementation-specific decisions are intentionally excluded from this document and are defined within the **PhysicalDatabaseModel**.
 
 ---
 
-# 11. Related Artifacts
+# 22. Related Artifacts
 
-- ConceptualModel
+## Domain Architecture
+
+- CanonicalDomainModel
+- ReferenceEntityDefinitions
 - LogicalDatabaseModel
 - PhysicalDatabaseModel
-- CanonicalDomainModel
+
+## Enterprise Data Architecture
+
 - AggregateCatalog
 - AggregateAttributeMatrix
-- AttributeCatalog
-- AttributeDictionary
+- EnterpriseAttributeDictionary
+- EnterpriseRelationshipCatalog
+- EnterpriseRelationshipMatrix
 - CanonicalBusinessRules
+
+## Enterprise Standards
+
+- Repository Architecture (ADR-022)
+- Enterprise Naming Standard
+- Enterprise Data Governance Standard
 
 ---
 
-# Revision History
+# 23. Approval
+
+The Phoenix Enterprise Architecture Board approves this Reference Domain Logical Model as the official logical specification of the Reference Domain.
+
+This document establishes the canonical aggregate structure, business responsibilities and logical boundaries for the Reference Domain and serves as the authoritative foundation for conceptual modeling, logical database modeling and physical database implementation.
+
+## Approval Status
+
+**APPROVED**
+
+---
+
+# 24. Revision History
 
 | Version | Date | Description |
-|----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial logical model |
-| 2026.2 | 2026-07-09 | Canonical redesign aligned with Sprint 3 Information Architecture |
+|----------|------------|--------------------------------------------------------------|
+| 2026.3 | 2026-07-20 | Enterprise Repository Edition aligned with the canonical architecture baseline. |
+
+---
+
+# 25. Architecture Compliance
+
+This document complies with the Phoenix Enterprise Architecture standards and is aligned with:
+
+- Domain-Driven Design (DDD)
+- Enterprise Information Architecture
+- Repository Architecture (ADR-022)
+- Canonical Domain Modeling Standards
+- Enterprise Data Governance Framework
+- Enterprise Naming Standards
+- Aggregate Modeling Principles
+
+The Reference Domain Logical Model shall be regarded as the authoritative logical specification for all Reference Domain aggregates. All future modifications shall preserve architectural consistency unless explicitly superseded by an approved Architecture Decision Record (ADR).
