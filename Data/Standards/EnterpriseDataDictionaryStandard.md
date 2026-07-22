@@ -1,240 +1,467 @@
 # Enterprise Data Dictionary Standard
 
+---
+
+# Document Information
+
 | Property | Value |
 |----------|-------|
 | Project | Phoenix Platform |
 | Artifact ID | DST-006 |
 | Document | EnterpriseDataDictionaryStandard |
-| Version | 2026.1 |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Design Standard |
-| Owner | Architecture Team |
-| Sprint | Sprint 3 |
-| Epic | Enterprise Data Dictionary |
-| Last Updated | 2026-07-07 |
+| Classification | Enterprise Data Standard |
+| Capability | Data |
+| Owner | Enterprise Data Architecture Team |
+| Repository Path | Data/Standards/EnterpriseDataDictionaryStandard.md |
+| Last Updated | 2026-07-22 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical standard for creating and maintaining the Enterprise Data Dictionary of the Phoenix Platform.
+This standard defines the governance framework for the Enterprise Data Dictionary of the Phoenix Platform.
 
-Its objective is to establish a uniform structure for documenting business entities, attributes, relationships, and metadata across all domains.
+Its purpose is to establish a unified, enterprise-wide methodology for organizing, maintaining, governing, and evolving business metadata throughout the platform.
 
-The Enterprise Data Dictionary serves as the authoritative source of business information for logical and physical database design.
+The Enterprise Data Dictionary serves as the authoritative source of business definitions used by enterprise architecture, logical data models, physical database models, database engineering activities, analytics, integrations, and future information services.
+
+This standard governs the architecture of the Enterprise Data Dictionary itself.
+
+It does not redefine business entities, attributes, relationships, naming conventions, identifiers, audit metadata, or database implementation rules, all of which are governed by dedicated Enterprise Data Standards.
 
 ---
 
 # 2. Scope
 
-This standard applies to:
+This standard applies to every component of the Enterprise Data Dictionary.
+
+Its scope includes:
 
 - Business Glossary
-- Entity Definitions
-- Attribute Definitions
-- Logical Data Model
-- Physical Data Model
-- Database Documentation
-- API Documentation
-- Reporting Metadata
-- Machine Learning Metadata
+- Entity Dictionary
+- Attribute Dictionary
+- Relationship Dictionary
+- Business Metadata
+- Enterprise Vocabulary
+- Canonical Business Definitions
+- Cross-Domain Metadata
+- Enterprise Information Governance
 
-All future Data Dictionary documents shall comply with this standard.
+The Enterprise Data Dictionary shall serve as the canonical business metadata repository for all Enterprise Data artifacts.
 
----
+The following subjects are outside the scope of this document:
 
-# 3. Principles
+- Physical database implementation
+- SQL scripts
+- Table definitions
+- Database constraints
+- Programming language models
+- ORM mappings
+- API implementation
+- Storage optimization
 
-The Enterprise Data Dictionary shall be:
-
-- Business-oriented
-- Technology-independent
-- Canonical
-- Consistent
-- Traceable
-- Extensible
-- Maintainable
-
-Business meaning shall always take precedence over implementation details.
+These concerns are governed by other Enterprise Data Standards.
 
 ---
 
-# 4. Data Dictionary Structure
+# 3. Objectives
 
-The Enterprise Data Dictionary is organized into the following sections.
+The Enterprise Data Dictionary Standard has the following objectives:
 
+- establish a canonical enterprise business vocabulary;
+- provide a single authoritative source for business metadata;
+- eliminate semantic duplication across business domains;
+- ensure consistency between architecture and implementation;
+- support enterprise-wide information governance;
+- improve traceability throughout the engineering lifecycle;
+- facilitate reuse of business concepts;
+- preserve long-term maintainability of enterprise metadata.
+
+---
+
+# 4. Enterprise Data Dictionary Philosophy
+
+Within the Phoenix Platform, the Enterprise Data Dictionary is regarded as an enterprise knowledge asset rather than a database artifact.
+
+Business metadata shall always originate from approved enterprise architecture.
+
+The Enterprise Data Dictionary captures business meaning independently of implementation technology and remains stable throughout the platform lifecycle.
+
+Every documented business concept shall have:
+
+- one canonical definition;
+- one authoritative owner;
+- one approved business meaning;
+- one documented lifecycle.
+
+Business semantics shall always precede technical implementation.
+
+---
+
+# 5. Position within Enterprise Data Architecture
+
+The Enterprise Data Dictionary occupies the semantic layer of the Enterprise Data Architecture.
+
+```text
+Enterprise Architecture
+            │
+            ▼
+Business Rules
+            │
+            ▼
+Enterprise Data Dictionary
+            │
+            ▼
+Logical Data Model
+            │
+            ▼
+Physical Database Model
+            │
+            ▼
+Database Engineering
+            │
+            ▼
+Implementation
 ```
+
+The Enterprise Data Dictionary provides the authoritative business definitions consumed by all downstream engineering activities.
+
+Every logical model, physical model, and implementation artifact shall remain semantically consistent with the Enterprise Data Dictionary.
+
+---
+
+# 6. Enterprise Data Dictionary Framework
+
+The Enterprise Data Dictionary is organized into a set of complementary components that collectively define the business semantics of the Phoenix Platform.
+
+Each component has a distinct responsibility while remaining fully integrated with the others.
+
+The Enterprise Data Dictionary framework is illustrated below.
+
+```text
 Business Glossary
-        ↓
-Entity Catalog
-        ↓
-Entity Definitions
-        ↓
-Attribute Definitions
-        ↓
-Relationship Definitions
-        ↓
-Domain Mapping
-        ↓
-Validation Rules
+        │
+        ▼
+Entity Dictionary
+        │
+        ▼
+Attribute Dictionary
+        │
+        ▼
+Relationship Dictionary
+        │
+        ▼
+Enterprise Data Models
+        │
+        ▼
+Database Engineering
 ```
 
-Each section builds upon the previous one and shall remain internally consistent.
+Each component builds upon the previous one.
+
+Lower layers shall not redefine business semantics established by higher layers.
 
 ---
 
-# 5. Entity Definition Standard
+# 7. Enterprise Data Dictionary Components
 
-Each business entity shall include the following information.
+The Enterprise Data Dictionary consists of four primary components.
 
-| Property | Description |
-|----------|-------------|
-| Entity Name | Canonical business name |
-| Domain | Owning business domain |
-| Description | Business purpose |
-| Business Owner | Responsible domain |
-| Aggregate | Aggregate Root (if applicable) |
-| Primary Identifier | Canonical identifier |
-| Lifecycle | Entity lifecycle |
-| Related Entities | Direct relationships |
+| Component | Responsibility |
+|-----------|----------------|
+| Business Glossary | Enterprise business vocabulary |
+| Entity Dictionary | Canonical business entities |
+| Attribute Dictionary | Canonical business attributes |
+| Relationship Dictionary | Canonical business relationships |
+
+Together, these components establish the semantic foundation of the Enterprise Data capability.
 
 ---
 
-# 6. Attribute Definition Standard
+## 7.1 Business Glossary
 
-Each attribute shall contain the following metadata.
+The Business Glossary defines the enterprise vocabulary used throughout the Phoenix Platform.
 
-| Property | Description |
-|----------|-------------|
-| Attribute Name | Canonical attribute name |
-| Description | Business meaning |
-| Data Type | Canonical data type |
-| Nullable | Yes / No |
-| Default Value | Business default |
-| Business Rule | Associated rule(s) |
-| Example | Sample value |
-| Source | Origin of the information |
+Each business term shall have:
 
-Attributes shall describe business semantics rather than storage implementation.
+- one canonical definition;
+- one approved business meaning;
+- one authoritative business owner;
+- documented relationships with other business concepts.
+
+The Business Glossary is the authoritative source of enterprise terminology.
 
 ---
 
-# 7. Relationship Definition Standard
+## 7.2 Entity Dictionary
 
-Every relationship shall document:
+The Entity Dictionary documents the canonical business entities recognized by the enterprise.
 
-- Source Entity
-- Target Entity
-- Relationship Type
-- Cardinality
-- Optionality
-- Business Meaning
-- Ownership
+Each entity represents a persistent business concept derived from the approved domain architecture.
 
-Relationships shall be documented independently of physical foreign keys.
+The Entity Dictionary defines:
 
----
+- business purpose;
+- ownership;
+- aggregate membership;
+- lifecycle;
+- business responsibilities.
 
-# 8. Business Glossary Standard
-
-Business terms shall include:
-
-| Property | Description |
-|----------|-------------|
-| Term | Canonical business term |
-| Definition | Business definition |
-| Synonyms | Approved alternative terms |
-| Domain | Responsible domain |
-| Related Terms | Associated concepts |
-
-A business term shall have exactly one canonical definition.
+Implementation details shall not be included.
 
 ---
 
-# 9. Domain Organization
+## 7.3 Attribute Dictionary
 
-The Enterprise Data Dictionary shall be organized according to the approved bounded contexts.
+The Attribute Dictionary defines the canonical business attributes associated with enterprise entities.
 
-Current domains include:
+Each attribute shall reference:
 
-- Reference
-- Core
-- Market
-- Integration
-- Configuration
-- Audit
-- Reporting
+- one canonical business definition;
+- one owning entity;
+- one business purpose;
+- one approved classification.
 
-Future domains shall follow the same documentation structure.
+Business attribute architecture is governed by the **Enterprise Business Attribute Standard (DST-008)**.
+
+---
+
+## 7.4 Relationship Dictionary
+
+The Relationship Dictionary documents the semantic relationships between enterprise entities.
+
+Relationship definitions describe business meaning independently of physical database implementation.
+
+Each relationship shall identify:
+
+- source business entity;
+- target business entity;
+- business semantics;
+- ownership;
+- cardinality;
+- optionality.
+
+Foreign keys and implementation mechanisms are documented elsewhere.
+
+---
+
+# 8. Enterprise Metadata Principles
+
+The Enterprise Data Dictionary is governed by the following principles.
+
+## Principle 1 — Canonical Definitions
+
+Every business concept shall have exactly one approved enterprise definition.
+
+---
+
+## Principle 2 — Business Ownership
+
+Every dictionary entry shall have one authoritative business owner.
+
+---
+
+## Principle 3 — Technology Independence
+
+The Enterprise Data Dictionary documents business semantics rather than implementation details.
+
+---
+
+## Principle 4 — Enterprise Consistency
+
+Business terminology shall remain consistent across all domains and repository artifacts.
+
+---
+
+## Principle 5 — Reuse
+
+Business concepts shall be documented once and referenced wherever required.
+
+Duplicate definitions are prohibited.
+
+---
+
+## Principle 6 — Traceability
+
+Every dictionary entry shall remain traceable to its originating business architecture and to the downstream engineering artifacts that implement it.
+
+---
+
+# 9. Cross-Reference Model
+
+The Enterprise Data Dictionary establishes semantic links between enterprise business concepts.
+
+```text
+Business Glossary
+        │
+        ▼
+Entity
+        │
+        ▼
+Attribute
+        │
+        ▼
+Relationship
+        │
+        ▼
+Logical Data Model
+        │
+        ▼
+Physical Database Model
+```
+
+This cross-reference model guarantees semantic consistency throughout the Enterprise Data Architecture.
 
 ---
 
 # 10. Traceability
 
-Every documented entity and attribute shall be traceable to:
+Every Enterprise Data Dictionary component shall participate in the platform's end-to-end traceability model.
 
-- Business Capability
-- Bounded Context
-- Domain Model
-- Business Rules
-- Logical Model
-- Physical Model
+Each documented business concept shall be traceable to:
 
-This ensures complete architectural traceability throughout the platform.
+- Enterprise Architecture;
+- Business Capability;
+- Business Domain;
+- Aggregate;
+- Logical Data Model;
+- Physical Database Model;
+- Database Engineering artifacts.
 
----
+Likewise, every downstream engineering artifact shall be traceable back to the corresponding dictionary entry.
 
-# 11. Naming Compliance
-
-All entities and attributes shall comply with:
-
-- EnterpriseNamingStandard.md
-- EnterpriseDataTypeStandard.md
-- BaseEntityStandard.md
-- AuditModelStandard.md
-- IdentifierStrategy.md
-
-No Data Dictionary entry shall violate approved enterprise standards.
+This bidirectional traceability ensures governance, impact analysis, maintainability, and semantic consistency across the Phoenix Platform.
 
 ---
 
-# 12. Versioning
+# 11. Relationship with Enterprise Data Standards
 
-The Enterprise Data Dictionary shall evolve incrementally.
+The Enterprise Data Dictionary Standard operates as one component of the Enterprise Data Standards framework.
 
-Each revision shall:
+It governs enterprise business metadata while delegating specialized responsibilities to the corresponding standards.
 
-- Preserve backward traceability.
-- Record all structural changes.
-- Maintain revision history.
-- Avoid breaking approved business definitions.
+| Standard | Responsibility |
+|----------|----------------|
+| DST-001 — Enterprise Naming Standard | Canonical naming conventions |
+| DST-002 — Enterprise Data Type Standard | Logical and physical data types |
+| DST-003 — Base Entity Standard | Common enterprise entity structure |
+| DST-004 — Audit Model Standard | Enterprise audit metadata |
+| DST-005 — Identifier Strategy | Enterprise identity management |
+| DST-006 — Enterprise Data Dictionary Standard | Enterprise business metadata governance |
+| DST-007 — Enterprise Database Design Standard | Enterprise database engineering framework |
+| DST-008 — Enterprise Business Attribute Standard | Business attribute architecture |
+
+Together, these standards define the complete governance framework for the Enterprise Data capability.
 
 ---
 
-# 13. Compliance
+# 12. Repository Integration
+
+The Enterprise Data Dictionary Standard is maintained within the Enterprise Data capability.
+
+```text
+Data/
+├── Standards/
+│   └── EnterpriseDataDictionaryStandard.md
+│
+└── Dictionary/
+    ├── BusinessGlossary.md
+    ├── EntityDictionary.md
+    ├── AttributeDictionary.md
+    ├── RelationshipDictionary.md
+    └── Entity Documents
+```
+
+The standard governs every document stored within the **Data/Dictionary** repository area.
+
+Business metadata shall remain synchronized with:
+
+- Enterprise Architecture;
+- Enterprise Data Standards;
+- Logical Data Models;
+- Physical Database Models;
+- Database Engineering artifacts.
+
+---
+
+# 13. Governance
+
+The Enterprise Data Dictionary is governed through the Phoenix Architecture Governance framework.
 
 Compliance with this standard is mandatory.
 
-All Entity Dictionary, Attribute Dictionary, Business Glossary, and Relationship documents shall follow the structure defined herein.
+Architecture and data governance reviews shall verify that:
 
-Any deviation shall require approval through the Architecture Governance process.
+- every business concept has one canonical definition;
+- semantic duplication does not exist;
+- ownership is clearly documented;
+- business terminology remains consistent;
+- traceability is preserved across all engineering artifacts;
+- repository organization complies with approved standards.
+
+Changes affecting business definitions require:
+
+- documented justification;
+- architectural impact assessment;
+- formal approval by the Enterprise Architecture Team.
 
 ---
 
-# 14. Related Documents
+# 14. Versioning
 
-- EnterpriseNamingStandard.md
-- EnterpriseDataTypeStandard.md
-- BaseEntityStandard.md
-- AuditModelStandard.md
-- IdentifierStrategy.md
-- CanonicalDomainModel.md
-- EntityCatalog.md
+The Enterprise Data Dictionary shall evolve through controlled, versioned revisions.
+
+Each approved revision shall:
+
+- preserve historical traceability;
+- maintain semantic consistency;
+- document structural changes;
+- avoid incompatible business definition changes without formal architectural approval.
+
+Business concepts shall evolve incrementally while preserving enterprise knowledge.
 
 ---
 
-# Revision History
+# 15. Future Evolution
+
+The Enterprise Data Dictionary has been designed to support the continued evolution of the Phoenix Platform.
+
+Future enhancements may include:
+
+- enterprise metadata lineage;
+- multilingual business terminology;
+- metadata quality metrics;
+- reference data governance;
+- semantic search capabilities;
+- machine learning metadata catalogs;
+- ontology integration;
+- enterprise metadata services.
+
+These enhancements shall extend the Enterprise Data Dictionary without altering the canonical business definitions established by this standard.
+
+---
+
+# 16. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
 | 2026.1 | 2026-07-07 | Initial Enterprise Data Dictionary Standard. |
+| 2026.2 | 2026-07-22 | Complete redesign as the governance standard for the Enterprise Data Dictionary. Repositioned the document within the Enterprise Data capability, removed implementation-specific guidance, eliminated overlap with Entity, Attribute, and Relationship Dictionary artifacts, introduced enterprise metadata governance, repository integration, traceability framework, versioning model, and alignment with the Enterprise Data Standards architecture. |
+
+---
+
+# 17. Approval
+
+This document is an approved **Enterprise Data Standard** of the Phoenix Platform.
+
+It defines the authoritative governance framework for the Enterprise Data Dictionary and establishes the rules governing enterprise business metadata across the platform.
+
+All Business Glossary, Entity Dictionary, Attribute Dictionary, Relationship Dictionary, logical data models, and future metadata repositories shall comply with this standard unless an approved architectural exception has been granted.
+
+This standard shall remain the authoritative reference for Enterprise Data Dictionary governance until superseded by a formally approved revision.
+
+---
+
+# End of Document
