@@ -1,317 +1,331 @@
 # Instrument Data Dictionary
 
----
-
-# Document Information
-
-| Item | Value |
-|------|-------|
-| Entity | Instrument |
-| Schema | market |
-| Table | instrument |
-| Version | 1.1 |
-| Status | Architecture Freeze |
-| Last Updated | 2026-06-29 |
-
----
-
-# Purpose
-
-The Instrument entity represents a tradable financial instrument issued by a company.
-
-An Instrument is the business object that becomes available for trading after being listed on one or more Trading Boards through Instrument Listings.
+| Property | Value |
+|----------|-------|
+| Project | Phoenix Platform |
+| Artifact ID | DIC-010 |
+| Document | InstrumentDataDictionary |
+| Version | 2026.2 |
+| Status | Approved |
+| Classification | Enterprise Data Dictionary |
+| Owner | Architecture Team |
+| Depends On | EntityDictionary, AttributeDictionary, RelationshipDictionary, CanonicalDomainModel, EnterpriseDataDictionaryStandard |
+| Last Updated | 2026-07-23 |
 
 ---
 
-# Description
+# 1. Purpose
 
-The Instrument entity stores static master data describing financial instruments.
+The Instrument entity represents the canonical business definition of a tradable financial instrument within the Phoenix Platform.
 
-It is independent of:
+An Instrument is a financial asset issued by a Company that may become eligible for trading after being admitted to one or more Trading Boards through Instrument Listings.
 
-- Trading Boards
-- Market Data
-- External Providers
+The Instrument Data Dictionary establishes the enterprise-wide semantic definition of the Instrument entity and serves as the authoritative source for its business meaning across the platform.
 
-Operational trading information is maintained through:
-
-- Instrument Listing
-- Daily Market Data
-- Corporate Action
+This document follows the Single Source of Truth (SSOT) principle and is intentionally technology independent. It defines business semantics only and does not describe database implementation or physical storage.
 
 ---
 
-# Primary Key
+# 2. Scope
 
-| Name | Type |
-|------|------|
-| id | BIGINT GENERATED ALWAYS AS IDENTITY |
+This document defines the canonical business semantics of the Instrument entity throughout the Phoenix Platform.
 
-Description
+It applies to all business capabilities, domains, services, and future extensions that create, manage, analyze, or exchange information related to financial instruments.
 
-Internal immutable surrogate identifier.
+This dictionary defines:
+
+- canonical business meaning;
+- enterprise identity;
+- business responsibilities;
+- lifecycle;
+- business relationships;
+- governance;
+- traceability.
+
+This dictionary does not define:
+
+- database tables;
+- SQL data types;
+- physical columns;
+- indexes;
+- constraints;
+- foreign keys;
+- implementation details.
+
+These aspects are defined by the Physical Database Model and the corresponding implementation artifacts.
 
 ---
 
-# Public Identifier
+# 3. Relationship with Enterprise Artifacts
 
-| Name | Type |
-|------|------|
-| public_id | UUID |
+| Artifact | Responsibility |
+|----------|----------------|
+| Enterprise Data Dictionary Standard | Defines the documentation standard for all enterprise data dictionaries |
+| Entity Dictionary | Defines the Instrument as a canonical business entity |
+| Attribute Dictionary | Defines the business semantics of Instrument attributes |
+| Relationship Dictionary | Defines the canonical business relationships involving Instrument |
+| Canonical Domain Model | Places Instrument within the Market domain |
+| Logical Database Model | Defines logical relationships and aggregate boundaries |
+| Physical Database Model | Defines the physical implementation in PostgreSQL |
+| Architecture Decision Records (ADRs) | Capture architectural decisions affecting the Instrument entity |
 
-Description
+---
 
-Globally unique immutable public identifier.
+# 4. Business Definition
 
-Purpose
+An Instrument is the canonical representation of a tradable financial asset within the Phoenix Platform.
 
-- Public APIs
-- External integrations
-- Object references
+It represents the financial security issued by a Company and serves as the primary business object upon which trading, valuation, portfolio management, market analysis, and investment decisions are based.
 
-Constraint
+The Instrument entity exists independently of:
+
+- exchanges;
+- trading boards;
+- market listings;
+- external market data providers;
+- analytical models;
+- trading activity.
+
+An Instrument may exist before being listed for trading and shall continue to exist after trading has ceased, provided that its historical business identity remains relevant.
+
+The Instrument is therefore considered a long-lived enterprise business entity whose identity is immutable throughout its lifecycle.
+
+---
+
+# 5. Enterprise Identity
+
+Every Instrument possesses one and only one canonical enterprise identity.
+
+This identity uniquely distinguishes the Instrument from every other financial instrument managed by the Phoenix Platform.
+
+The enterprise identity is:
+
+- globally unique;
+- immutable;
+- technology independent;
+- provider independent;
+- exchange independent.
+
+The identity of an Instrument shall never change because of:
+
+- listing on additional exchanges;
+- ticker symbol changes;
+- trading board transfers;
+- changes in external provider identifiers;
+- company name changes;
+- market restructuring.
+
+The enterprise identity guarantees semantic consistency across all domains and services of the platform.
+
+---
+
+# 6. Business Responsibilities
+
+The Instrument entity is responsible for representing the intrinsic business characteristics of a financial instrument.
+
+Its primary responsibilities include:
+
+- representing a tradable financial asset;
+- maintaining the canonical enterprise identity of the asset;
+- associating the asset with its issuing Company;
+- supporting investment lifecycle management;
+- providing the foundation for trading activities;
+- enabling analytical and quantitative processing;
+- supporting portfolio and risk management;
+- supporting enterprise-wide integration.
+
+The Instrument entity is not responsible for:
+
+- market prices;
+- trading sessions;
+- exchange membership;
+- listing history;
+- corporate actions;
+- technical indicators;
+- investment portfolios;
+- trading signals.
+
+These responsibilities belong to their respective enterprise entities.
+
+---
+
+# 7. Business Relationships
+
+The Instrument entity participates in several canonical business relationships across the enterprise.
+
+| Related Entity | Relationship | Cardinality |
+|---------------|--------------|-------------|
+| Company | Issued by | N : 1 |
+| Instrument Listing | Listed through | 1 : N |
+| Trading Board | Traded on (through Instrument Listing) | N : M |
+| Daily Market Data | Produces | 1 : N |
+| Corporate Action | Subject of | 1 : N |
+| Portfolio Position | Referenced by | 1 : N |
+| Strategy | Evaluated by | N : M |
+| Indicator | Calculated for | 1 : N |
+| Prediction | Evaluated for | 1 : N |
+
+All business relationships shall conform to the Relationship Dictionary and the approved Logical Database Model.
+
+---
+
+# 8. Business Lifecycle
+
+The lifecycle of an Instrument follows the progression below.
 
 ```text
-UNIQUE
-```
-
----
-
-# Business Identifier
-
-| Name | Type |
-|------|------|
-| instrument_code | VARCHAR(30) |
-
-Description
-
-Stable internal business identifier.
-
-Example
-
-```text
-INS-000123
-```
-
-Constraint
-
-```text
-UNIQUE
-```
-
----
-
-# Attributes
-
-| Column | Type | Nullable | Description |
-|---------|------|----------|-------------|
-| company_id | BIGINT | No | Issuing company |
-| instrument_type | VARCHAR(30) | No | Instrument classification |
-| isin | VARCHAR(20) | Yes | International Securities Identification Number |
-| description | TEXT | Yes | Optional description |
-
----
-
-# Relationships
-
-## Parent Entity
-
-Company
-
-```text
-Company
-
-1
+Proposed
 
 ↓
 
-N
-
-Instrument
-```
-
-Foreign Key
-
-```text
-company_id
-```
-
----
-
-## Child Entity
-
-Instrument Listing
-
-```text
-Instrument
-
-1
+Issued
 
 ↓
 
-N
-
-Instrument Listing
-```
-
----
-
-## Child Entity
-
-Corporate Action
-
-```text
-Instrument
-
-1
+Listed
 
 ↓
 
-N
+Tradable
 
-Corporate Action
+↓
+
+Suspended (Optional)
+
+↓
+
+Delisted
+
+↓
+
+Retired
+
+↓
+
+Archived
 ```
+
+An Instrument shall preserve its enterprise identity throughout every lifecycle stage.
+
+Historical Instruments shall remain available for reporting, auditing, analytics, and historical market reconstruction even after retirement.
 
 ---
 
-# Business Rules
+# 9. Business Rules
 
-An Instrument:
+The following enterprise business rules govern the Instrument entity.
 
-- belongs to exactly one Company.
-- may have zero or more Instrument Listings.
-- may have zero or more Corporate Actions.
-- shall not contain provider-specific identifiers.
-- shall not contain market trading information.
+## Identity Rules
 
----
-
-# Instrument Types
-
-Typical values include:
-
-```text
-Common Stock
-
-Preferred Stock
-
-ETF
-
-Bond
-
-Option
-
-Future
-
-Right
-
-Warrant
-```
+- Every Instrument shall possess exactly one canonical enterprise identity.
+- The enterprise identity shall remain immutable throughout the Instrument lifecycle.
+- An Instrument shall never be duplicated within the enterprise.
+- External provider identifiers shall never replace the canonical Instrument identity.
 
 ---
 
-# Constraints
+## Ownership Rules
 
-## Primary Key
-
-```text
-PRIMARY KEY (id)
-```
+- Every Instrument shall be issued by exactly one Company.
+- An Instrument cannot exist without an issuing Company.
+- Changes to Company information shall not affect the identity of the Instrument.
 
 ---
 
-## Public Identifier
+## Listing Rules
 
-```text
-UNIQUE (public_id)
-```
-
----
-
-## Business Identifier
-
-```text
-UNIQUE (instrument_code)
-```
+- An Instrument may exist without being listed on any Trading Board.
+- An Instrument may be listed on one or more Trading Boards through Instrument Listings.
+- Listing information is managed independently from the Instrument entity.
 
 ---
 
-## Foreign Key
+## Trading Rules
 
-```text
-company_id
-
-REFERENCES market.company(id)
-```
+- Trading activities shall reference an existing Instrument.
+- Market prices shall not be stored as attributes of the Instrument entity.
+- Trading history shall be maintained independently from Instrument master data.
 
 ---
 
-# Index Recommendation
+## Classification Rules
 
-Primary Index
-
-```text
-id
-```
-
-Unique Indexes
-
-```text
-public_id
-
-instrument_code
-```
-
-Foreign Key Index
-
-```text
-company_id
-```
+- Every Instrument shall belong to exactly one approved Instrument Type.
+- Instrument classifications shall comply with the Enterprise Business Glossary and Canonical Domain Model.
+- New Instrument Types require architectural approval before adoption.
 
 ---
 
-# Audit Columns
+## Governance Rules
 
-Every Instrument record contains:
-
-```text
-created_at
-
-updated_at
-
-created_by
-
-updated_by
-
-is_active
-```
+- The Instrument entity shall remain technology independent.
+- Business semantics shall not depend on database implementation.
+- Historical Instruments shall never be physically removed from the enterprise information model.
+- Business changes affecting the Instrument entity shall follow the Architecture Governance process.
 
 ---
 
-# Dependencies
+# 10. Governance
 
-Depends On
+The Instrument entity is governed as a canonical enterprise business entity.
 
-- Company
+All modifications to its business definition shall comply with the Enterprise Architecture Governance framework.
 
-Referenced By
+Changes requiring governance review include:
 
-- Instrument Listing
-- Corporate Action
-- External Identifier
+- changes to the business definition;
+- changes to business responsibilities;
+- changes to lifecycle semantics;
+- changes to canonical relationships;
+- changes affecting enterprise identity;
+- introduction of new business concepts related to Instruments.
+
+All proposed modifications shall undergo:
+
+1. Business impact analysis.
+2. Architecture review.
+3. Cross-document consistency validation.
+4. Formal architectural approval.
+
+The Instrument entity shall remain synchronized with all dependent enterprise artifacts.
 
 ---
 
-# Related Documents
+# 11. Traceability
 
-- ConceptualModel.md
-- LogicalDatabaseModel.md
-- PhysicalDatabaseModel.md
-- 05-company.md
-- 07-instrument_listing.md
-- ADR-015
-- ADR-016
-- ADR-017
+The Instrument entity is traceable across the Phoenix Enterprise Architecture.
+
+| Artifact | Relationship |
+|----------|--------------|
+| Business Glossary | Defines Instrument terminology |
+| Entity Dictionary | Defines the Instrument business entity |
+| Attribute Dictionary | Defines Instrument attribute semantics |
+| Relationship Dictionary | Defines Instrument business relationships |
+| Canonical Domain Model | Places Instrument within the Market domain |
+| Aggregate Catalog | Defines aggregate ownership |
+| Logical Database Model | Defines logical relationships |
+| Physical Database Model | Defines physical implementation |
+| Enterprise Data Dictionary | Defines business semantics |
+| Architecture Decision Records (ADRs) | Records architectural decisions affecting Instrument |
+
+This traceability ensures consistency across business architecture, information architecture, application architecture, and data architecture.
+
+---
+
+# 12. Related Documents
+
+- EnterpriseDataDictionaryStandard
+- BusinessGlossary
+- EntityDictionary
+- AttributeDictionary
+- RelationshipDictionary
+- CanonicalDomainModel
+- AggregateCatalog
+- LogicalDatabaseModel
+- PhysicalDatabaseModel
+- ADR-015 — Market Classification Model
+- ADR-016 — Public Identifier Strategy
+- ADR-017 — Canonical Data Modeling Principles
 
 ---
 
@@ -319,4 +333,59 @@ Referenced By
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.1 | 2026-06-29 | Initial Architecture Freeze version |
+| 2026.1 | 2026-06-29 | Initial Instrument Data Dictionary |
+| 2026.2 | 2026-07-23 | Redesigned as an Enterprise semantic dictionary aligned with the Enterprise Data Dictionary Standard and Single Source of Truth (SSOT) principles |
+
+---
+
+# 13. Cross-Reference Matrix
+
+The Instrument entity is governed by and traced to the following enterprise artifacts.
+
+| Enterprise Artifact | Relationship |
+|---------------------|--------------|
+| Business Glossary | Defines the business terminology related to Instruments |
+| Entity Dictionary | Defines Instrument as a canonical business entity |
+| Attribute Catalog | Registers approved Instrument attributes |
+| Attribute Dictionary | Defines the business semantics of Instrument attributes |
+| Relationship Dictionary | Defines canonical relationships involving Instrument |
+| Aggregate Catalog | Identifies the owning Aggregate |
+| Canonical Domain Model | Places Instrument within the Market Domain |
+| Logical Database Model | Defines logical structure and relationships |
+| Physical Database Model | Defines physical implementation |
+| Enterprise Data Dictionary Standard | Governs the structure of this document |
+| Enterprise Attribute Standard | Governs Instrument attributes |
+| Enterprise Naming Standard | Governs naming conventions |
+| Enterprise Data Type Standard | Governs logical data types |
+| ADR-015 — Market Classification Model | Defines market classification principles |
+| ADR-016 — Public Identifier Strategy | Defines enterprise identity strategy |
+| ADR-017 — Canonical Data Modeling Principles | Defines enterprise modeling principles |
+
+---
+
+# 14. Compliance
+
+All enterprise solutions shall use the Instrument entity exactly as defined in this dictionary.
+
+The Instrument entity shall:
+
+- maintain a single canonical business definition;
+- remain technology independent;
+- remain implementation independent;
+- preserve semantic consistency across all enterprise artifacts;
+- comply with the Enterprise Data Dictionary Standard;
+- comply with the Enterprise Attribute Standard;
+- comply with approved Architecture Decision Records (ADRs).
+
+No project, service, database, or application may redefine the business meaning of the Instrument entity.
+
+Any modification to this document shall require formal architecture review and approval through the Enterprise Architecture Governance process.
+
+---
+
+# Revision History
+
+| Version | Date | Description |
+|----------|------|-------------|
+| 2026.1 | 2026-06-29 | Initial Instrument Data Dictionary |
+| 2026.2 | 2026-07-23 | Completely redesigned according to the Enterprise Data Dictionary Standard, aligned with the Single Source of Truth (SSOT) principle and the canonical enterprise architecture. |

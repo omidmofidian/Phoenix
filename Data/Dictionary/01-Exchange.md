@@ -1,220 +1,322 @@
-# Exchange Data Dictionary
-
----
-
-# Document Information
-
-| Item | Value |
-|------|-------|
-| Table | market.exchange |
-| Document | Exchange Data Dictionary |
-| Version | 1.0 |
-| Status | Approved |
-| Last Updated | 2026-06-29 |
-
----
-
-# Purpose
-
-The `exchange` table stores the master information of securities exchanges supported by the Phoenix platform.
-
-Each exchange represents an organized financial market where one or more trading boards operate.
-
-This table is considered reference (master) data and changes infrequently.
-
----
-
-# Table Information
+# Exchange Dictionary
 
 | Property | Value |
 |----------|-------|
-| Schema | market |
-| Table | exchange |
-| Table Type | Master Data |
-| Estimated Growth | Very Low |
-| Primary Key | id |
-| Public Identifier | public_id |
+| Project | Phoenix Platform |
+| Artifact ID | DICT-EX-001 |
+| Document | ExchangeDictionary |
+| Version | 2026.2 |
+| Status | Approved |
+| Classification | Enterprise Data Dictionary |
+| Owner | Reference Domain |
+| Aggregate | Market Reference |
+| Depends On | EntityDictionary, AttributeDictionary, RelationshipDictionary, EnterpriseDataDictionaryStandard |
+| Last Updated | 2026-07-23 |
 
 ---
 
-# Business Description
+# 1. Purpose
 
-Each exchange:
+This document defines the canonical business meaning of the **Exchange** entity within the Phoenix Platform.
 
-- Has a unique exchange code.
-- Has a unique official name.
-- Belongs to one country.
-- Uses one official currency.
-- Operates in one official time zone.
-- May contain multiple trading boards.
+The Exchange Dictionary serves as the authoritative business reference for understanding the responsibilities, lifecycle, business relationships, and attribute usage of an Exchange.
+
+This document is technology-independent and does not define physical database implementation.
 
 ---
 
-# Columns
+# 2. Business Definition
 
-| Column | Type | Nullable | Description |
-|---------|------|----------|-------------|
-| id | BIGINT | No | Internal database identifier |
-| public_id | UUID | No | Public identifier |
-| exchange_code | VARCHAR(20) | No | Official exchange code |
-| external_exchange_code | VARCHAR(50) | Yes | External provider exchange identifier |
-| exchange_name | VARCHAR(200) | No | Official English name |
-| local_name | VARCHAR(200) | No | Official local language name |
-| country_code | CHAR(2) | No | ISO 3166-1 country code |
-| website | VARCHAR(300) | Yes | Official website |
-| timezone | VARCHAR(50) | No | IANA time zone |
-| currency_code | CHAR(3) | No | ISO 4217 currency code |
-| is_active | BOOLEAN | No | Exchange status |
-| created_at | TIMESTAMPTZ | No | Record creation time |
-| updated_at | TIMESTAMPTZ | No | Last update time |
+An **Exchange** is an organized financial marketplace that provides the regulatory, operational, and technical infrastructure for trading financial instruments.
+
+Within the Phoenix Platform, an Exchange represents the highest-level trading venue under which one or more Markets and Trading Boards operate.
+
+The Exchange entity is classified as enterprise reference data and provides foundational information used throughout multiple business domains.
 
 ---
 
-# Keys
+# 3. Business Responsibilities
 
-## Primary Key
+The Exchange entity is responsible for:
+
+- Identifying regulated financial exchanges
+- Providing exchange-level reference information
+- Supporting market organization
+- Providing the business context for Trading Boards
+- Supporting instrument listing through subordinate entities
+- Serving as an enterprise reference object across multiple services
+
+The Exchange entity is **not responsible** for:
+
+- Trading sessions
+- Daily market prices
+- Corporate actions
+- Market analytics
+- Technical indicators
+
+These responsibilities belong to other business entities and domains.
+
+---
+
+# 4. Aggregate Information
+
+| Property | Value |
+|----------|-------|
+| Domain | Reference Domain |
+| Aggregate | Market Reference |
+| Aggregate Root | Yes |
+| Lifecycle | Stable |
+| Business Owner | Reference Domain |
+| Shared Across Domains | Yes |
+
+The Exchange entity acts as an Aggregate Root for exchange-related reference information.
+
+No external entity may modify Exchange state except through its Aggregate Root.
+
+---
+
+# 5. Business Lifecycle
+
+The Exchange entity follows a long-lived and highly stable lifecycle.
+
+Changes to an Exchange are rare and occur only when officially approved by the governing financial authority.
+
+The typical lifecycle is illustrated below.
 
 ```text
-id
+Proposed
+      ↓
+Reviewed
+      ↓
+Approved
+      ↓
+Active
+      ↓
+Inactive
+      ↓
+Archived
 ```
 
-## Public Identifier
+## Lifecycle States
 
-```text
-public_id
-```
+| State | Description |
+|---------|-------------|
+| Proposed | Exchange has been identified but not yet approved for enterprise use. |
+| Reviewed | Business validation has been completed. |
+| Approved | Exchange has been accepted as official enterprise reference data. |
+| Active | Exchange is operational and may be referenced by other business entities. |
+| Inactive | Exchange is no longer operational but remains historically valid. |
+| Archived | Exchange is retained only for historical traceability. |
 
-## Business Keys
-
-```text
-exchange_code
-
-exchange_name
-```
-
----
-
-# Constraints
-
-## Primary Key
-
-```text
-PK_exchange
-```
-
-## Unique Constraints
-
-```text
-UX_exchange_public_id
-
-UX_exchange_exchange_code
-
-UX_exchange_exchange_name
-```
-
-## Check Constraints
-
-```text
-country_code must follow ISO 3166-1 Alpha-2
-
-currency_code must follow ISO 4217
-```
+Exchange records shall never be physically deleted.
 
 ---
 
-# Relationships
+# 6. Enterprise Identity
 
-Parent Tables
+The Exchange entity follows the enterprise identity model defined by the Enterprise Identity Standard.
 
-None
+## Canonical Identity
 
-Child Tables
+The Exchange possesses one immutable enterprise identifier.
 
-```text
-market.trading_board
-```
+Reference:
 
-Relationship
-
-```text
-Exchange (1)
-
-↓
-
-TradingBoard (N)
-```
+- EnterpriseIdentityStandard
+- IdentifierStrategy
 
 ---
 
-# Business Rules
+## Business Identity
 
-- Every exchange must have a unique exchange code.
-- Every exchange must have a unique official name.
-- An exchange cannot be deleted while trading boards exist.
-- Country codes shall comply with ISO 3166-1.
-- Currency codes shall comply with ISO 4217.
-- Time zones shall use IANA identifiers.
-- Historical exchange records shall not be physically deleted.
+The Exchange is additionally identified through approved business identifiers.
 
----
+Typical business identifiers include:
 
-# Indexes
+- Exchange Code
+- Official Exchange Name
 
-| Index | Type |
-|--------|------|
-| pk_exchange | Primary Key |
-| ux_exchange_public_id | Unique |
-| ux_exchange_exchange_code | Unique |
-| ux_exchange_exchange_name | Unique |
-| idx_exchange_active | B-Tree |
+Business identifiers are governed by the Reference Domain and shall remain stable.
 
 ---
 
-# Default Values
+## External Identity
 
-| Column | Default |
-|---------|---------|
-| public_id | gen_random_uuid() |
-| is_active | TRUE |
-| created_at | CURRENT_TIMESTAMP |
-| updated_at | CURRENT_TIMESTAMP |
+An Exchange may possess one or more external identifiers assigned by external providers.
 
----
+Examples include identifiers published by:
 
-# Sample Record
+- TSETMC
+- ISO organizations
+- Market data vendors
+- Commercial information providers
 
-| Column | Example |
-|---------|---------|
-| exchange_code | TSE |
-| exchange_name | Tehran Stock Exchange |
-| local_name | بورس اوراق بهادار تهران |
-| country_code | IR |
-| currency_code | IRR |
-| timezone | Asia/Tehran |
-| is_active | TRUE |
+External identifiers are managed independently from enterprise identity.
 
 ---
 
-# Remarks
+# 7. Attribute Usage
 
-This table contains only master reference data.
+The Exchange entity uses enterprise attributes defined in the Attribute Catalog.
 
-Updates are expected to be infrequent and should occur only when official exchange information changes.
+The business semantics of each attribute are defined exclusively within the Attribute Dictionary.
+
+The Exchange Dictionary assigns approved enterprise attributes to the Exchange entity without redefining their meaning.
+
+| Attribute | Purpose | Mandatory |
+|-----------|---------|-----------|
+| id | Canonical enterprise identity | Yes |
+| public_id | External enterprise identity | Yes |
+| exchange_code | Business identifier | Yes |
+| exchange_name | Official business name | Yes |
+| local_name | Local-language business name | Yes |
+| country_id | Associated country | Yes |
+| currency_id | Trading currency | Yes |
+| timezone_id | Business time zone | Yes |
+| website | Official public website | No |
+| external_identifier | External provider mapping | No |
+| status | Business lifecycle status | Yes |
+| is_active | Operational status | Yes |
+| created_at | Audit information | Yes |
+| updated_at | Audit information | Yes |
+
+Attribute definitions shall not be duplicated within this document.
+
+The authoritative source for attribute semantics is the **Attribute Dictionary**.
 
 ---
 
-# Related Documents
+# 8. Business Responsibilities Matrix
 
-- ConceptualModel.md
-- LogicalDatabaseModel.md
-- PhysicalDatabaseModel.md
-- ADR-016
-- STD-006 – Database Standards
+| Responsibility | Exchange |
+|----------------|----------|
+| Enterprise Reference Data | ✓ |
+| Business Identification | ✓ |
+| Trading Infrastructure Definition | ✓ |
+| Regulatory Information | ✓ |
+| Market Organization | ✓ |
+| Instrument Definition | ✗ |
+| Trading Session Management | ✗ |
+| Daily Market Data | ✗ |
+| Corporate Actions | ✗ |
+| Analytics | ✗ |
+
+The Exchange entity represents only enterprise reference information and delegates operational trading responsibilities to subordinate business entities.
 
 ---
 
-# Revision History
+# 9. Business Constraints
+
+The following business constraints apply regardless of implementation technology.
+
+- Every Exchange shall possess exactly one canonical identity.
+- Every Exchange shall possess one approved business identifier.
+- Exchange Codes shall be unique within the enterprise.
+- Official Exchange Names shall be unique.
+- Every Exchange shall belong to exactly one Country.
+- Every Exchange shall use one official Currency.
+- Every Exchange shall reference one official Time Zone.
+- Every Trading Board shall belong to exactly one Exchange.
+- Exchange identity shall remain immutable throughout its lifecycle.
+- Historical Exchange information shall remain traceable after deactivation.
+
+Implementation-specific constraints are defined within the Physical Database Model.
+
+---
+
+# 10. Business Relationships
+
+The Exchange entity participates in enterprise relationships defined by the Relationship Dictionary.
+
+Business relationships documented here describe semantic associations rather than physical foreign-key implementations.
+
+| Related Entity | Relationship | Cardinality | Business Meaning |
+|----------------|--------------|-------------|------------------|
+| Country | Association | N:1 | Every Exchange operates within one sovereign country. |
+| Currency | Association | N:1 | Every Exchange uses one official trading currency. |
+| TimeZone | Association | N:1 | Every Exchange follows one official business time zone. |
+| Market | Composition | 1:N | An Exchange organizes one or more Markets. |
+| Trading Board | Composition | 1:N | An Exchange governs one or more Trading Boards. |
+
+The authoritative definitions of these relationships are maintained within the Relationship Dictionary.
+
+---
+
+# 11. Traceability
+
+The Exchange entity is fully traceable across the enterprise architecture.
+
+| Architectural Layer | Related Artifact |
+|---------------------|------------------|
+| Business Glossary | Exchange |
+| Entity Dictionary | Exchange |
+| Attribute Dictionary | Exchange Attributes |
+| Attribute Catalog | Exchange Attribute Assignments |
+| Relationship Dictionary | Exchange Relationships |
+| Aggregate Catalog | Market Reference Aggregate |
+| Canonical Domain Model | Reference Domain |
+| Logical Database Model | Exchange Logical Entity |
+| Physical Database Model | market.exchange |
+| Enterprise Data Dictionary | Exchange |
+
+This traceability ensures architectural consistency from business analysis through physical implementation.
+
+---
+
+# 12. Governance
+
+The Exchange entity is governed by the Reference Domain.
+
+Changes to its business definition require formal architectural governance.
+
+The following modifications require approval:
+
+- Business definition changes
+- Lifecycle modifications
+- Identity changes
+- New business relationships
+- Addition or removal of enterprise attributes
+- Aggregate ownership changes
+
+Implementation-specific modifications shall not alter the approved business semantics of the Exchange entity.
+
+---
+
+# 13. Related Enterprise Artifacts
+
+The Exchange Dictionary shall be interpreted together with the following enterprise artifacts.
+
+### Standards
+
+- EnterpriseAttributeStandard
+- EnterpriseNamingStandard
+- EnterpriseIdentityStandard
+- EnterpriseDataTypeStandard
+- EnterpriseDataDictionaryStandard
+- IdentifierStrategy
+
+### Dictionaries
+
+- BusinessGlossary
+- EntityDictionary
+- AttributeDictionary
+- RelationshipDictionary
+- AttributeCatalog
+
+### Architecture
+
+- CanonicalDomainModel
+- ReferenceDomainArchitecture
+- AggregateCatalog
+- AggregateAttributeMatrix
+- LogicalDatabaseModel
+- PhysicalDatabaseModel
+
+---
+
+# 14. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.0 | 2026-06-29 | Initial version |
+| 2026.1 | 2026-06-29 | Initial database-oriented Exchange Data Dictionary. |
+| 2026.2 | 2026-07-23 | Completely redesigned as an Enterprise Exchange Dictionary aligned with the Enterprise Information Architecture, Single Source of Truth (SSOT), and the Enterprise Data Dictionary standards. |

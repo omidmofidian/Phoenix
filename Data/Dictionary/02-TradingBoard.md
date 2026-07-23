@@ -1,221 +1,299 @@
-# Trading Board Data Dictionary
-
----
-
-# Document Information
-
-| Item | Value |
-|------|-------|
-| Table | market.trading_board |
-| Document | Trading Board Data Dictionary |
-| Version | 1.0 |
-| Status | Approved |
-| Last Updated | 2026-06-29 |
-
----
-
-# Purpose
-
-The `trading_board` table stores the trading boards operated by each securities exchange.
-
-A trading board defines a market segment where financial instruments are listed and traded.
-
-Each trading board belongs to exactly one exchange.
-
----
-
-# Table Information
+# Trading Board Enterprise Dictionary
 
 | Property | Value |
 |----------|-------|
-| Schema | market |
-| Table | trading_board |
-| Table Type | Master Data |
-| Estimated Growth | Low |
-| Primary Key | id |
-| Public Identifier | public_id |
+| Project | Phoenix Platform |
+| Artifact ID | DICT-102 |
+| Document | TradingBoardDictionary |
+| Version | 2026.2 |
+| Status | Approved |
+| Classification | Enterprise Data Dictionary |
+| Owner | Architecture Team |
+| Domain | Reference |
+| Aggregate | Market Reference |
+| Depends On | EnterpriseDataDictionaryStandard, EntityDictionary, AttributeDictionary, RelationshipDictionary, AggregateCatalog |
+| Last Updated | 2026-07-23 |
 
 ---
 
-# Business Description
+# 1. Purpose
 
-A trading board:
+This document defines the canonical business semantics of the **Trading Board** entity within the Phoenix Platform.
 
-- Belongs to one exchange.
-- Has a unique code within its exchange.
-- Has an official name.
-- May contain many listed instruments.
-- May become inactive without being deleted.
+A Trading Board represents an organized business segment operated by a financial Exchange where financial instruments are listed and traded according to a defined set of market rules.
 
----
+This document serves as the authoritative business definition of the Trading Board entity and provides semantic guidance for logical modeling, service design, integration, and future platform evolution.
 
-# Columns
-
-| Column | Type | Nullable | Description |
-|---------|------|----------|-------------|
-| id | BIGINT | No | Internal database identifier |
-| public_id | UUID | No | Public identifier |
-| exchange_id | BIGINT | No | Parent exchange |
-| board_code | VARCHAR(20) | No | Trading board code |
-| external_board_code | VARCHAR(50) | Yes | External provider board identifier |
-| board_name | VARCHAR(200) | No | Official English name |
-| local_name | VARCHAR(200) | No | Official local language name |
-| display_order | INTEGER | No | Display sequence |
-| description | VARCHAR(500) | Yes | Optional description |
-| is_active | BOOLEAN | No | Trading board status |
-| created_at | TIMESTAMPTZ | No | Record creation timestamp |
-| updated_at | TIMESTAMPTZ | No | Last update timestamp |
+The document intentionally excludes physical database implementation details.
 
 ---
 
-# Keys
+# 2. Scope
 
-## Primary Key
+This dictionary defines the Trading Board as an enterprise business entity.
 
-```text
-id
-```
+It documents:
 
-## Public Identifier
+- Business meaning
+- Business responsibilities
+- Aggregate membership
+- Lifecycle
+- Business identity
+- Business relationships
+- Enterprise traceability
+- Governance
 
-```text
-public_id
-```
+This document does not define:
 
-## Foreign Key
+- Database tables
+- Database columns
+- SQL data types
+- Primary or foreign keys
+- Constraints
+- Indexes
+- Storage implementation
 
-```text
-exchange_id
-```
-
-## Business Key
-
-```text
-(exchange_id, board_code)
-```
-
----
-
-# Constraints
-
-## Primary Key
-
-```text
-PK_trading_board
-```
-
-## Foreign Key
-
-```text
-FK_trading_board_exchange
-```
-
-References
-
-```text
-market.exchange(id)
-```
-
-## Unique Constraints
-
-```text
-UX_trading_board_public_id
-
-UX_trading_board_exchange_board_code
-```
+These concerns are governed by the Logical Database Model, Physical Database Model, Enterprise Data Type Standard, and Identifier Strategy.
 
 ---
 
-# Relationships
+# 3. Relationship with Enterprise Artifacts
 
-Parent Table
+| Artifact | Responsibility |
+|----------|----------------|
+| Business Glossary | Defines the business meaning of Trading Board |
+| Entity Dictionary | Registers Trading Board as a canonical enterprise entity |
+| Attribute Catalog | Registers reusable Trading Board attributes |
+| Attribute Dictionary | Defines the business semantics of Trading Board attributes |
+| Relationship Dictionary | Defines business relationships involving Trading Board |
+| Aggregate Catalog | Assigns Trading Board to the Market Reference Aggregate |
+| Enterprise Data Dictionary Standard | Governs the documentation structure |
+| Logical Database Model | Defines logical representation |
+| Physical Database Model | Defines physical implementation |
+
+---
+
+# 4. Business Definition
+
+## Canonical Name
+
+**Trading Board**
+
+---
+
+## Business Description
+
+A Trading Board is an organizational market segment established and managed by a financial Exchange.
+
+It defines a specific trading environment under which financial instruments are admitted, listed, and traded according to a common set of operational, regulatory, and business rules.
+
+A Trading Board represents a structural subdivision of an Exchange rather than an independent financial market.
+
+---
+
+## Business Purpose
+
+The Trading Board exists to:
+
+- organize listed financial instruments into business segments;
+- provide a consistent trading environment;
+- support market segmentation;
+- simplify regulatory administration;
+- facilitate reporting and market supervision;
+- provide a stable reference for instrument listings.
+
+---
+
+## Business Responsibilities
+
+The Trading Board is responsible for:
+
+- defining a market segment within an Exchange;
+- organizing listed instruments;
+- supporting listing management;
+- maintaining board identity;
+- preserving historical market structure;
+- enabling regulatory reporting.
+
+---
+
+## Aggregate Membership
+
+| Property | Value |
+|----------|-------|
+| Domain | Reference Domain |
+| Aggregate | Market Reference |
+| Aggregate Root | Exchange |
+| Entity Type | Child Entity |
+| Lifecycle Dependency | Exchange |
+
+Trading Board exists within the **Market Reference Aggregate** and is governed by the owning Exchange.
+
+---
+
+# 5. Business Identity
+
+Trading Board possesses three independent identity layers.
+
+## Canonical Identity
+
+Assigned by Phoenix.
+
+Characteristics:
+
+- globally unique;
+- immutable;
+- technology independent;
+- internally managed.
+
+Governed by:
+
+- Enterprise Identity Standard
+- Identifier Strategy
+
+---
+
+## Business Identity
+
+Represents the official business identity of the Trading Board.
+
+Typical examples include:
+
+- Board Code
+- Official Board Name
+
+Business identifiers are governed by Exchange policies.
+
+---
+
+## External Identity
+
+External providers may assign their own identifiers.
+
+Examples include identifiers used by:
+
+- TSETMC
+- Market data vendors
+- Broker platforms
+- Financial information providers
+
+External identifiers are maintained independently of enterprise identity.
+
+---
+
+# 6. Lifecycle
+
+The lifecycle of a Trading Board typically follows:
 
 ```text
-market.exchange
+Planned
+    ↓
+Established
+    ↓
+Operational
+    ↓
+Suspended
+    ↓
+Closed
 ```
 
-Child Table
+Trading Board records are retained permanently for historical traceability.
 
-```text
-market.instrument_listing
-```
-
-Relationship
-
-```text
-Exchange (1)
-
-↓
-
-TradingBoard (N)
-
-↓
-
-InstrumentListing (N)
-```
+Historical Trading Boards shall never be physically deleted.
 
 ---
 
-# Business Rules
+# 7. Business Relationships
 
-- Every trading board belongs to exactly one exchange.
-- Board codes must be unique within the same exchange.
-- A trading board may contain many listed instruments.
-- Historical trading boards shall never be physically deleted.
-- Deactivation is preferred over deletion.
+| Related Entity | Relationship | Business Meaning |
+|----------------|-------------|------------------|
+| Exchange | Belongs to | Every Trading Board is operated by exactly one Exchange. |
+| Instrument Listing | Organizes | A Trading Board hosts multiple Instrument Listings. |
+| Instrument | Indirect Association | Instruments become tradable through Listings assigned to a Trading Board. |
+| Market | Part Of | Trading Boards collectively support the operation of a Market. |
 
----
-
-# Indexes
-
-| Index | Type |
-|--------|------|
-| pk_trading_board | Primary Key |
-| ux_trading_board_public_id | Unique |
-| ux_trading_board_exchange_board_code | Unique |
-| idx_trading_board_exchange | B-Tree |
-| idx_trading_board_active | B-Tree |
+The complete relationship semantics are defined in the **Relationship Dictionary**.
 
 ---
 
-# Default Values
+# 8. Business Rules
 
-| Column | Default |
-|---------|---------|
-| public_id | gen_random_uuid() |
-| is_active | TRUE |
-| created_at | CURRENT_TIMESTAMP |
-| updated_at | CURRENT_TIMESTAMP |
+The following enterprise business rules govern the Trading Board entity.
 
----
-
-# Sample Record
-
-| Column | Example |
-|---------|---------|
-| board_code | FIRST |
-| board_name | First Market |
-| local_name | بازار اول |
-| display_order | 1 |
-| is_active | TRUE |
+- Every Trading Board shall belong to exactly one Exchange.
+- A Trading Board cannot exist independently of an Exchange.
+- Every Trading Board shall possess one canonical enterprise identity.
+- Business identifiers shall be unique within the owning Exchange.
+- A Trading Board may host many Instrument Listings.
+- Historical Trading Boards shall remain available for historical reporting.
+- Trading Board identity shall remain immutable throughout its lifecycle.
+- Operational status changes shall not affect historical references.
 
 ---
 
-# Remarks
+# 9. Ownership
 
-Trading boards classify market segments inside an exchange.
+| Property | Value |
+|----------|-------|
+| Owning Domain | Reference Domain |
+| Owning Aggregate | Market Reference |
+| Business Owner | Market Reference Service |
+| Governance Authority | Architecture Governance Board |
 
-Instrument membership is managed through the `instrument_listing` table.
+The owning aggregate is responsible for:
+
+- creation;
+- modification;
+- activation;
+- deactivation;
+- lifecycle governance.
 
 ---
 
-# Related Documents
+# 10. Traceability
 
-- ConceptualModel.md
+The Trading Board entity is traceable to the following enterprise artifacts.
+
+| Artifact | Purpose |
+|----------|---------|
+| Business Glossary | Business terminology |
+| Entity Dictionary | Enterprise entity definition |
+| Attribute Dictionary | Business meaning of attributes |
+| Attribute Catalog | Reusable attributes |
+| Relationship Dictionary | Business relationships |
+| Aggregate Catalog | Aggregate assignment |
+| Canonical Domain Model | Business model |
+| Logical Database Model | Logical representation |
+| Physical Database Model | Physical implementation |
+
+---
+
+# 11. Governance
+
+Changes to the Trading Board business definition require:
+
+- business impact assessment;
+- architecture review;
+- aggregate consistency validation;
+- enterprise governance approval.
+
+Business semantics shall remain technology independent.
+
+---
+
+# 12. Related Documents
+
+- BusinessGlossary.md
+- EntityDictionary.md
+- AttributeCatalog.md
+- AttributeDictionary.md
+- RelationshipDictionary.md
+- AggregateCatalog.md
+- EnterpriseIdentityStandard.md
+- IdentifierStrategy.md
+- EnterpriseDataDictionaryStandard.md
 - LogicalDatabaseModel.md
 - PhysicalDatabaseModel.md
-- ADR-016
-- STD-006 – Database Standards
 
 ---
 
@@ -223,4 +301,5 @@ Instrument membership is managed through the `instrument_listing` table.
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.0 | 2026-06-29 | Initial version |
+| 2026.1 | 2026-06-29 | Initial Trading Board Data Dictionary |
+| 2026.2 | 2026-07-23 | Rewritten according to the Enterprise Data Dictionary architecture and Single Source of Truth principles |

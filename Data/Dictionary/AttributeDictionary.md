@@ -1,308 +1,727 @@
-# Attribute Dictionary
+# Enterprise Attribute Dictionary
 
 | Property | Value |
 |----------|-------|
 | Project | Phoenix Platform |
 | Artifact ID | DICT-004 |
-| Document | AttributeDictionary |
-| Version | 2026.2 |
+| Document | EnterpriseAttributeDictionary |
+| Version | 2026.3 |
 | Status | Approved |
-| Classification | Enterprise Data Dictionary |
-| Owner | Architecture Team |
-| Depends On | EnterpriseAttributeStandard, AttributeCatalog, AggregateAttributeMatrix, EnterpriseDataDictionaryStandard |
-| Last Updated | 2026-07-09 |
+| Classification | Enterprise Semantic Dictionary |
+| Owner | Enterprise Data Architecture Team |
+| Repository Path | Data/Dictionary/AttributeDictionary.md |
+| Depends On | DICT-003 EnterpriseAttributeCatalog, DST-009 Enterprise Attribute Standard, DST-006 Enterprise Data Dictionary Standard |
+| Last Updated | 2026-07-22 |
 
 ---
 
 # 1. Purpose
 
-The Attribute Dictionary defines the canonical business semantics of enterprise attributes used throughout the Phoenix Platform.
+The Enterprise Attribute Dictionary is the authoritative semantic reference for every enterprise attribute defined within the Phoenix Platform.
 
-It serves as the authoritative source for the meaning of each approved attribute, ensuring that every attribute has one and only one business definition across the enterprise.
+Its purpose is to establish a single, canonical business meaning for each registered attribute and to ensure that identical business concepts are never interpreted differently across domains, services, databases, APIs, analytics, or future artificial intelligence capabilities.
 
-This document focuses exclusively on semantic definitions and business understanding.
+Unlike the Enterprise Attribute Catalog, which registers reusable attributes, this dictionary explains the complete business semantics of every approved enterprise attribute.
+
+The Enterprise Attribute Dictionary represents the semantic foundation of the Phoenix Enterprise Information Architecture.
 
 ---
 
 # 2. Scope
 
-This dictionary defines:
+This dictionary documents the semantic characteristics of enterprise attributes, including:
 
-- Canonical business meaning
-- Business purpose
-- Business notes
-- Usage guidance
-- Business examples
-- Related business concepts
+- canonical business definitions;
+- business meaning;
+- business purpose;
+- business context;
+- approved usage guidance;
+- semantic relationships;
+- business examples;
+- enterprise terminology;
+- cross-domain consistency.
 
-This dictionary does not define:
+This dictionary intentionally excludes:
 
-- Attribute ownership
-- Attribute classification
-- Mandatory or optional usage
-- Physical data types
-- SQL implementation
-- Database columns
-- Aggregate assignments
+- physical database implementation;
+- SQL data types;
+- storage optimization;
+- aggregate ownership;
+- mandatory or optional usage;
+- implementation-specific validation.
 
-These aspects are governed by their respective enterprise artifacts.
+These concerns are governed by their respective enterprise standards and supporting artifacts.
 
 ---
 
-# 3. Relationship with Enterprise Artifacts
+# 3. Objectives
+
+The Enterprise Attribute Dictionary has the following objectives:
+
+- establish a single semantic definition for every enterprise attribute;
+- eliminate inconsistent interpretations of business terminology;
+- provide a common language for business and technical stakeholders;
+- support logical and physical data modeling;
+- improve enterprise-wide information consistency;
+- enable metadata governance;
+- provide semantic knowledge for analytics and artificial intelligence;
+- preserve long-term architectural stability.
+
+---
+
+# 4. Architectural Position
+
+The Enterprise Attribute Dictionary occupies the semantic layer of the Phoenix Information Architecture.
+
+```text
+Enterprise Architecture
+        │
+        ▼
+Enterprise Information Architecture
+        │
+        ▼
+Enterprise Data Dictionary
+        │
+        ├── Entity Dictionary
+        ├── Attribute Catalog
+        ├── Attribute Dictionary
+        └── Relationship Dictionary
+        │
+        ▼
+Logical Data Model
+        │
+        ▼
+Physical Database Model
+        │
+        ▼
+Applications and Services
+```
+
+The Attribute Dictionary defines what an enterprise attribute means.
+
+It does not determine where the attribute is used or how it is implemented.
+
+---
+
+# 5. Relationship with Enterprise Artifacts
+
+The Enterprise Attribute Dictionary operates together with other enterprise metadata artifacts.
 
 | Artifact | Responsibility |
 |----------|----------------|
-| EnterpriseAttributeStandard | Defines attribute modeling rules |
-| AttributeCatalog | Registers approved enterprise attributes |
-| AggregateAttributeMatrix | Assigns attributes to Aggregates |
-| AttributeDictionary | Defines business semantics |
-| EntityDictionary | Defines business entities |
-| RelationshipDictionary | Defines business relationships |
+| Enterprise Attribute Standard | Defines attribute architecture |
+| Enterprise Attribute Catalog | Registers reusable enterprise attributes |
+| Enterprise Attribute Dictionary | Defines business semantics |
+| Entity Dictionary | Defines enterprise entities |
+| Relationship Dictionary | Defines enterprise relationships |
+| Logical Data Model | Uses approved enterprise attributes |
+| Physical Database Model | Implements approved enterprise attributes |
+
+Each artifact has a single responsibility while remaining fully traceable to the enterprise information architecture.
 
 ---
 
-# 4. Identity Attributes
+# 6. Enterprise Semantic Principles
+
+Every enterprise attribute documented in this dictionary shall comply with the following principles.
+
+## Principle 1 — Single Meaning
+
+Every attribute shall have exactly one canonical business meaning throughout the enterprise.
+
+---
+
+## Principle 2 — Business First
+
+Attribute definitions shall describe business concepts rather than implementation details.
+
+---
+
+## Principle 3 — Technology Independence
+
+Semantic definitions shall remain independent of programming languages, database products, messaging technologies, and implementation frameworks.
+
+---
+
+## Principle 4 — Consistency
+
+An attribute shall preserve the same meaning regardless of the domain, aggregate, service, or database in which it appears.
+
+---
+
+## Principle 5 — Reusability
+
+Enterprise attributes are reusable business assets.
+
+New attributes shall not be introduced when an approved semantic equivalent already exists.
+
+---
+
+## Principle 6 — Traceability
+
+Every attribute shall be traceable to its governing standards, business domains, and related architectural artifacts.
+
+---
+
+# 7. Dictionary Organization
+
+The Enterprise Attribute Dictionary is organized by enterprise attribute categories.
+
+The recommended organization is:
+
+- Identity Attributes
+- Naming Attributes
+- Business Attributes
+- Classification Attributes
+- Reference Attributes
+- Lifecycle Attributes
+- Temporal Attributes
+- Audit Attributes
+- Derived Attributes
+- External Attributes
+
+Each category groups attributes with similar business responsibilities while preserving semantic consistency.
+
+---
+
+# 8. Standard Attribute Definition Structure
+
+Every attribute documented within this dictionary shall follow the same structure.
+
+| Section | Description |
+|----------|-------------|
+| Canonical Name | Official enterprise attribute name |
+| Business Definition | Canonical semantic definition |
+| Business Purpose | Business objective |
+| Business Meaning | Enterprise interpretation |
+| Business Context | Typical business usage |
+| Usage Guidelines | Recommended usage |
+| Business Examples | Representative examples |
+| Related Attributes | Semantically associated attributes |
+| Related Entities | Common entity usage |
+| Governing Standards | Applicable enterprise standards |
+| Remarks | Additional semantic notes |
+
+This standardized structure ensures that every enterprise attribute is documented consistently and remains understandable throughout the lifecycle of the platform.
+
+---
+
+# 9. Identity Attributes
 
 ## id
 
-**Business Definition**
+### Canonical Name
 
-Unique internal identifier assigned to an Aggregate Root within the Phoenix Platform.
+`id`
 
-**Business Purpose**
+### Business Definition
 
-Provides stable enterprise identity throughout the lifecycle of a business object.
+The immutable canonical identifier assigned to a business entity within the Phoenix Platform.
 
-**Business Notes**
+### Business Purpose
 
-The identifier has no business meaning and shall never be interpreted by users.
+Provides a permanent enterprise identity that uniquely distinguishes one business object from every other business object.
 
-**Example**
+### Business Meaning
 
-Each Company, Exchange or Instrument possesses its own unique identifier.
+The identifier represents enterprise identity only.
+
+It carries no business semantics and shall never be interpreted as business information.
+
+### Business Context
+
+Used internally throughout all business domains, services, databases, integrations, and architectural layers.
+
+### Usage Guidelines
+
+- Assigned exactly once.
+- Never modified.
+- Never reused.
+- Used as the canonical reference between business entities.
+
+### Business Examples
+
+Every Exchange, Company, Instrument, Trading Board, Sector, Industry, and Market Data record possesses its own immutable enterprise identifier.
+
+### Related Attributes
+
+- public_id
+- external_code
+
+### Governing Standards
+
+- Enterprise Identity Standard
+- Identifier Strategy
+- Enterprise Attribute Standard
 
 ---
 
 ## public_id
 
-**Business Definition**
+### Canonical Name
 
-Stable identifier intended for communication with external systems and public interfaces.
+`public_id`
 
-**Business Purpose**
+### Business Definition
 
-Allows business objects to be referenced without exposing internal identifiers.
+A stable identifier intended for communication with external consumers while protecting the internal enterprise identity.
+
+### Business Purpose
+
+Provides a publicly exposed reference that remains stable without revealing the platform's canonical identifier.
+
+### Business Meaning
+
+Represents the public identity of a business object rather than its internal enterprise identity.
+
+### Business Context
+
+Typically used by:
+
+- REST APIs
+- External integrations
+- Public documentation
+- Future distributed services
+
+### Usage Guidelines
+
+- Shall remain stable throughout the business lifecycle.
+- Shall never replace the canonical `id`.
+- May be exposed outside the enterprise boundary.
+
+### Related Attributes
+
+- id
+- external_code
+
+### Governing Standards
+
+- Enterprise Identity Standard
+- Identifier Strategy
 
 ---
 
-# 5. Naming Attributes
+# 10. Naming Attributes
 
 ## code
 
-**Business Definition**
+### Canonical Name
 
-A concise business code used to identify an object within its business context.
+`code`
 
-**Business Purpose**
+### Business Definition
 
-Supports business communication, reporting and operational identification.
+A concise business identifier used to distinguish business objects within a specific business context.
 
-**Example**
+### Business Purpose
 
-Exchange Code
+Supports business communication, reporting, operational activities, and human recognition.
 
-Company Code
+### Business Meaning
 
-Instrument Code
+Represents a meaningful business code governed by enterprise business rules.
+
+### Business Context
+
+Typical examples include:
+
+- Exchange Code
+- Market Code
+- Company Code
+- Instrument Code
+
+### Usage Guidelines
+
+Business codes shall:
+
+- remain meaningful;
+- follow approved naming conventions;
+- remain stable whenever practical;
+- never replace enterprise identifiers.
+
+### Related Attributes
+
+- short_name
+- name
+- display_name
+
+### Governing Standards
+
+- Enterprise Naming Standard
+- Enterprise Attribute Standard
 
 ---
 
 ## name
 
-**Business Definition**
+### Canonical Name
 
-Official business name assigned to a business object.
+`name`
 
-**Business Purpose**
+### Business Definition
 
-Provides a human-readable representation of the object.
+The official human-readable name assigned to a business object.
+
+### Business Purpose
+
+Provides the primary textual representation used throughout the enterprise.
+
+### Business Meaning
+
+Represents the canonical business designation recognized by users and business processes.
+
+### Business Context
+
+Applicable to virtually every enterprise entity, including:
+
+- Exchanges
+- Companies
+- Markets
+- Trading Boards
+- Industries
+- Sectors
+
+### Usage Guidelines
+
+Names shall:
+
+- use approved business terminology;
+- remain unambiguous;
+- comply with the Enterprise Naming Standard.
+
+### Related Attributes
+
+- short_name
+- display_name
+- full_name
+- code
+
+### Governing Standards
+
+- Enterprise Naming Standard
+- Enterprise Attribute Standard
 
 ---
 
-# 6. Business Attributes
+# 11. Business Attributes
 
 ## registration_number
 
-**Business Definition**
+### Canonical Name
 
-Official registration identifier assigned by the responsible legal authority.
+`registration_number`
 
-**Business Purpose**
+### Business Definition
 
-Supports legal and regulatory identification.
+The official identifier assigned to a business entity by a legally recognized registration authority.
+
+### Business Purpose
+
+Supports legal, regulatory, and organizational identification.
+
+### Business Meaning
+
+Represents an externally recognized business registration rather than an enterprise-generated identifier.
+
+### Business Context
+
+Typically applicable to legal entities such as companies, organizations, exchanges, and regulatory bodies.
+
+### Usage Guidelines
+
+Registration numbers shall preserve the original value assigned by the issuing authority.
+
+### Related Attributes
+
+- code
+- external_code
+
+### Governing Standards
+
+- Enterprise Attribute Standard
+- Enterprise Identity Standard
 
 ---
 
 ## listing_date
 
-**Business Definition**
+### Canonical Name
 
-Business date on which an instrument becomes available for trading.
+`listing_date`
 
-**Business Purpose**
+### Business Definition
 
-Marks the beginning of the trading lifecycle.
+The official business date on which a financial instrument becomes eligible for trading within a regulated market.
+
+### Business Purpose
+
+Marks the beginning of the instrument's active trading lifecycle.
+
+### Business Meaning
+
+Represents the formal admission of an instrument to an exchange or trading venue.
+
+### Business Context
+
+Applicable to listed securities such as:
+
+- Equities
+- Exchange-Traded Funds (ETFs)
+- Bonds
+- Other exchange-listed financial instruments
+
+### Usage Guidelines
+
+The listing date shall correspond to the officially approved market listing date and shall remain unchanged unless corrected by the authoritative market source.
+
+### Related Attributes
+
+- trading_date
+- effective_from
+- status
+
+### Governing Standards
+
+- Enterprise Attribute Standard
+- Enterprise Data Dictionary Standard
 
 ---
 
-# 7. Reference Attributes
+# 12. Reference Attributes
 
 ## exchange_id
 
-**Business Definition**
+### Canonical Name
 
-Business reference identifying the Exchange responsible for a business object.
+`exchange_id`
 
-**Business Purpose**
+### Business Definition
 
-Associates business information with an Exchange.
+A reference identifying the Exchange responsible for governing or hosting a business object.
+
+### Business Purpose
+
+Establishes the relationship between business entities and their governing exchange.
+
+### Business Meaning
+
+Represents an enterprise relationship rather than an identifier with independent business meaning.
+
+### Business Context
+
+Commonly referenced by:
+
+- Markets
+- Trading Boards
+- Instruments
+- Listings
+- Trading Calendars
+
+### Usage Guidelines
+
+Reference attributes shall always point to the canonical enterprise identifier of the referenced Aggregate Root.
+
+Business codes and external identifiers shall not be used as substitute references.
+
+### Related Attributes
+
+- market_id
+- company_id
+- trading_board_id
+
+### Governing Standards
+
+- Enterprise Attribute Standard
+- Enterprise Identity Standard
+- Identifier Strategy
 
 ---
 
 ## company_id
 
-**Business Definition**
+### Canonical Name
 
-Business reference identifying the Company related to another Aggregate.
+`company_id`
 
-**Business Purpose**
+### Business Definition
 
-Represents business ownership relationships.
+A reference identifying the Company associated with another enterprise object.
+
+### Business Purpose
+
+Represents ownership or business association between enterprise entities.
+
+### Business Meaning
+
+Provides the canonical enterprise relationship to the owning company.
+
+### Business Context
+
+Used by entities such as:
+
+- Instruments
+- Listings
+- Corporate Actions
+- Financial Statements
+
+### Usage Guidelines
+
+Relationships shall reference the Company's canonical enterprise identifier.
+
+### Related Attributes
+
+- exchange_id
+- instrument_id
+
+### Governing Standards
+
+- Enterprise Attribute Standard
+- Identifier Strategy
 
 ---
 
-# 8. Lifecycle Attributes
+# 13. Lifecycle Attributes
 
 ## status
 
-**Business Definition**
+### Canonical Name
 
-Current business state of an enterprise object.
+`status`
 
-**Business Purpose**
+### Business Definition
 
-Represents lifecycle progression from creation through retirement.
+Represents the current business state of an enterprise object.
+
+### Business Purpose
+
+Supports lifecycle management and business decision-making.
+
+### Business Meaning
+
+Indicates where a business object resides within its approved lifecycle.
+
+### Business Context
+
+Examples include:
+
+- Active
+- Suspended
+- Archived
+- Retired
+
+The allowed values shall be governed by the business domain responsible for the entity.
+
+### Related Attributes
+
+- is_active
+- effective_from
+- effective_to
+
+### Governing Standards
+
+- Enterprise Attribute Standard
+- Base Entity Standard
 
 ---
 
 ## is_active
 
-**Business Definition**
+### Canonical Name
 
-Indicates whether a business object is currently active within the enterprise.
+`is_active`
 
-**Business Purpose**
+### Business Definition
 
-Supports operational decision making.
+Indicates whether a business object is currently operational and available for normal business processes.
 
----
+### Business Purpose
 
-# 9. Temporal Attributes
+Provides a simple operational indicator without describing the complete lifecycle state.
 
-## trading_date
+### Business Meaning
 
-**Business Definition**
+Represents operational availability rather than deletion or archival status.
 
-Official business date representing a trading session.
+### Usage Guidelines
 
-**Business Purpose**
+This attribute shall not be used as a replacement for lifecycle management or soft-delete mechanisms.
 
-Associates market information with a business trading day.
+### Related Attributes
 
----
+- status
+- effective_from
+- effective_to
 
-# 10. Audit Attributes
+### Governing Standards
 
-## created_at
-
-**Business Definition**
-
-Business timestamp recording when an object first became part of the enterprise information model.
-
-**Business Purpose**
-
-Supports business traceability.
+- Base Entity Standard
+- Enterprise Attribute Standard
 
 ---
 
-## updated_at
+# 14. Governance
 
-**Business Definition**
+Every attribute documented within this dictionary shall:
 
-Business timestamp indicating the latest approved modification.
-
-**Business Purpose**
-
-Supports information governance and change tracking.
-
----
-
-# 11. Derived Attributes
-
-## market_cap
-
-**Business Definition**
-
-Calculated market value of an instrument based on approved business calculations.
-
-**Business Purpose**
-
-Supports analytical and financial evaluation.
-
----
-
-# 12. External Attributes
-
-## external_code
-
-**Business Definition**
-
-Identifier assigned to a business object by an external information provider.
-
-**Business Purpose**
-
-Supports interoperability with external systems while preserving enterprise identity.
-
----
-
-# 13. Governance Rules
-
-Every attribute defined in this dictionary shall:
-
-- have exactly one business meaning;
+- have exactly one canonical business definition;
 - remain technology independent;
-- avoid implementation-specific terminology;
-- comply with the Enterprise Attribute Standard;
-- exist in the Attribute Catalog before being used;
-- be assigned to Aggregates through the Aggregate Attribute Matrix.
+- comply with Enterprise Data Standards;
+- be registered within the Enterprise Attribute Catalog;
+- preserve semantic consistency across all business domains;
+- remain traceable to its governing standards and architectural artifacts.
+
+Semantic modifications shall be reviewed through the Phoenix Architecture Governance process before approval.
 
 ---
 
-# 14. Related Documents
+# 15. Repository Integration
 
-- EnterpriseAttributeStandard
-- AttributeCatalog
-- AggregateAttributeMatrix
-- EntityDictionary
-- RelationshipDictionary
-- EnterpriseDataDictionaryStandard
+The Enterprise Attribute Dictionary is maintained within the Enterprise Data capability.
+
+```text
+Data/
+└── Dictionary/
+    ├── AttributeCatalog.md
+    ├── AttributeDictionary.md
+    ├── EntityDictionary.md
+    └── RelationshipDictionary.md
+```
+
+The dictionary serves as the authoritative semantic reference for:
+
+- Enterprise Architecture
+- Business Analysis
+- Information Architecture
+- Logical Data Modeling
+- Physical Database Design
+- API Design
+- Service Contracts
+- Reporting
+- Analytics
+- Artificial Intelligence
 
 ---
 
-# Revision History
+# 16. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial version |
-| 2026.2 | 2026-07-09 | Redesigned as a semantic dictionary with Single Source of Truth alignment |
+| 2026.1 | 2026-07-09 | Initial version. |
+| 2026.2 | 2026-07-09 | Redesigned with Single Source of Truth alignment. |
+| 2026.3 | 2026-07-22 | Complete redesign as the Enterprise Semantic Dictionary. Introduced semantic architecture, standardized attribute definition structure, governance model, repository integration, traceability framework, and alignment with the Enterprise Data Standards framework. |
+
+---
+
+# 17. Approval
+
+This document is an approved **Enterprise Semantic Dictionary** of the Phoenix Platform.
+
+It defines the canonical business meaning of every registered enterprise attribute and serves as the semantic foundation of the Enterprise Data Dictionary.
+
+The Enterprise Attribute Catalog governs attribute registration, while this dictionary governs attribute semantics.
+
+Both artifacts shall remain synchronized throughout the lifecycle of the Phoenix Platform.
+
+---
+
+# End of Document

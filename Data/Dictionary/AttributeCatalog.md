@@ -1,237 +1,322 @@
-# Attribute Catalog
+# Enterprise Attribute Catalog
 
 | Property | Value |
 |----------|-------|
 | Project | Phoenix Platform |
 | Artifact ID | DICT-003 |
-| Document | AttributeCatalog |
-| Version | 2026.1 |
+| Document | EnterpriseAttributeCatalog |
+| Version | 2026.2 |
 | Status | Approved |
-| Classification | Enterprise Information Catalog |
-| Owner | Architecture Team |
-| Depends On | EnterpriseAttributeStandard, EnterpriseNamingStandard, EnterpriseDataTypeStandard |
-| Last Updated | 2026-07-09 |
+| Classification | Enterprise Metadata Catalog |
+| Owner | Enterprise Data Architecture Team |
+| Repository Path | Data/Dictionary/AttributeCatalog.md |
+| Depends On | DST-009 Enterprise Attribute Standard, DST-006 Enterprise Data Dictionary Standard |
+| Last Updated | 2026-07-22 |
 
 ---
 
 # 1. Purpose
 
-This document defines the canonical catalog of enterprise attributes used throughout the Phoenix Platform.
+The Enterprise Attribute Catalog is the authoritative registry of all reusable business attributes defined within the Phoenix Platform.
 
-The catalog serves as the authoritative registry of reusable business attributes before they are assigned to business entities.
+Its primary purpose is to provide a centralized inventory of enterprise attributes before they are assigned to individual business entities.
+
+The catalog establishes attribute ownership, classification, and reuse policies while ensuring that every attribute has a single canonical registration within the enterprise information architecture.
+
+Detailed semantic definitions are maintained separately within the Enterprise Attribute Dictionary.
 
 ---
 
 # 2. Scope
 
-This catalog includes:
+The Enterprise Attribute Catalog includes:
 
-- Canonical business attributes
-- Reusable enterprise attributes
-- Attribute ownership
+- Canonical enterprise attributes
 - Attribute classification
-- Canonical naming
+- Attribute ownership
+- Enterprise reuse status
+- Canonical attribute names
+- Attribute governance metadata
+- Cross-reference information
 
-This catalog does not define:
+The catalog intentionally excludes detailed business definitions, validation rules, implementation details, and physical database specifications.
 
-- Entity-specific attribute usage
-- Physical database columns
-- SQL data types
-- Implementation details
+Those concerns are documented within the Enterprise Attribute Dictionary.
 
 ---
 
-# 3. Attribute Lifecycle
+# 3. Objectives
 
-Every enterprise attribute progresses through the following lifecycle:
+The Enterprise Attribute Catalog has the following objectives:
 
+- establish a single enterprise registry for reusable attributes;
+- eliminate duplicate attribute definitions;
+- promote enterprise-wide attribute reuse;
+- simplify logical modeling activities;
+- improve consistency across business domains;
+- support metadata governance;
+- provide traceability to enterprise standards.
+
+---
+
+# 4. Architectural Position
+
+The Enterprise Attribute Catalog forms part of the Enterprise Metadata Architecture.
+
+```text
+Enterprise Architecture
+        │
+        ▼
+Enterprise Data Dictionary
+        │
+        ├── Entity Dictionary
+        ├── Attribute Catalog
+        ├── Attribute Dictionary
+        └── Relationship Dictionary
+        │
+        ▼
+Logical Data Model
+        │
+        ▼
+Physical Database Model
+```
+
+The catalog provides the registration layer for enterprise attributes, while the Attribute Dictionary provides their complete business definitions.
+
+---
+
+# 5. Enterprise Attribute Lifecycle
+
+Every enterprise attribute shall progress through a governed lifecycle.
+
+```text
 Proposed
-
-↓
-
+      │
+      ▼
 Reviewed
-
-↓
-
+      │
+      ▼
 Approved
-
-↓
-
+      │
+      ▼
+Registered
+      │
+      ▼
 Reusable
-
-↓
-
-Deprecated
-
-↓
-
+      │
+      ▼
+Deprecated (optional)
+      │
+      ▼
 Retired
+```
+
+Only attributes in the **Registered** or **Reusable** states may be referenced by Logical Data Models.
 
 ---
 
-# 4. Catalog Structure
+# 6. Catalog Entry Structure
 
-Each catalog entry contains:
+Each catalog entry represents a registered enterprise attribute.
 
-- Canonical Name
-- Business Meaning
-- Classification
-- Owner Domain
-- Owning Aggregate
-- Reusable
-- Mandatory
-- Related Standard
+Every entry shall include the following metadata.
 
----
+| Property | Description |
+|----------|-------------|
+| Canonical Name | Official enterprise attribute name |
+| Category | Enterprise attribute classification |
+| Owner Domain | Responsible business domain |
+| Owning Aggregate | Aggregate responsible for governance |
+| Reusable | Enterprise reuse status |
+| Mandatory | Default usage recommendation |
+| Standard Reference | Governing enterprise standard |
+| Dictionary Reference | Link to detailed Attribute Dictionary entry |
 
-# 5. Identity Attributes
+The catalog intentionally contains only summary metadata.
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| id | Identity | Enterprise | Yes |
-| public_id | Identity | Enterprise | Yes |
-| business_key | Identity | Enterprise | Yes |
-| external_identifier | External | Integration | Yes |
+Complete attribute specifications are maintained within the Enterprise Attribute Dictionary.
 
 ---
 
-# 6. Naming Attributes
+# 7. Enterprise Attribute Categories
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| code | Naming | Enterprise | Yes |
-| short_name | Naming | Enterprise | Yes |
-| name | Naming | Enterprise | Yes |
-| display_name | Naming | Enterprise | Yes |
-| full_name | Naming | Enterprise | Yes |
+All registered attributes shall belong to exactly one enterprise category.
 
----
+| Category | Purpose |
+|----------|---------|
+| Identity | Canonical enterprise identifiers |
+| Naming | Business names and codes |
+| Business | Business-specific information |
+| Classification | Business categorization |
+| Reference | Aggregate references |
+| Lifecycle | Business state management |
+| Temporal | Business validity and time |
+| Audit | Audit metadata |
+| Derived | Calculated information |
+| External | External system mappings |
 
-# 7. Business Attributes
-
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| registration_number | Business | Core | Yes |
-| national_identifier | Business | Core | Yes |
-| listing_date | Business | Market | Yes |
-| ticker_symbol | Business | Market | Yes |
+This classification shall remain consistent across all business domains.
 
 ---
 
-# 8. Classification Attributes
+# 8. Catalog Organization
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| type | Classification | Enterprise | Yes |
-| category | Classification | Enterprise | Yes |
-| level | Classification | Enterprise | Yes |
-| priority | Classification | Enterprise | Yes |
+The Enterprise Attribute Catalog is organized by attribute category rather than by business entity.
 
----
+The recommended organization is:
 
-# 9. Reference Attributes
+- Identity Attributes
+- Naming Attributes
+- Business Attributes
+- Classification Attributes
+- Reference Attributes
+- Lifecycle Attributes
+- Temporal Attributes
+- Audit Attributes
+- Derived Attributes
+- External Attributes
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| exchange_id | Reference | Reference | Yes |
-| market_id | Reference | Reference | Yes |
-| company_id | Reference | Core | Yes |
-| sector_id | Reference | Reference | Yes |
-| industry_id | Reference | Reference | Yes |
-| currency_id | Reference | Reference | Yes |
+This organization maximizes discoverability and enterprise-wide reuse.
 
 ---
 
-# 10. Lifecycle Attributes
+# 9. Registration Rules
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| status | Lifecycle | Enterprise | Yes |
-| is_active | Lifecycle | Enterprise | Yes |
-| effective_from | Lifecycle | Enterprise | Yes |
-| effective_to | Lifecycle | Enterprise | Yes |
+An attribute shall be registered only when:
 
----
+- its business meaning is unique;
+- no equivalent canonical attribute already exists;
+- ownership has been assigned;
+- classification has been approved;
+- naming complies with the Enterprise Naming Standard;
+- architectural review has been completed.
 
-# 11. Temporal Attributes
-
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| business_date | Temporal | Enterprise | Yes |
-| trading_date | Temporal | Market | Yes |
-| valid_from | Temporal | Enterprise | Yes |
-| valid_to | Temporal | Enterprise | Yes |
+Existing registered attributes shall always be reused before introducing new attributes.
 
 ---
 
-# 12. Audit Attributes
+# 10. Relationship with the Attribute Dictionary
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| created_at | Audit | Enterprise | Yes |
-| created_by | Audit | Enterprise | Yes |
-| updated_at | Audit | Enterprise | Yes |
-| updated_by | Audit | Enterprise | Yes |
-| version | Audit | Enterprise | Yes |
+The Enterprise Attribute Catalog and the Enterprise Attribute Dictionary serve complementary purposes.
 
----
+| Artifact | Responsibility |
+|----------|----------------|
+| Enterprise Attribute Catalog | Enterprise registry of attributes |
+| Enterprise Attribute Dictionary | Complete business definition of each attribute |
 
-# 13. Derived Attributes
+The catalog answers:
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| market_cap | Derived | Analytics | Yes |
-| average_price | Derived | Analytics | Yes |
-| daily_return | Derived | Analytics | Yes |
+> *"Which enterprise attributes exist?"*
 
----
+The Attribute Dictionary answers:
 
-# 14. External Attributes
+> *"What does each attribute mean and how shall it be used?"*
 
-| Attribute | Classification | Owner Domain | Reusable |
-|----------|----------------|--------------|----------|
-| external_code | External | Integration | Yes |
-| external_symbol | External | Integration | Yes |
-| provider_identifier | External | Integration | Yes |
+The two artifacts shall remain fully synchronized throughout the lifecycle of the platform.
 
 ---
 
-# 15. Catalog Governance
+# 11. Governance
 
-New attributes shall be added only when:
+The Enterprise Attribute Catalog is governed under the Phoenix Architecture Governance Framework.
 
-- no existing canonical attribute satisfies the business requirement;
-- the business meaning is unique;
-- the attribute complies with the Enterprise Attribute Standard;
-- architectural approval has been granted.
+The following governance principles apply:
 
-Existing attributes shall be reused whenever possible.
+- every registered attribute shall have a single owner;
+- duplicate registrations are prohibited;
+- enterprise attributes shall be reviewed before approval;
+- retired attributes shall remain documented for historical traceability;
+- changes shall preserve backward compatibility whenever practical;
+- deprecated attributes shall reference their approved replacements.
 
----
-
-# 16. Relationship with Other Artifacts
-
-The Attribute Catalog is related to the following enterprise artifacts:
-
-- EnterpriseAttributeStandard
-- AttributeDictionary
-- EntityDictionary
-- CanonicalDomainModel
-- AggregateCatalog
-- EnterpriseDataDictionaryStandard
+The catalog represents the official enterprise registry of reusable business attributes.
 
 ---
 
-# 17. Compliance
+# 12. Repository Integration
 
-All logical entities shall use attributes defined in this catalog.
+The Enterprise Attribute Catalog is maintained within the Enterprise Data capability.
 
-Entity-specific attributes not listed in this catalog shall be reviewed and approved before adoption.
+```text
+Data/
+└── Dictionary/
+    ├── AttributeCatalog.md
+    ├── AttributeDictionary.md
+    ├── EntityDictionary.md
+    └── RelationshipDictionary.md
+```
+
+Its primary consumers include:
+
+- Enterprise Architecture
+- Information Architecture
+- Logical Data Models
+- Physical Database Models
+- Database Design
+- API Design
+- Service Contracts
+- Analytics
+- Reporting
+- Future Artificial Intelligence capabilities
+
+The catalog provides a stable metadata foundation for all information-related artifacts.
 
 ---
 
-# Revision History
+# 13. Relationship with Enterprise Standards
+
+The Enterprise Attribute Catalog shall comply with the Enterprise Data Standards framework.
+
+| Standard | Responsibility |
+|----------|----------------|
+| DST-001 — Enterprise Naming Standard | Canonical attribute naming |
+| DST-002 — Enterprise Data Type Standard | Logical data type governance |
+| DST-003 — Base Entity Standard | Common enterprise attributes |
+| DST-004 — Audit Model Standard | Audit metadata |
+| DST-005 — Identifier Strategy | Identity governance |
+| DST-006 — Enterprise Data Dictionary Standard | Enterprise metadata governance |
+| DST-008 — Enterprise Identity Standard | Identity architecture |
+| DST-009 — Enterprise Attribute Standard | Enterprise attribute architecture |
+
+The catalog is the implementation of the registration process defined by these standards.
+
+---
+
+# 14. Compliance
+
+Compliance with this document is mandatory.
+
+Every reusable enterprise attribute shall:
+
+- be registered within this catalog;
+- comply with the Enterprise Attribute Standard;
+- have an approved business owner;
+- belong to exactly one attribute category;
+- reference its corresponding Attribute Dictionary definition.
+
+Attributes that are not registered shall not be reused across multiple business domains without formal architectural approval.
+
+---
+
+# 15. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 2026.1 | 2026-07-09 | Initial Enterprise Attribute Catalog |
+| 2026.1 | 2026-07-09 | Initial Enterprise Attribute Catalog. |
+| 2026.2 | 2026-07-22 | Complete redesign as an Enterprise Attribute Registry. Clarified responsibilities, separated registry concerns from detailed attribute definitions, introduced governance model, repository integration, enterprise lifecycle, traceability, and alignment with the Enterprise Data Standards framework. |
+
+---
+
+# 16. Approval
+
+This document is an approved **Enterprise Metadata Catalog** of the Phoenix Platform.
+
+It serves as the authoritative registry of reusable enterprise attributes and provides the registration layer of the Enterprise Data Dictionary.
+
+Detailed attribute semantics, business rules, validation requirements, and implementation guidance are maintained exclusively within the **Enterprise Attribute Dictionary**.
+
+This catalog remains the authoritative reference for enterprise attribute registration until superseded by a formally approved revision.
+
+---
+
+# End of Document

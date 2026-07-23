@@ -1,315 +1,291 @@
+# =====================================================================
 # External Identifier Data Dictionary
+# =====================================================================
 
----
+# Document Metadata
 
-# Document Information
-
-| Item | Value |
-|------|-------|
+| Property | Value |
+|----------|-------|
+| Project | Phoenix Platform |
+| Artifact ID | DIC-015 |
+| Document | External Identifier Data Dictionary |
 | Entity | External Identifier |
 | Schema | integration |
 | Table | external_identifier |
-| Version | 1.1 |
-| Status | Architecture Freeze |
-| Last Updated | 2026-06-29 |
+| Version | 2026.2 |
+| Status | Approved |
+| Classification | Enterprise Integration Data Dictionary |
+| Owner | Enterprise Architecture Team |
+| Domain | Integration |
+| Bounded Context | Integration Management |
+| Architecture Layer | Integration |
+| Source of Truth | Phoenix Platform |
+| Sprint | Sprint 4 |
+| Epic | Physical Database Design |
+| Last Updated | 2026-07-23 |
 
 ---
 
-# Purpose
+# 1. Purpose
 
-The External Identifier entity maintains mappings between Phoenix business entities and identifiers assigned by external data providers.
+The External Identifier entity provides the canonical mapping between Phoenix enterprise entities and identifiers assigned by external information providers.
 
-It isolates integration concerns from the business domain and enables multiple providers to coexist without introducing provider-specific attributes into business tables.
+Its purpose is to isolate external identification schemes from the enterprise business model, allowing Phoenix to integrate with multiple data providers while preserving a provider-independent canonical domain model.
 
----
+External Identifier serves as the authoritative registry for external mappings used by import services, synchronization processes, API integrations, and data exchange mechanisms.
 
-# Description
-
-External Identifier is an infrastructure entity.
-
-It does not represent a business concept.
-
-Instead, it stores the mapping between an internal Phoenix entity and the corresponding identifier assigned by an external provider.
-
-One business entity may have multiple external identifiers.
-
-One provider may identify many business entities.
+The entity ensures that provider-specific identifiers remain outside the business domain and never become part of the canonical identity of enterprise entities.
 
 ---
 
-# Primary Key
+# 2. Scope
 
-| Name | Type |
-|------|------|
-| id | BIGINT GENERATED ALWAYS AS IDENTITY |
+This dictionary defines the enterprise semantics of the External Identifier integration entity.
 
-Description
+It applies to every service, connector, synchronization process, import pipeline, export pipeline, and external integration that exchanges identifiers between Phoenix and external systems.
 
-Internal immutable surrogate identifier.
+This document governs:
 
----
+- external identifier mappings;
+- provider-specific identifiers;
+- identifier lifecycle;
+- identifier governance;
+- integration semantics;
+- mapping consistency;
+- enterprise traceability.
 
-# Business Identity
+This document does not define:
 
-The logical business identity is defined by:
+- business entities;
+- market master data;
+- trading data;
+- provider communication protocols;
+- API implementations;
+- synchronization algorithms.
 
-```text
-Provider
-
-+
-
-Entity Type
-
-+
-
-External Identifier
-```
-
-Constraint
-
-```text
-UNIQUE
-(
-    provider_name,
-    entity_type,
-    external_identifier
-)
-```
+Those concerns are governed by their respective enterprise architecture artifacts.
 
 ---
 
-# Attributes
+# 3. Integration Definition
 
-| Column | Type | Nullable | Description |
-|---------|------|----------|-------------|
-| provider_name | VARCHAR(50) | No | External data provider |
-| entity_type | VARCHAR(50) | No | Business entity type |
-| entity_id | BIGINT | No | Internal Phoenix identifier |
-| external_identifier | VARCHAR(100) | No | Provider identifier |
-| is_primary | BOOLEAN | No | Preferred identifier for this provider |
-| valid_from | DATE | Yes | Mapping start date |
-| valid_to | DATE | Yes | Mapping end date |
+External Identifier is a canonical integration entity that associates one enterprise entity with one identifier assigned by one external information provider.
 
----
+It exists solely to support interoperability between Phoenix and external systems.
 
-# Supported Entity Types
+External Identifier is not part of the enterprise business model and does not represent a business concept.
 
-Typical values include
+Instead, it represents an integration concern whose responsibility is maintaining stable, traceable, and governed mappings between enterprise identities and provider-specific identifiers.
 
-```text
-Exchange
+The existence, modification, or removal of an External Identifier shall never alter the business meaning or enterprise identity of the associated entity.
 
-TradingBoard
-
-Sector
-
-Industry
-
-Company
-
-Instrument
-```
-
-Future entity types may be introduced without changing the table structure.
+External identifiers are implementation-facing artifacts and shall remain completely independent from enterprise business semantics.
 
 ---
 
-# Provider Examples
+# 4. Enterprise Identity
 
-Typical providers include
+External Identifier is an integration artifact whose identity is derived from the relationship between an enterprise entity and an external information provider.
 
-```text
-TSETMC
+The canonical enterprise identity of an External Identifier is established by the combination of:
 
-Codal
+- External Provider
+- Entity Type
+- External Identifier
 
-Bloomberg
+This identity uniquely identifies one mapping within the Phoenix Platform while remaining independent of the internal identity of the referenced enterprise entity.
 
-Refinitiv
-
-Yahoo Finance
-
-TradingView
-```
-
-Provider names are managed by application configuration.
-
-Future versions may replace `provider_name` with a dedicated `data_provider` table.
+The business identity of the referenced entity remains unchanged regardless of the existence or modification of external mappings.
 
 ---
 
-# Relationships
+# 5. Integration Responsibilities
 
-External Identifier is logically associated with one business entity.
+The External Identifier entity is responsible for:
 
-```text
-Business Entity
+- maintaining mappings between enterprise entities and external identifiers;
+- supporting interoperability with multiple external providers;
+- preserving provider-independent enterprise identities;
+- enabling synchronization between Phoenix and external systems;
+- maintaining historical identifier mappings;
+- supporting import and export processes;
+- providing traceable identifier resolution across integration services.
 
-1
+The External Identifier entity shall not:
 
-↓
-
-N
-
-External Identifier
-```
-
-Examples
-
-```text
-Company
-
-↓
-
-Bloomberg Identifier
-
-↓
-
-Yahoo Finance Identifier
-
-↓
-
-TSETMC Identifier
-```
+- represent business concepts;
+- contain business attributes;
+- replace enterprise primary keys;
+- replace enterprise public identifiers;
+- participate in business decision making;
+- modify the lifecycle of business entities.
 
 ---
 
-# Business Rules
+# 6. Integration Relationships
 
-An External Identifier
+The External Identifier entity maintains logical associations with enterprise entities while remaining outside their aggregate boundaries.
 
-- belongs to exactly one business entity.
-- belongs to exactly one provider.
-- identifies exactly one entity within that provider.
-- shall never contain business data.
-- shall never replace the internal primary key.
-- shall never replace the public identifier.
+| Related Entity | Relationship | Cardinality |
+|---------------|--------------|-------------|
+| Exchange | Association | 1:N |
+| Trading Board | Association | 1:N |
+| Sector | Association | 1:N |
+| Industry | Association | 1:N |
+| Company | Association | 1:N |
+| Instrument | Association | 1:N |
 
----
+Each enterprise entity may have multiple External Identifiers originating from different providers.
 
-# Identifier Lifecycle
+Each External Identifier shall reference exactly one enterprise entity.
 
-A mapping
-
-- may become obsolete.
-- may be superseded by a newer identifier.
-- shall preserve historical mappings.
-- shall not be physically deleted unless explicitly authorized.
-
-Validity is controlled through:
-
-```text
-valid_from
-
-valid_to
-```
+External Identifier shall never own, aggregate, or compose any business entity.
 
 ---
 
-# Validation Rules
+# 7. Integration Lifecycle
 
-- provider_name is mandatory.
-- entity_type is mandatory.
-- entity_id is mandatory.
-- external_identifier is mandatory.
-- valid_to shall not precede valid_from.
+The lifecycle of an External Identifier is independent of the lifecycle of the referenced enterprise entity.
 
----
+An External Identifier may be:
 
-# Constraints
+- created when a provider mapping becomes available;
+- superseded by a new identifier;
+- deactivated when no longer valid;
+- retained for historical traceability.
 
-## Primary Key
+Historical mappings shall remain available for audit, synchronization, reconciliation, and historical integration purposes.
 
-```text
-PRIMARY KEY (id)
-```
+Physical deletion of External Identifier records shall be avoided except under formally approved governance procedures.
 
----
-
-## Business Key
-
-```text
-UNIQUE
-(
-    provider_name,
-    entity_type,
-    external_identifier
-)
-```
+The lifecycle of an External Identifier shall never alter the lifecycle or business identity of the referenced enterprise entity.
 
 ---
 
-# Index Recommendation
+# 8. Enterprise Attributes
 
-Primary Index
+The business semantics of every attribute are defined in the Enterprise Attribute Dictionary.
 
-```text
-id
-```
+| Attribute | Business Meaning |
+|----------|------------------|
+| provider_name | External information provider responsible for the identifier |
+| entity_type | Enterprise entity classification |
+| entity_id | Internal identifier of the referenced enterprise entity |
+| external_identifier | Provider-assigned identifier |
+| is_primary | Preferred mapping for the provider |
+| valid_from | Mapping validity start date |
+| valid_to | Mapping validity end date |
 
-Composite Unique Index
-
-```text
-provider_name
-
-entity_type
-
-external_identifier
-```
-
-Lookup Index
-
-```text
-entity_type
-
-entity_id
-```
+Implementation details, physical data types, indexing strategies, storage mechanisms, and optimization rules are governed by the Physical Database Model and the Enterprise Attribute Standard.
 
 ---
 
-# Audit Columns
+# 9. Governance Rules
 
-```text
-created_at
+The External Identifier entity shall be governed according to the following enterprise principles.
 
-updated_at
+## Identity Governance
 
-created_by
+The canonical identity of every enterprise entity shall remain independent of all external provider identifiers.
 
-updated_by
-
-is_active
-```
+External identifiers shall serve exclusively as integration mappings and shall never become enterprise business identifiers.
 
 ---
 
-# Dependencies
+## Mapping Governance
 
-Depends On
+Each mapping shall reference exactly one enterprise entity.
 
-Business entities within the Market schema.
+An external identifier shall not simultaneously identify multiple enterprise entities for the same provider and entity type.
 
-Referenced By
-
-Integration Services
-
-Synchronization Jobs
-
-Import Pipelines
-
-Export Pipelines
-
-API Connectors
+Mappings shall remain deterministic, traceable, and auditable throughout their lifecycle.
 
 ---
 
-# Related Documents
+## Provider Independence
 
+Enterprise services shall operate exclusively on canonical Phoenix identifiers.
+
+Provider-specific identifiers shall be translated through the External Identifier entity before entering or leaving the business domain.
+
+Business services shall never contain provider-specific identification logic.
+
+---
+
+## Lifecycle Governance
+
+Historical mappings shall be preserved whenever required for reconciliation, synchronization, regulatory compliance, or audit purposes.
+
+Expired mappings shall be marked through their validity period rather than being physically removed.
+
+---
+
+## Data Quality
+
+Every mapping shall satisfy the following quality requirements:
+
+- uniqueness;
+- completeness;
+- consistency;
+- traceability;
+- historical integrity;
+- provider accountability.
+
+---
+
+# 10. Traceability
+
+The External Identifier entity shall remain traceable across the enterprise architecture.
+
+Its business semantics shall align with:
+
+- Enterprise Business Glossary;
+- Enterprise Entity Dictionary;
+- Enterprise Attribute Dictionary;
+- Canonical Integration Model;
+- Logical Database Model;
+- Physical Database Model;
+- Service Context Map;
+- Integration Architecture;
+- Synchronization Architecture;
+- Canonical Business Rules.
+
+Every modification to identifier mappings shall remain fully auditable.
+
+---
+
+# 11. Compliance
+
+Implementations of the External Identifier entity shall comply with:
+
+- Enterprise Naming Standards;
+- Enterprise Database Standards;
+- Enterprise Integration Standards;
+- Enterprise Security Standards;
+- Enterprise Audit Standards;
+- Enterprise Data Governance Principles.
+
+No implementation may bypass the canonical mapping mechanism defined by this entity.
+
+Provider-specific identifiers shall never be embedded directly within enterprise business entities.
+
+---
+
+# 12. Related Documents
+
+- BusinessGlossary.md
+- EntityDictionary.md
+- AttributeDictionary.md
+- RelationshipDictionary.md
 - ConceptualModel.md
 - LogicalDatabaseModel.md
 - PhysicalDatabaseModel.md
-- ADR-017
-- ArchitectureFreeze-v1.1.md
+- IntegrationArchitecture.md
+- SynchronizationArchitecture.md
+- ServiceContextMap.md
+- CanonicalBusinessRules.md
+- ADR-016 — Public Identifier Strategy
+- ADR-017 — External Identifier Strategy
 
 ---
 
@@ -317,4 +293,85 @@ API Connectors
 
 | Version | Date | Description |
 |----------|------|-------------|
-| 1.1 | 2026-06-29 | Initial Architecture Freeze version |
+| 2026.1 | 2026-06-29 | Initial Architecture Freeze version |
+| 2026.2 | 2026-07-23 | Refactored as Enterprise Integration Data Dictionary following Enterprise Data Dictionary standards. |
+
+---
+# 13. Physical Database Design Readiness
+
+The External Identifier entity has successfully completed the Enterprise Data Dictionary phase and is approved for transition into the Physical Database Design phase.
+
+The physical implementation shall preserve the enterprise semantics defined in this document while applying database-specific optimization techniques appropriate for PostgreSQL.
+
+The following design activities shall be addressed during the Physical Database Design phase:
+
+## Physical Table Definition
+
+- PostgreSQL data types
+- Column ordering
+- Default values
+- Generated values
+- NULL constraints
+
+## Primary and Alternate Keys
+
+- Primary Key definition
+- Business Key implementation
+- Public Identifier implementation
+- Unique constraint strategy
+
+## Referential Integrity
+
+- Foreign key implementation where applicable
+- Referential actions
+- Constraint naming standards
+
+## Physical Constraints
+
+- CHECK constraints
+- NOT NULL constraints
+- Domain validation
+- Temporal validation for validity periods
+
+## Performance Optimization
+
+- Index strategy
+- Composite indexes
+- Lookup indexes
+- Provider-based search optimization
+
+## Operational Characteristics
+
+- Audit columns
+- Soft delete policy
+- Historical record preservation
+- Storage considerations
+
+## Security Considerations
+
+- Access control
+- Data ownership
+- Integration service permissions
+- Auditability
+
+The resulting physical implementation shall remain fully consistent with:
+
+- Conceptual Data Model
+- Logical Database Model
+- Enterprise Data Dictionary
+- Enterprise Database Standards
+- Enterprise Naming Standards
+
+No physical optimization shall alter the approved business or integration semantics defined by this document.
+
+---
+# 14. Approval
+
+| Role | Responsibility | Status |
+|------|----------------|--------|
+| Enterprise Architect | Business and Integration Semantics | Approved |
+| Data Architect | Logical Data Model | Approved |
+| Database Architect | Physical Database Design | Pending |
+| Solution Architect | Architecture Compliance | Approved |
+
+The External Identifier entity is approved for implementation during the Physical Database Design phase of the Phoenix Platform.
