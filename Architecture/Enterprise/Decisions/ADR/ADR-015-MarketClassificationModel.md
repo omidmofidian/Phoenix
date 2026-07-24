@@ -1,298 +1,435 @@
-# ADR-015 — Market Classification Model
-
-| Property | Value |
-|----------|-------|
-| ADR ID | ADR-015 |
-| Title | Market Classification Model |
-| Status | Accepted |
-| Date | 2026-07-11 |
-| Decision Makers | Phoenix Architecture Team |
-| Category | Domain Architecture |
+# ADR-015 — Canonical Reference Domain Model
 
 ---
 
-# Context
+## Document Information
 
-Phoenix Platform is designed to support multiple financial markets and asset classes.
+| Attribute | Value |
+|----------|-------|
+| ADR Number | ADR-015 |
+| Title | Canonical Reference Domain Model |
+| Status | Accepted |
+| Version | 2.0 |
+| Date | 2026-07-24 |
+| Decision Makers | Phoenix Architecture Board |
+| Authors | Phoenix Architecture Team |
+| Review Cycle | Major Architecture Changes |
+| Supersedes | ADR-015 Version 1.0 (Market Classification Model) |
 
-The platform must not be limited to the Iranian stock market.
+---
 
-Future versions are expected to support:
+# 1. Status
 
-- Equity Markets
-- OTC Markets
-- Fixed Income
-- Commodities
-- ETFs
+**Accepted**
+
+This Architecture Decision Record defines the canonical business reference model of the Phoenix Platform.
+
+The decisions documented in this ADR are mandatory for every architectural layer, including:
+
+- Domain Model
+- Conceptual Data Model
+- Logical Database Model
+- Physical Database Model
+- Enterprise Data Dictionary
+- Database DDL
+- Service Contracts
+- APIs
+- Application Services
+- Integration Components
+
+No implementation may introduce an alternative reference hierarchy without an approved superseding ADR.
+
+---
+
+# 2. Context
+
+Phoenix Platform is designed as an enterprise-grade, service-oriented investment analysis platform intended to support multiple financial markets.
+
+Although the initial implementation targets the Iranian capital market, the platform architecture must remain independent of any specific exchange, country, or asset class.
+
+The platform is expected to support additional markets in future releases, including but not limited to:
+
+- International Stock Exchanges
+- Exchange Traded Funds (ETF)
+- Bonds
 - Mutual Funds
 - Derivatives
-- Foreign Exchange
-- Cryptocurrency
-- International Exchanges
+- Commodities
+- Foreign Exchange (Forex)
+- Cryptocurrencies
+- Other organized financial markets
 
-A canonical classification model is therefore required.
+As the platform evolved, multiple architectural documents introduced slightly different interpretations of the reference business hierarchy.
 
-Without a standard classification hierarchy, future expansion would require structural database modifications.
+Examples included inconsistent usage of:
 
----
+- Board vs. Trading Board
+- Symbol vs. Instrument
+- Exchange–Market hierarchy
+- Industry classification hierarchy
+- Parent-child ownership rules
 
-# Problem
+These inconsistencies created ambiguity across architectural documentation and implementation artifacts.
 
-Financial instruments are naturally classified through several independent dimensions.
-
-Examples include:
-
-- Market
-- Exchange
-- Asset Class
-- Instrument Type
-- Trading Board
-- Industry
-- Sector
-
-These classifications are reference data and must remain stable.
+A single canonical reference domain model is therefore required to establish a unified ubiquitous language across the entire Phoenix Platform.
 
 ---
 
-# Decision
+# 3. Problem Statement
 
-Phoenix adopts a hierarchical market classification model.
+Prior architectural iterations introduced several naming inconsistencies and structural ambiguities across the repository.
 
-Business entities shall reference classification entities instead of storing classification values directly.
+Without a single authoritative reference model, different artifacts may evolve independently, resulting in:
 
-Classification entities belong to the Reference Domain.
+- inconsistent business terminology;
+- duplicated business concepts;
+- conflicting database structures;
+- incompatible service contracts;
+- increased implementation complexity;
+- reduced maintainability;
+- higher integration costs.
+
+To eliminate these risks, Phoenix requires one canonical reference domain model that serves as the single source of truth for every business reference entity used throughout the platform.
 
 ---
 
-# Classification Hierarchy
+# 4. Decision
 
+The Phoenix Platform shall adopt a single **Canonical Reference Domain Model** that defines the authoritative business reference hierarchy for the entire platform.
+
+This model shall become the mandatory reference for every architectural, logical, physical, and implementation artifact.
+
+No alternative business hierarchy may be introduced unless approved by a subsequent Architecture Decision Record.
+
+---
+
+# 5. Canonical Reference Domain Model
+
+The canonical reference domain consists of seven core business entities.
+
+```text
+Exchange
+    │
+    └── Market
+            │
+            └── TradingBoard
+                    │
+                    └── Company
+                            │
+                            └── Instrument
+
+Industry
+    │
+    └── Sector
+            │
+            └── Company
 ```
-Market
-    └── Exchange
-            └── Trading Board
-                    └── Instrument
+
+These entities represent the complete business taxonomy required to identify, classify, and organize tradable financial instruments within the Phoenix Platform.
+
+---
+
+# 6. Canonical Entities
+
+The following entities are declared as canonical.
+
+| Entity | Purpose |
+|---------|---------|
+| Exchange | Represents a regulated securities exchange. |
+| Market | Represents a business market operated by an exchange. |
+| TradingBoard | Represents a trading board within a market. |
+| Industry | Represents a high-level business classification. |
+| Sector | Represents a subdivision of an industry. |
+| Company | Represents the legal entity issuing financial instruments. |
+| Instrument | Represents a tradable financial instrument. |
+
+These names shall be used consistently across:
+
+- Architecture documents
+- ADRs
+- Data models
+- Database objects
+- Source code
+- APIs
+- Integration contracts
+- Documentation
+
+---
+
+# 7. Deprecated Terminology
+
+The following business terms are deprecated and shall not be introduced into future architectural artifacts.
+
+| Deprecated | Canonical |
+|------------|-----------|
+| Board | TradingBoard |
+| Trading Board | TradingBoard |
+| Symbol | Instrument |
+| Trading Symbol | Instrument |
+| Company Symbol | Instrument |
+
+Existing documents using deprecated terminology shall be updated during normal maintenance or repository consistency reviews.
+
+---
+
+# 8. Architectural Principles
+
+The canonical reference model shall follow the principles below.
+
+### Principle 1 — Single Source of Truth
+
+Every business concept shall have exactly one canonical entity.
+
+---
+
+### Principle 2 — Ubiquitous Language
+
+Business terminology shall remain identical across architecture, implementation, documentation, and services.
+
+---
+
+### Principle 3 — Market Independence
+
+The model shall remain independent of any individual exchange, country, or financial market.
+
+---
+
+### Principle 4 — Extensibility
+
+The model shall support future financial instruments and additional markets without structural redesign.
+
+---
+
+### Principle 5 — Enterprise Consistency
+
+Business terminology shall remain stable across all architectural layers throughout the lifetime of the Phoenix Platform.
+
+---
+# 9. Trading Hierarchy
+
+The trading hierarchy defines how tradable financial instruments are organized inside an exchange.
+
+Each level has a distinct business responsibility and shall only maintain relationships with its immediate parent.
+
+```text
+Exchange
+    │
+    └── Market
+            │
+            └── TradingBoard
+                    │
+                    └── Company
+                            │
+                            └── Instrument
 ```
 
-Independent classification dimensions:
+The responsibilities of each entity are defined below.
 
+| Entity | Responsibility |
+|---------|----------------|
+| Exchange | Operates one or more regulated financial markets. |
+| Market | Organizes securities into independent business markets. |
+| TradingBoard | Represents the trading environment in which instruments are listed and traded. |
+| Company | Represents the legal issuer of one or more financial instruments. |
+| Instrument | Represents a tradable financial asset issued by a company. |
+
+---
+
+# 10. Business Classification Hierarchy
+
+Business classification is independent from the trading hierarchy.
+
+It classifies companies according to their business activities rather than their trading location.
+
+```text
+Industry
+    │
+    └── Sector
+            │
+            └── Company
 ```
-Asset Class
-        └── Instrument Type
-```
 
-Industry classification:
+Classification entities shall never be used to model trading relationships.
 
-```
-Sector
-    └── Industry
-            └── Sub Industry
-```
+Likewise, trading entities shall never be used to model business classifications.
+
+These two hierarchies remain independent and intersect only at the **Company** entity.
 
 ---
 
-# Canonical Classification Entities
+# 11. Parent–Child Relationship Rules
 
-The following reference entities shall exist.
+Each canonical entity shall maintain a relationship only with its immediate parent.
 
-## Market
+Direct references to higher-level ancestors shall not be stored unless explicitly approved by a separate Architecture Decision Record.
 
-Represents a financial market.
+The canonical parent relationships are therefore defined as follows.
+
+| Entity | Immediate Parent |
+|---------|------------------|
+| Market | Exchange |
+| TradingBoard | Market |
+| Company | TradingBoard, Sector |
+| Instrument | Company |
+
+This rule minimizes redundancy, improves normalization, and reduces the risk of inconsistent reference data.
+
+---
+
+# 12. Normalization Principles
+
+The reference domain model shall comply with Third Normal Form (3NF).
+
+Accordingly:
+
+- Parent entities shall not duplicate information that can be derived through existing relationships.
+- Child entities shall reference only their immediate parent entities.
+- Redundant foreign keys shall be avoided.
+- Derived relationships shall be resolved through joins rather than duplicated columns.
+
+For example, an Instrument references its Company directly. Through the Company relationship, the platform can determine the associated TradingBoard, Market, and Exchange without storing those identifiers again.
+
+Similarly, a Company references its Sector directly. The associated Industry can be determined through the Sector relationship without duplicating the Industry identifier.
+
+These principles ensure a normalized, maintainable, and extensible reference model.
+
+---
+
+# 13. Naming Principles
+
+To establish a consistent ubiquitous language across the Phoenix Platform, the following naming principles are mandatory.
+
+## 13.1 Canonical Business Names
+
+Each business concept shall have exactly one canonical name.
+
+| Canonical Entity | Mandatory Name |
+|------------------|----------------|
+| Exchange | Exchange |
+| Market | Market |
+| TradingBoard | TradingBoard |
+| Industry | Industry |
+| Sector | Sector |
+| Company | Company |
+| Instrument | Instrument |
+
+No synonyms shall be introduced into architecture, database objects, source code, APIs, or documentation.
+
+---
+
+## 13.2 Database Naming
+
+Physical database objects shall comply with the Enterprise Database Naming Standard.
 
 Examples:
 
-- Iran Capital Market
-- Forex
-- Crypto
-- US Market
+| Object | Convention |
+|---------|------------|
+| Schema | `reference` |
+| Table | `reference.instrument` |
+| Primary Key | `id` |
+| Foreign Key | `<parent>_id` |
+| Public Identifier | `public_id` |
+| Status Flag | `is_active` |
+| Audit Columns | `created_at`, `created_by`, `updated_at`, `updated_by`, `version` |
 
 ---
 
-## Exchange
+## 13.3 Service Naming
 
-Represents a trading exchange.
+Application services shall use canonical business terminology.
 
 Examples:
 
-- Tehran Stock Exchange
-- Iran Fara Bourse
-- CME
-- NASDAQ
+- Instrument Service
+- Company Service
+- Exchange Service
+- Market Service
+- TradingBoard Service
+
+Deprecated names such as **Symbol Service** shall not be introduced.
 
 ---
 
-## Trading Board
+# 14. Architectural Consequences
 
-Represents an exchange trading board.
+Adoption of the canonical reference model has the following architectural consequences.
 
-Examples:
+## Positive Consequences
 
-- Main Market
-- Secondary Market
-- SME Board
+- Establishes a single ubiquitous language across the Phoenix Platform.
+- Eliminates ambiguity between architecture and implementation.
+- Simplifies service contracts and API design.
+- Improves database normalization.
+- Reduces duplicated business concepts.
+- Facilitates future support for multiple financial markets.
+- Simplifies onboarding of developers and architects.
+- Provides a stable foundation for enterprise governance.
 
----
+## Negative Consequences
 
-## Asset Class
+- Existing documentation using deprecated terminology must be updated.
+- Existing DDL scripts may require refactoring to align with the canonical model.
+- Legacy code, if any, may require migration.
 
-Examples:
-
-- Equity
-- Fixed Income
-- ETF
-- Commodity
-- Currency
-- Crypto
-- Derivative
-
----
-
-## Instrument Type
-
-Examples:
-
-- Common Stock
-- Preferred Stock
-- Bond
-- Sukuk
-- ETF
-- Future
-- Option
-- Mutual Fund
+These costs are considered acceptable in exchange for long-term architectural consistency.
 
 ---
 
-## Sector
+# 15. Compliance Requirements
 
-High-level economic classification.
+Every artifact produced within the Phoenix Platform shall comply with this Architecture Decision Record.
 
-Examples:
+The following artifacts are subject to mandatory compliance:
 
-- Financial
-- Energy
-- Technology
+- Architecture Decision Records (ADRs)
+- Domain Model
+- Conceptual Data Model
+- Logical Database Model
+- Physical Database Model
+- Enterprise Data Dictionary
+- PostgreSQL DDL Scripts
+- Service Contracts
+- REST APIs
+- Integration Specifications
+- Source Code
+- Test Data
+- Technical Documentation
 
----
-
-## Industry
-
-Business industry.
-
-Examples:
-
-- Banking
-- Insurance
-- Petrochemical
-
----
-
-## Sub Industry
-
-Lowest classification level.
+Repository consistency audits shall verify compliance with this ADR before major architectural milestones or release candidates.
 
 ---
 
-# Business Rules
+# 16. Related ADRs
 
-- Every Instrument belongs to exactly one Market.
-- Every Instrument belongs to exactly one Exchange.
-- Every Instrument belongs to exactly one Asset Class.
-- Every Instrument belongs to exactly one Instrument Type.
-- Every Instrument belongs to exactly one Industry.
-- Sector contains multiple Industries.
-- Industry contains multiple Sub Industries.
-- Market classifications are reference data.
-- Classification entities are immutable from business transactions.
+This ADR shall be interpreted together with the following Architecture Decision Records.
 
----
+| ADR | Title |
+|------|-------|
+| ADR-001 | Domain-Driven Design |
+| ADR-002 | Service-Oriented Architecture |
+| ADR-015 | Canonical Reference Domain Model *(this document)* |
+| ADR-026 | Normalize Reference Data Model |
 
-# Consequences
-
-Advantages
-
-- Supports future markets.
-- Eliminates duplicated classifications.
-- Simplifies reporting.
-- Enables consistent filtering.
-- Supports multilingual names.
-- Supports external provider mappings.
-
-Trade-offs
-
-- Additional reference tables.
-- More joins in analytical queries.
-- Initial modeling effort increases.
+Where conflicts exist, the most recent **Accepted** Architecture Decision Record shall take precedence.
 
 ---
 
-# Impact
+# 17. References
 
-Affected Documents
+The implementation of this Architecture Decision Record shall remain consistent with the following architectural artifacts.
 
-- CanonicalDomainModel.md
-- EntityCatalog.md
-- CanonicalBusinessRules.md
-- CanonicalEntityRelationships.md
-- ConceptualModel.md
-- LogicalDatabaseModel.md
-- PhysicalDatabaseModel.md
-
-Affected Domains
-
-- Reference
-- Market
-- Trading
-- Reporting
+- Domain Model
+- Conceptual Data Model
+- Logical Database Model
+- Physical Database Model
+- Enterprise Data Dictionary
+- PostgreSQL Physical Database Design
+- PostgreSQL Design Decisions
+- Table Physical Specifications
+- Constraint Specifications
+- DDL Template Specification
 
 ---
 
-# Alternatives Considered
-
-## Alternative A
-
-Store classification values directly in Instrument.
-
-Rejected.
-
-Reason:
-
-Violates normalization and prevents extensibility.
-
----
-
-## Alternative B
-
-Use lookup tables without hierarchy.
-
-Rejected.
-
-Reason:
-
-Cannot represent real-world market structures.
-
----
-
-## Alternative C
-
-Hierarchical reference model.
-
-Accepted.
-
-Reason:
-
-Provides scalability, normalization and long-term maintainability.
-
----
-
-# Related ADRs
-
-- ADR-018 — Database Initialization Strategy
-- ADR-020 — Database Bootstrap and Security Architecture
-- ADR-021 — Canonical Domain Model and Schema Allocation
-
----
-
-# Revision History
-
-| Version | Date | Description |
-|----------|------|-------------|
-| 2026.1 | 2026-07-11 | Initial version |
+# End of Document
