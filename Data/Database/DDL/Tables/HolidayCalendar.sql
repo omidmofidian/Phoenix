@@ -1,20 +1,28 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : 090-CreateHolidayCalendar.sql
+ * Script           : HolidayCalendar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : HolidayCalendar
  * Schema           : reference
- * Version          : 1.0
+ * Version          : 2.0
  * Status           : Approved
  *
  * Description
  * -------------------------------------------------------------------------------------------------
  * Creates the HolidayCalendar reference table.
  *
+ * The HolidayCalendar defines official holidays observed by each Exchange
+ * supported by the Phoenix Platform. Holidays may include national, religious,
+ * exchange-specific, or extraordinary closure events that affect trading
+ * activities.
+ *
+ * This table stores only holiday definitions. Daily trading availability is
+ * maintained separately by the TradingCalendar.
+ *
  * Dependencies
  * -------------------------------------------------------------------------------------------------
- * 080-CreateTradingCalendar.sql
+ * Exchange.sql
  *
  * Standards
  * -------------------------------------------------------------------------------------------------
@@ -32,6 +40,8 @@
  * Version   Date         Description
  * -------   ----------   ---------------------------------------------------------
  * 1.0       2026-07-11   Initial version.
+ * 2.0       2026-07-24   Redesigned based on ADR-015 (Market Classification Model)
+ *                        and ADR-026 (Reference Data Normalization Model).
  **************************************************************************************************/
 
 CREATE TABLE reference.HolidayCalendar
@@ -40,47 +50,45 @@ CREATE TABLE reference.HolidayCalendar
     -- Primary Identifier
     ------------------------------------------------------------------------------
 
-    holiday_calendar_id     BIGINT GENERATED ALWAYS AS IDENTITY,
+    holiday_calendar_id      BIGINT GENERATED ALWAYS AS IDENTITY,
 
     ------------------------------------------------------------------------------
     -- Public Identifier
     ------------------------------------------------------------------------------
 
-    public_id               UUID NOT NULL,
-
-    ------------------------------------------------------------------------------
-    -- Business Attributes
-    ------------------------------------------------------------------------------
-
-    holiday_date            DATE NOT NULL,
-    persian_date            VARCHAR(10) NOT NULL,
-    holiday_name            VARCHAR(200) NOT NULL,
-    holiday_type            VARCHAR(50) NOT NULL,
-    description             VARCHAR(500),
+    public_id                UUID NOT NULL,
 
     ------------------------------------------------------------------------------
     -- Foreign Keys
     ------------------------------------------------------------------------------
 
-    trading_calendar_id     BIGINT NOT NULL,
+    exchange_id              BIGINT NOT NULL,
 
     ------------------------------------------------------------------------------
-    -- Business Status
+    -- Business Attributes
     ------------------------------------------------------------------------------
 
-    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
+    holiday_date             DATE NOT NULL,
 
-    ------------------------------------------------------------------------------
+    persian_date             VARCHAR(10) NOT NULL,
+
+    holiday_name             VARCHAR(200) NOT NULL,
+
+    holiday_type             VARCHAR(50) NOT NULL,
+
+    description              VARCHAR(500),
+
+        ------------------------------------------------------------------------------
     -- Audit Columns
     ------------------------------------------------------------------------------
 
-    created_at              TIMESTAMPTZ NOT NULL,
-    created_by              BIGINT NOT NULL,
+    created_at               TIMESTAMPTZ NOT NULL,
+    created_by               BIGINT NOT NULL,
 
-    updated_at              TIMESTAMPTZ,
-    updated_by              BIGINT,
+    updated_at               TIMESTAMPTZ,
+    updated_by               BIGINT,
 
-    version                 INTEGER NOT NULL DEFAULT 1,
+    version                  INTEGER NOT NULL DEFAULT 1,
 
     ------------------------------------------------------------------------------
     -- Constraints
@@ -92,20 +100,24 @@ CREATE TABLE reference.HolidayCalendar
     CONSTRAINT UQ_HolidayCalendar_PublicId
         UNIQUE (public_id),
 
-    CONSTRAINT UQ_HolidayCalendar_Date
-        UNIQUE (holiday_date)
+    CONSTRAINT UQ_HolidayCalendar_Exchange_Date
+        UNIQUE (exchange_id, holiday_date),
+
+    CONSTRAINT FK_HolidayCalendar_Exchange
+        FOREIGN KEY (exchange_id)
+        REFERENCES reference.Exchange (exchange_id)
 );
 
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Table Comment
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 COMMENT ON TABLE reference.HolidayCalendar
-IS 'Stores official holidays affecting market trading activities.';
+IS 'Defines official holidays observed by each supported exchange.';
 
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Column Comments
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 COMMENT ON COLUMN reference.HolidayCalendar.holiday_calendar_id
 IS 'Internal surrogate primary key.';
@@ -113,26 +125,23 @@ IS 'Internal surrogate primary key.';
 COMMENT ON COLUMN reference.HolidayCalendar.public_id
 IS 'Immutable public identifier used for external integration and synchronization.';
 
+COMMENT ON COLUMN reference.HolidayCalendar.exchange_id
+IS 'References the Exchange that observes this holiday.';
+
 COMMENT ON COLUMN reference.HolidayCalendar.holiday_date
-IS 'Gregorian holiday date.';
+IS 'Gregorian calendar date of the holiday.';
 
 COMMENT ON COLUMN reference.HolidayCalendar.persian_date
-IS 'Equivalent Persian (Solar Hijri) holiday date.';
+IS 'Equivalent Persian (Solar Hijri) calendar date.';
 
 COMMENT ON COLUMN reference.HolidayCalendar.holiday_name
-IS 'Official holiday name.';
+IS 'Official business name of the holiday.';
 
 COMMENT ON COLUMN reference.HolidayCalendar.holiday_type
-IS 'Holiday classification such as National, Religious or Exchange.';
+IS 'Classification of the holiday, such as National, Religious, Exchange, Regulatory or Extraordinary.';
 
 COMMENT ON COLUMN reference.HolidayCalendar.description
-IS 'Business description of the holiday.';
-
-COMMENT ON COLUMN reference.HolidayCalendar.trading_calendar_id
-IS 'References the associated trading calendar entry.';
-
-COMMENT ON COLUMN reference.HolidayCalendar.is_active
-IS 'Indicates whether the holiday definition is active.';
+IS 'Additional business information describing the holiday.';
 
 COMMENT ON COLUMN reference.HolidayCalendar.created_at
 IS 'Timestamp when the record was created.';
@@ -148,3 +157,4 @@ IS 'Identifier of the user or process that last updated the record.';
 
 COMMENT ON COLUMN reference.HolidayCalendar.version
 IS 'Optimistic concurrency version number.';
+

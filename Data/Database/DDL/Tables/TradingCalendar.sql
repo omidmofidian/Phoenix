@@ -1,20 +1,26 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : 080-CreateTradingCalendar.sql
+ * Script           : TradingCalendar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingCalendar
  * Schema           : reference
- * Version          : 1.0
+ * Version          : 2.0
  * Status           : Approved
  *
  * Description
  * -------------------------------------------------------------------------------------------------
  * Creates the TradingCalendar reference table.
  *
+ * The TradingCalendar defines the official trading calendar for each Exchange
+ * supported by the Phoenix Platform. Each Exchange maintains its own trading
+ * calendar, enabling the platform to support multiple financial markets such as
+ * stock exchanges, derivatives markets, foreign exchange markets, commodity
+ * exchanges, and cryptocurrency exchanges.
+ *
  * Dependencies
  * -------------------------------------------------------------------------------------------------
- * None
+ * Exchange.sql
  *
  * Standards
  * -------------------------------------------------------------------------------------------------
@@ -32,6 +38,8 @@
  * Version   Date         Description
  * -------   ----------   ---------------------------------------------------------
  * 1.0       2026-07-11   Initial version.
+ * 2.0       2026-07-24   Redesigned based on ADR-015 (Market Classification Model)
+ *                        and ADR-026 (Reference Data Normalization Model).
  **************************************************************************************************/
 
 CREATE TABLE reference.TradingCalendar
@@ -40,36 +48,35 @@ CREATE TABLE reference.TradingCalendar
     -- Primary Identifier
     ------------------------------------------------------------------------------
 
-    trading_calendar_id     BIGINT GENERATED ALWAYS AS IDENTITY,
+    trading_calendar_id      BIGINT GENERATED ALWAYS AS IDENTITY,
 
     ------------------------------------------------------------------------------
     -- Public Identifier
     ------------------------------------------------------------------------------
 
-    public_id               UUID NOT NULL,
+    public_id                UUID NOT NULL,
+
+    ------------------------------------------------------------------------------
+    -- Foreign Keys
+    ------------------------------------------------------------------------------
+
+    exchange_id              BIGINT NOT NULL,
 
     ------------------------------------------------------------------------------
     -- Business Attributes
     ------------------------------------------------------------------------------
 
-    calendar_date           DATE NOT NULL,
-    persian_date            VARCHAR(10) NOT NULL,
-    day_name                VARCHAR(20) NOT NULL,
-    day_of_week             SMALLINT NOT NULL,
-    week_of_year            SMALLINT,
-    month_of_year           SMALLINT NOT NULL,
-    year_number             INTEGER NOT NULL,
-    is_weekend              BOOLEAN NOT NULL DEFAULT FALSE,
-    is_trading_day          BOOLEAN NOT NULL DEFAULT TRUE,
-    description             VARCHAR(500),
+    calendar_date            DATE NOT NULL,
 
-    ------------------------------------------------------------------------------
-    -- Business Status
-    ------------------------------------------------------------------------------
+    persian_date             VARCHAR(10) NOT NULL,
 
-    is_active               BOOLEAN NOT NULL DEFAULT TRUE,
+    is_weekend               BOOLEAN NOT NULL DEFAULT FALSE,
 
-    ------------------------------------------------------------------------------
+    is_trading_day           BOOLEAN NOT NULL DEFAULT TRUE,
+
+    description              VARCHAR(500),
+
+        ------------------------------------------------------------------------------
     -- Audit Columns
     ------------------------------------------------------------------------------
 
@@ -91,20 +98,24 @@ CREATE TABLE reference.TradingCalendar
     CONSTRAINT UQ_TradingCalendar_PublicId
         UNIQUE (public_id),
 
-    CONSTRAINT UQ_TradingCalendar_Date
-        UNIQUE (calendar_date)
+    CONSTRAINT UQ_TradingCalendar_Exchange_Date
+        UNIQUE (exchange_id, calendar_date),
+
+    CONSTRAINT FK_TradingCalendar_Exchange
+        FOREIGN KEY (exchange_id)
+        REFERENCES reference.Exchange (exchange_id)
 );
 
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Table Comment
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 COMMENT ON TABLE reference.TradingCalendar
-IS 'Stores the official trading calendar used by the Phoenix Platform.';
+IS 'Defines the official trading calendar for each supported exchange.';
 
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 -- Column Comments
-----------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
 
 COMMENT ON COLUMN reference.TradingCalendar.trading_calendar_id
 IS 'Internal surrogate primary key.';
@@ -112,38 +123,23 @@ IS 'Internal surrogate primary key.';
 COMMENT ON COLUMN reference.TradingCalendar.public_id
 IS 'Immutable public identifier used for external integration and synchronization.';
 
+COMMENT ON COLUMN reference.TradingCalendar.exchange_id
+IS 'References the Exchange that owns this trading calendar.';
+
 COMMENT ON COLUMN reference.TradingCalendar.calendar_date
-IS 'Gregorian calendar date.';
+IS 'Gregorian calendar date represented by this trading calendar entry.';
 
 COMMENT ON COLUMN reference.TradingCalendar.persian_date
 IS 'Equivalent Persian (Solar Hijri) calendar date.';
 
-COMMENT ON COLUMN reference.TradingCalendar.day_name
-IS 'Business name of the day.';
-
-COMMENT ON COLUMN reference.TradingCalendar.day_of_week
-IS 'Day number within the week.';
-
-COMMENT ON COLUMN reference.TradingCalendar.week_of_year
-IS 'Week number within the year.';
-
-COMMENT ON COLUMN reference.TradingCalendar.month_of_year
-IS 'Month number within the year.';
-
-COMMENT ON COLUMN reference.TradingCalendar.year_number
-IS 'Gregorian calendar year.';
-
 COMMENT ON COLUMN reference.TradingCalendar.is_weekend
-IS 'Indicates whether the date is a weekend.';
+IS 'Indicates whether the calendar date is considered a weekend by the owning exchange.';
 
 COMMENT ON COLUMN reference.TradingCalendar.is_trading_day
-IS 'Indicates whether trading is permitted on the date.';
+IS 'Indicates whether trading sessions are permitted on the specified date.';
 
 COMMENT ON COLUMN reference.TradingCalendar.description
-IS 'Business description of the calendar date.';
-
-COMMENT ON COLUMN reference.TradingCalendar.is_active
-IS 'Indicates whether the calendar entry is active.';
+IS 'Additional business information describing the calendar entry.';
 
 COMMENT ON COLUMN reference.TradingCalendar.created_at
 IS 'Timestamp when the record was created.';
@@ -159,3 +155,4 @@ IS 'Identifier of the user or process that last updated the record.';
 
 COMMENT ON COLUMN reference.TradingCalendar.version
 IS 'Optimistic concurrency version number.';
+
