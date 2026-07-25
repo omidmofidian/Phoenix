@@ -65,7 +65,30 @@ This standard applies to every database schema including:
 
 ---
 
-# 3. Objectives
+# 3. Relationship to PartitionStrategy
+
+StorageStrategy and PartitionStrategy are complementary standards that govern different aspects of database architecture within the Phoenix Platform.
+
+StorageStrategy defines the physical organization, allocation, optimization, and lifecycle management of database storage resources, including tablespaces, storage parameters, compression, and long-term storage planning.
+
+PartitionStrategy defines how large database objects are logically divided into partitions based on business, operational, or lifecycle requirements.
+
+Although partitioning may influence physical storage layout, decisions regarding storage allocation, tablespaces, and storage optimization remain governed by StorageStrategy.
+
+Likewise, StorageStrategy shall not define partitioning methods, partition keys, or partition lifecycle policies.
+
+The relationship between the two standards is summarized below.
+
+| Standard | Primary Responsibility |
+|----------|------------------------|
+| StorageStrategy | Physical storage organization, allocation, and optimization |
+| PartitionStrategy | Logical partitioning of database objects |
+
+Implementation decisions for partitioned database objects shall comply with both standards to ensure consistency between logical data organization and physical storage architecture.
+
+---
+
+# 4. Objectives
 
 The primary objectives of this standard are:
 
@@ -87,7 +110,7 @@ The primary objectives of this standard are:
 
 ---
 
-# 4. Storage Principles
+# 5. Storage Principles
 
 The Phoenix Platform adopts a layered storage architecture that separates
 logical data modeling from physical storage implementation.
@@ -105,14 +128,14 @@ maintainability, or architectural consistency.
 
 ---
 
-# 5. Storage Classification
+# 6. Storage Classification
 
 The Phoenix Platform classifies database storage into the following
 categories.
 
 ---
 
-## 5.1 Reference Storage
+## 6.1 Reference Storage
 
 Reference Storage contains relatively static business entities that exhibit
 low write frequency and small data volume.
@@ -139,7 +162,7 @@ Characteristics:
 
 ---
 
-## 5.2 Operational Storage
+## 6.2 Operational Storage
 
 Operational Storage contains continuously changing business data.
 
@@ -160,7 +183,7 @@ Characteristics:
 
 ---
 
-## 5.3 Analytical Storage
+## 6.3 Analytical Storage
 
 Analytical Storage supports reporting, feature engineering, machine learning,
 and historical analysis.
@@ -181,7 +204,7 @@ Characteristics:
 
 ---
 
-## 5.4 Audit Storage
+## 6.4 Audit Storage
 
 Audit Storage contains operational history and security records.
 
@@ -201,7 +224,7 @@ Characteristics:
 
 ---
 
-# 6. Storage Architecture
+# 67. Storage Architecture
 
 The physical storage architecture follows a layered approach.
 
@@ -212,15 +235,15 @@ Application Layer
 Logical Database Model
         │
         ▼
-Tables
+Database Objects
         │
-        ▼
-Indexes
-        │
-        ▼
-Partitions
-        │
-        ▼
+        ├──────────────┐
+        ▼              ▼
+Partitioning      Indexing
+        │              │
+        └──────────────┘
+               │
+               ▼
 Physical Storage
 ```
 
@@ -231,7 +254,7 @@ model.
 
 ---
 
-# 7. Tablespace Strategy
+# 8. Tablespace Strategy
 
 Tablespaces provide logical separation of physical storage.
 
@@ -255,10 +278,9 @@ devices.
 
 ---
 
-# 8. Storage Parameters
+# 9. Storage Parameters
 
-Storage parameters shall be configured only when justified by measurable
-operational or performance requirements.
+Storage parameters shall be configured only when justified by measurable storage, operational, or maintenance requirements.
 
 Default PostgreSQL settings shall be preferred unless workload analysis
 demonstrates a clear benefit from customization.
@@ -268,10 +290,33 @@ database review process.
 
 ---
 
-## 8.1 Fillfactor
+## 9.1 Fillfactor
 
-Fillfactor determines the percentage of each data page initially occupied
-during INSERT operations.
+Fillfactor is a PostgreSQL storage parameter that controls the percentage of each data page initially filled during object creation or maintenance.
+
+Appropriate Fillfactor settings may improve update performance and reduce page splits for selected database objects.
+
+Default PostgreSQL values should normally be used unless workload analysis demonstrates measurable operational benefits from customization.
+
+---
+
+##### Table Fillfactor
+
+Table Fillfactor governs free space reserved within table pages.
+
+Customization should be limited to workloads with frequent UPDATE operations or demonstrated storage maintenance requirements.
+
+---
+
+##### Index Fillfactor
+
+Index Fillfactor governs free space reserved within index pages.
+
+Implementation details, recommended values, and index-specific configuration are defined in **IndexSpecifications**.
+
+StorageStrategy does not define index implementation policies.
+
+---
 
 General recommendations:
 
@@ -286,7 +331,7 @@ Lower Fillfactor values reduce page splits but increase storage consumption.
 
 ---
 
-## 8.2 Autovacuum
+## 9.2 Autovacuum
 
 Autovacuum shall remain enabled for all Phoenix databases.
 
@@ -303,9 +348,9 @@ Disabling Autovacuum is prohibited.
 
 ---
 
-## 8.3 Analyze
+## 9.3 Analyze
 
-Database statistics shall remain current.
+Statistics maintenance supports effective storage maintenance and query planning.
 
 Automatic ANALYZE should normally be sufficient.
 
@@ -315,9 +360,11 @@ Manual ANALYZE may be executed after:
 - Bulk updates
 - Major maintenance activities
 
+Detailed query optimization is governed by QueryExecutionStrategy.
+
 ---
 
-# 9. TOAST Strategy
+# 10. TOAST Strategy
 
 TOAST (The Oversized-Attribute Storage Technique) shall be used according to
 PostgreSQL default behavior.
@@ -336,7 +383,7 @@ Reference tables should avoid unnecessary large variable-length columns.
 
 ---
 
-# 10. Compression Strategy
+# 11. Compression Strategy
 
 The Phoenix Platform relies primarily on PostgreSQL native compression
 capabilities.
@@ -354,7 +401,7 @@ evaluating CPU overhead.
 
 ---
 
-# 11. Large Object Strategy
+# 12. Large Object Strategy
 
 Large Objects (LOBs) should be avoided unless required by business
 requirements.
@@ -375,7 +422,7 @@ Exceptions shall be documented through architectural approval.
 
 ---
 
-# 12. Storage Maintenance
+# 13. Storage Maintenance
 
 Routine storage maintenance is required to preserve long-term database
 performance.
@@ -394,14 +441,14 @@ Maintenance procedures shall be automated whenever practical.
 
 ---
 
-# 13. Best Practices
+# 14. Best Practices
 
 The following best practices shall be followed for all storage-related
 decisions within the Phoenix Platform.
 
 ---
 
-## 13.1 Prefer Simplicity
+## 14.1 Prefer Simplicity
 
 Storage architecture shall remain as simple as possible.
 
@@ -410,7 +457,7 @@ measurable operational requirements.
 
 ---
 
-## 13.2 Separate Logical and Physical Design
+## 14.2 Separate Logical and Physical Design
 
 Logical database design shall remain independent of physical storage
 implementation.
@@ -420,7 +467,7 @@ shall not require modifications to the logical data model.
 
 ---
 
-## 13.3 Optimize for Workload
+## 14.3 Optimize for Workload
 
 Storage optimization shall be driven by actual workload characteristics.
 
@@ -434,7 +481,7 @@ Typical workload dimensions include:
 
 ---
 
-## 13.4 Plan for Growth
+## 14.4 Plan for Growth
 
 Storage architecture shall anticipate long-term database growth.
 
@@ -448,7 +495,7 @@ Capacity planning shall consider:
 
 ---
 
-## 13.5 Monitor Continuously
+## 14.5 Monitor Continuously
 
 Storage health shall be monitored continuously.
 
@@ -464,7 +511,7 @@ Recommended monitoring includes:
 
 ---
 
-# 14. Anti-Patterns
+# 15. Anti-Patterns
 
 The following practices are prohibited unless explicitly approved through
 architectural governance.
@@ -481,7 +528,7 @@ architectural governance.
 
 ---
 
-# 15. Storage Review Checklist
+# 16. Storage Review Checklist
 
 Every storage-related design decision shall be reviewed before
 implementation.
@@ -499,7 +546,7 @@ implementation.
 
 ---
 
-# 16. Compliance
+# 17. Compliance
 
 All database storage implementations within the Phoenix Platform shall
 comply with this standard.
@@ -512,7 +559,7 @@ shall verify compliance with this standard before deployment.
 
 ---
 
-# 17. References
+# 18. References
 
 The following Phoenix standards and architecture documents are related to
 this specification.
@@ -523,13 +570,14 @@ this specification.
 - ConstraintDevelopmentStandard
 - IndexSpecifications
 - PartitionStrategy
+- QueryExecutionStrategy
 - PostgreSQLDevelopmentGuidelines
 - ADR-015 — Market Classification Model
 - ADR-026 — Reference Data Normalization Model
 
 ---
 
-# 18. Revision History
+# 19. Revision History
 
 | Version | Date | Description |
 |----------|------------|--------------------------------------------------------------|
@@ -537,7 +585,7 @@ this specification.
 
 ---
 
-# 19. Approval
+# 20. Approval
 
 This document is approved as the official enterprise standard governing
 physical database storage throughout the Phoenix Platform.
@@ -550,7 +598,7 @@ Architecture Governance process.
 
 ---
 
-# 20. Summary
+# 21. Summary
 
 This specification establishes the enterprise storage strategy for the
 Phoenix Platform.
