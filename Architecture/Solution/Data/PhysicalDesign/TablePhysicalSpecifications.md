@@ -13,6 +13,7 @@
 | Database Platform | PostgreSQL 17 |
 | Version | 2026.2 |
 | Status | Architecture Freeze |
+| Canonical Status | Canonical Physical Specification |
 | Owner | Database Architecture |
 | Repository | Phoenix Platform |
 | Last Updated | 2026-07-23 |
@@ -23,7 +24,21 @@
 
 This document defines the canonical physical specification for every PostgreSQL table implemented within the Phoenix Platform.
 
-It is the authoritative implementation specification from which executable PostgreSQL DDL table scripts are generated.
+This document is the canonical physical implementation specification of the Phoenix Platform.
+
+It is derived from the approved Enterprise Data Dictionary and the Logical Database Model.
+
+In case of any inconsistency, the following precedence shall apply:
+
+1. Architecture Decision Records (ADRs)
+2. Domain Model
+3. Enterprise Data Dictionary
+4. Logical Database Model
+5. Table Physical Specifications
+6. PostgreSQL DDL
+
+Executable DDL scripts shall be generated from this document.
+No architectural decision shall originate from DDL scripts.
 
 Unlike the Physical Database Model, which defines the physical structure of the enterprise database, and the PostgreSQL Physical Database Design, which defines implementation architecture and design principles, this document specifies the complete physical implementation of each table.
 
@@ -66,7 +81,50 @@ Likewise, architectural rationale is intentionally excluded because it is docume
 
 ---
 
-# 4. Relationship to Physical Design
+# 4. Document Authority
+
+This document defines the canonical physical implementation of approved database tables.
+
+It shall remain synchronized with the Enterprise Data Dictionary.
+
+This document is subordinate to:
+
+- ADRs
+- Domain Model
+- Enterprise Data Dictionary
+- Logical Database Model
+
+All PostgreSQL DDL scripts shall conform to this specification.
+
+DDL scripts are implementation artifacts and shall never become the source of architectural truth.
+
+---
+
+# 5. Synchronization Policy
+
+The following artifacts shall remain synchronized:
+
+- Enterprise Data Dictionary
+- Logical Database Model
+- Physical Database Model
+- Table Physical Specifications
+- PostgreSQL DDL
+
+Whenever a change is introduced, synchronization shall proceed in the following order:
+
+Enterprise Data Dictionary
+    ↓
+Logical Database Model
+    ↓
+Physical Database Model
+    ↓
+Table Physical Specifications
+    ↓
+DDL
+
+---
+
+# 6. Relationship to Physical Design
 
 Within the Physical Design layer, this document represents the final architectural specification before executable SQL generation.
 
@@ -111,7 +169,7 @@ Those responsibilities belong to the higher architectural layers.
 
 ---
 
-# 5. Specification Methodology
+# 7. Specification Methodology
 
 Every table within the Phoenix Platform shall be documented using a single standardized specification template.
 
@@ -135,7 +193,7 @@ This document therefore serves as the implementation bridge between architectura
 
 ---
 
-# 6. Standard Table Specification Template
+# 8. Standard Table Specification Template
 
 Every PostgreSQL table implemented within the Phoenix Platform shall follow a single standardized physical specification.
 
@@ -155,7 +213,7 @@ Business definitions remain within the Enterprise Data Dictionary.
 
 ---
 
-## 6.1 Standard Specification Structure
+## 8.1 Standard Specification Structure
 
 Every table specification shall contain the following sections.
 
@@ -205,7 +263,7 @@ Individual sections may be omitted only when they are not applicable to a partic
 
 ---
 
-## 6.2 Table Information
+## 8.2 Table Information
 
 Each specification shall begin with implementation metadata.
 
@@ -229,7 +287,7 @@ This information supports repository governance and version control.
 
 ---
 
-## 6.3 Purpose
+## 8.3 Purpose
 
 The purpose section shall describe the implementation responsibility of the table.
 
@@ -239,7 +297,7 @@ Purpose statements shall remain concise and implementation-oriented.
 
 ---
 
-## 6.4 Physical Location
+## 8.4 Physical Location
 
 Each specification shall explicitly identify the physical PostgreSQL location.
 
@@ -257,7 +315,7 @@ Tablespace (if applicable)
 
 ---
 
-## 6.5 Table Definition
+## 8.5 Table Definition
 
 Every specification shall include the canonical PostgreSQL table declaration.
 
@@ -276,7 +334,7 @@ Business explanations are intentionally excluded.
 
 ---
 
-# 7. Physical Table Standards
+# 9. Physical Table Standards
 
 The Phoenix Platform adopts standardized implementation rules for every PostgreSQL table.
 
@@ -284,7 +342,7 @@ Equivalent implementation problems shall always be solved using identical physic
 
 ---
 
-## 7.1 One Entity — One Table
+## 9.1 One Entity — One Table
 
 Every persistent business entity shall be implemented as exactly one physical table.
 
@@ -292,7 +350,7 @@ Table splitting shall only occur when approved by architecture.
 
 ---
 
-## 7.2 Stable Physical Names
+## 9.2 Stable Physical Names
 
 Table names shall remain stable.
 
@@ -306,7 +364,7 @@ Renaming tables after implementation shall be avoided because it affects:
 
 ---
 
-## 7.3 Schema Qualification
+## 9.3 Schema Qualification
 
 Every physical table shall always be referenced using its fully qualified name.
 
@@ -324,7 +382,7 @@ Schema qualification improves readability and eliminates ambiguity.
 
 ---
 
-## 7.4 Singular Naming
+## 9.4 Singular Naming
 
 Table names shall represent a single business entity.
 
@@ -344,7 +402,7 @@ Plural names shall not be used.
 
 ---
 
-## 7.5 Implementation Independence
+## 9.5 Implementation Independence
 
 Physical table definitions shall remain independent from:
 
@@ -357,13 +415,13 @@ The database architecture shall remain the authoritative implementation source.
 
 ---
 
-# 8. Column Definition Rules
+# 10. Column Definition Rules
 
 Column definitions shall follow standardized implementation rules across every PostgreSQL table.
 
 ---
 
-## 8.1 Column Ordering
+## 10.1 Column Ordering
 
 Columns shall appear in the following logical order.
 
@@ -385,7 +443,7 @@ This ordering improves readability and implementation consistency.
 
 ---
 
-## 8.2 Column Naming
+## 10.2 Column Naming
 
 Columns shall:
 
@@ -411,7 +469,7 @@ created_at
 
 ---
 
-## 8.3 Nullable Columns
+## 10.3 Nullable Columns
 
 A column shall be nullable only when the absence of a value has valid business meaning.
 
@@ -419,7 +477,7 @@ Nullable columns shall not be introduced solely to simplify implementation.
 
 ---
 
-## 8.4 Mandatory Columns
+## 10.4 Mandatory Columns
 
 Mandatory columns shall always specify:
 
@@ -431,7 +489,7 @@ Mandatory columns shall not rely upon application behavior for correctness.
 
 ---
 
-## 8.5 Column Documentation
+## 10.5 Column Documentation
 
 Every column shall include:
 
@@ -445,7 +503,7 @@ This documentation shall be sufficient for automated DDL generation.
 
 ---
 
-## 8.6 Implementation Consistency
+## 10.6 Implementation Consistency
 
 Equivalent business attributes shall always be implemented using identical:
 
@@ -458,7 +516,7 @@ Consistency shall take precedence over localized implementation preferences.
 
 ---
 
-# 9. Identity Columns
+# 11. Identity Columns
 
 Identity columns establish the internal identity of every persistent table within the Phoenix Platform.
 
@@ -473,7 +531,7 @@ This document specifies only the physical implementation.
 
 ---
 
-## 9.1 Primary Identity
+## 11.1 Primary Identity
 
 Every persistent table shall contain one internal surrogate identifier.
 
@@ -493,7 +551,7 @@ Characteristics
 
 ---
 
-## 9.2 Public Identifier
+## 11.2 Public Identifier
 
 Where external references are required, the table shall expose a public identifier.
 
@@ -512,7 +570,7 @@ The public identifier shall:
 
 ---
 
-## 9.3 Business Identifiers
+## 11.3 Business Identifiers
 
 Business identifiers shall be implemented as ordinary business attributes.
 
@@ -534,7 +592,7 @@ Uniqueness shall be enforced through UNIQUE constraints where required.
 
 ---
 
-## 9.4 Identity Implementation Rules
+## 11.4 Identity Implementation Rules
 
 Each table specification shall explicitly define:
 
@@ -546,7 +604,7 @@ Each table specification shall explicitly define:
 
 ---
 
-# 10. Audit Columns
+# 12. Audit Columns
 
 Audit columns record lifecycle information for database records.
 
@@ -554,7 +612,7 @@ Their implementation depends upon the category of the entity being implemented.
 
 ---
 
-## 10.1 Master Data Audit
+## 12.1 Master Data Audit
 
 Master data tables shall contain the complete enterprise audit set.
 
@@ -581,7 +639,7 @@ These columns support:
 
 ---
 
-## 10.2 Operational Data Audit
+## 12.2 Operational Data Audit
 
 Operational datasets generally require only timestamp auditing.
 
@@ -597,7 +655,7 @@ Additional audit columns shall only be introduced when justified by operational 
 
 ---
 
-## 10.3 Audit Consistency
+## 12.3 Audit Consistency
 
 Equivalent entity categories shall implement identical audit structures.
 
@@ -605,7 +663,7 @@ Audit implementation shall never vary between similar tables without architectur
 
 ---
 
-## 10.4 Audit Defaults
+## 12.4 Audit Defaults
 
 Where applicable, audit columns shall define standard default expressions.
 
@@ -621,7 +679,7 @@ The implementation of automatic update behavior shall be defined separately with
 
 ---
 
-# 11. Default Values
+# 13. Default Values
 
 Default values improve implementation consistency while reducing unnecessary application logic.
 
@@ -631,7 +689,7 @@ Business-specific defaults remain the responsibility of application services.
 
 ---
 
-## 11.1 Default Value Principles
+## 13.1 Default Value Principles
 
 Default values shall:
 
@@ -642,7 +700,7 @@ Default values shall:
 
 ---
 
-## 11.2 Typical Defaults
+## 13.2 Typical Defaults
 
 Common defaults include:
 
@@ -660,7 +718,7 @@ Each default shall be explicitly documented within the table specification.
 
 ---
 
-## 11.3 Business Defaults
+## 13.3 Business Defaults
 
 Business-dependent values shall never be implemented as database defaults.
 
@@ -675,7 +733,7 @@ These values shall be assigned by the application layer.
 
 ---
 
-## 11.4 Default Value Documentation
+## 13.4 Default Value Documentation
 
 Every default value shall specify:
 
@@ -686,7 +744,7 @@ Every default value shall specify:
 
 ---
 
-# 12. Generated Columns
+# 14. Generated Columns
 
 Generated columns provide deterministic values derived from other columns.
 
@@ -694,7 +752,7 @@ They improve implementation consistency while reducing redundant data maintenanc
 
 ---
 
-## 12.1 Usage Principles
+## 14.1 Usage Principles
 
 Generated columns shall only be used when:
 
@@ -704,7 +762,7 @@ Generated columns shall only be used when:
 
 ---
 
-## 12.2 Supported Generation
+## 14.2 Supported Generation
 
 Typical PostgreSQL generated columns include:
 
@@ -717,7 +775,7 @@ Virtual generated columns shall not be used because PostgreSQL supports stored g
 
 ---
 
-## 12.3 Generated Value Restrictions
+## 14.3 Generated Value Restrictions
 
 Generated columns shall not:
 
@@ -728,7 +786,7 @@ Generated columns shall not:
 
 ---
 
-## 12.4 Documentation Requirements
+## 14.4 Documentation Requirements
 
 Whenever a generated column exists, the table specification shall document:
 
@@ -742,7 +800,7 @@ This information shall be sufficient for deterministic generation of the corresp
 
 ---
 
-# 13. Constraint Specification Standard
+# 15. Constraint Specification Standard
 
 Constraints preserve structural integrity within the PostgreSQL database and ensure that every physical table complies with the approved enterprise data model.
 
@@ -754,7 +812,7 @@ This document specifies only the physical implementation requirements.
 
 ---
 
-## 13.1 Constraint Categories
+## 15.1 Constraint Categories
 
 Every table specification shall explicitly document the applicable constraint categories.
 
@@ -776,7 +834,7 @@ Only applicable constraints shall be included for a given table.
 
 ---
 
-## 13.2 Constraint Definition Principles
+## 15.2 Constraint Definition Principles
 
 All constraints shall:
 
@@ -790,7 +848,7 @@ Constraints shall never duplicate validation already enforced by another constra
 
 ---
 
-## 13.3 Constraint Naming
+## 15.3 Constraint Naming
 
 Constraint names shall follow the Enterprise Naming Standards.
 
@@ -810,7 +868,7 @@ Constraint names shall remain stable throughout the repository lifecycle.
 
 ---
 
-## 13.4 Constraint Documentation
+## 15.4 Constraint Documentation
 
 Each documented constraint shall specify:
 
@@ -822,13 +880,13 @@ Each documented constraint shall specify:
 
 ---
 
-## 13.5 DDL Generation
+## 15.5 DDL Generation
 
 Every documented constraint shall be directly convertible into executable PostgreSQL DDL without architectural interpretation.
 
 ---
 
-# 14. Foreign Key Specification
+# 16. Foreign Key Specification
 
 Foreign keys define relationships between physical tables.
 
@@ -836,7 +894,7 @@ Every relationship documented within the Physical Database Model shall be implem
 
 ---
 
-## 14.1 Foreign Key Principles
+## 16.1 Foreign Key Principles
 
 Foreign keys shall:
 
@@ -853,7 +911,7 @@ REFERENCES market.company(id)
 
 ---
 
-## 14.2 Referential Actions
+## 16.2 Referential Actions
 
 Referential actions shall be selected according to approved business semantics.
 
@@ -873,7 +931,7 @@ The selected action shall be documented within each table specification.
 
 ---
 
-## 14.3 Required Documentation
+## 16.3 Required Documentation
 
 Each foreign key definition shall specify:
 
@@ -893,7 +951,7 @@ Supporting Index
 
 ---
 
-## 14.4 Cross-Schema References
+## 16.4 Cross-Schema References
 
 Cross-schema foreign keys are permitted.
 
@@ -911,7 +969,7 @@ Cross-schema relationships shall remain fully documented.
 
 ---
 
-## 14.5 Foreign Key Validation
+## 16.5 Foreign Key Validation
 
 Every foreign key shall satisfy:
 
@@ -922,7 +980,7 @@ Every foreign key shall satisfy:
 
 ---
 
-# 15. Check Constraint Specification
+# 17. Check Constraint Specification
 
 CHECK constraints enforce implementation-level validation within the PostgreSQL database.
 
@@ -930,7 +988,7 @@ They shall preserve structural correctness without embedding business workflows.
 
 ---
 
-## 15.1 Purpose
+## 17.1 Purpose
 
 CHECK constraints may validate:
 
@@ -942,7 +1000,7 @@ CHECK constraints may validate:
 
 ---
 
-## 15.2 Examples
+## 17.2 Examples
 
 Typical PostgreSQL CHECK constraints include:
 
@@ -960,7 +1018,7 @@ valid_to >= valid_from
 
 ---
 
-## 15.3 Business Rules
+## 17.3 Business Rules
 
 Business workflows shall never be implemented as CHECK constraints.
 
@@ -974,7 +1032,7 @@ Examples that shall remain outside database constraints include:
 
 ---
 
-## 15.4 Documentation
+## 17.4 Documentation
 
 Each CHECK constraint shall document:
 
@@ -985,13 +1043,13 @@ Each CHECK constraint shall document:
 
 ---
 
-## 15.5 Implementation Consistency
+## 17.5 Implementation Consistency
 
 Equivalent validation rules shall always use identical CHECK constraints throughout the Phoenix Platform.
 
 ---
 
-## 15.6 DDL Readiness
+## 17.6 DDL Readiness
 
 Every documented CHECK constraint shall be immediately convertible into PostgreSQL DDL without requiring additional design decisions.
 
@@ -999,7 +1057,7 @@ This document therefore serves as the authoritative implementation specification
 
 ---
 
-# 16. Index Specification Standard
+# 18. Index Specification Standard
 
 Indexes are physical database objects created to optimize approved access patterns.
 
@@ -1009,7 +1067,7 @@ Indexes shall not be introduced solely as speculative performance optimizations.
 
 ---
 
-## 16.1 Index Categories
+## 18.1 Index Categories
 
 Each table specification shall explicitly identify all required indexes.
 
@@ -1033,7 +1091,7 @@ Only indexes justified by implementation requirements shall be created.
 
 ---
 
-## 16.2 Primary Index
+## 18.2 Primary Index
 
 The primary key automatically creates the primary index.
 
@@ -1047,7 +1105,7 @@ No additional index shall duplicate the primary key index.
 
 ---
 
-## 16.3 Unique Indexes
+## 18.3 Unique Indexes
 
 Unique indexes shall enforce business uniqueness.
 
@@ -1067,7 +1125,7 @@ Every unique index shall correspond to an approved business identifier.
 
 ---
 
-## 16.4 Foreign Key Indexes
+## 18.4 Foreign Key Indexes
 
 Foreign key columns shall normally have supporting indexes.
 
@@ -1086,7 +1144,7 @@ Supporting indexes improve:
 
 ---
 
-## 16.5 Lookup Indexes
+## 18.5 Lookup Indexes
 
 Lookup indexes support frequently executed search operations.
 
@@ -1108,7 +1166,7 @@ Lookup indexes shall only be created when justified by expected query patterns.
 
 ---
 
-## 16.6 Composite Indexes
+## 18.6 Composite Indexes
 
 Composite indexes shall support common multi-column filtering.
 
@@ -1122,7 +1180,7 @@ Column ordering shall reflect expected query selectivity.
 
 ---
 
-## 16.7 Analytical Indexes
+## 18.7 Analytical Indexes
 
 Analytical tables may contain indexes optimized for reporting workloads.
 
@@ -1140,7 +1198,7 @@ Analytical indexes shall be documented separately from transactional indexes.
 
 ---
 
-## 16.8 Index Documentation
+## 18.8 Index Documentation
 
 Each documented index shall specify:
 
@@ -1153,7 +1211,7 @@ Each documented index shall specify:
 
 ---
 
-## 16.9 DDL Generation
+## 18.9 DDL Generation
 
 Every documented index shall be directly convertible into PostgreSQL CREATE INDEX statements.
 
@@ -1161,7 +1219,7 @@ No implementation decisions shall remain unresolved during DDL generation.
 
 ---
 
-# 17. Storage Specification
+# 19. Storage Specification
 
 Storage specifications describe the physical storage characteristics of each PostgreSQL table.
 
@@ -1169,7 +1227,7 @@ These specifications optimize implementation without affecting business semantic
 
 ---
 
-## 17.1 Storage Objectives
+## 19.1 Storage Objectives
 
 Storage specifications support:
 
@@ -1180,7 +1238,7 @@ Storage specifications support:
 
 ---
 
-## 17.2 Tablespace
+## 19.2 Tablespace
 
 Where applicable, each table specification shall identify its target tablespace.
 
@@ -1194,7 +1252,7 @@ Alternative tablespaces may be documented when required by future deployment arc
 
 ---
 
-## 17.3 Fillfactor
+## 19.3 Fillfactor
 
 Tables requiring optimized write performance may specify a custom fillfactor.
 
@@ -1208,7 +1266,7 @@ If omitted, PostgreSQL default values shall apply.
 
 ---
 
-## 17.4 TOAST
+## 19.4 TOAST
 
 Large variable-length attributes shall rely upon PostgreSQL native TOAST storage.
 
@@ -1216,7 +1274,7 @@ Manual TOAST configuration shall only be documented where architectural justific
 
 ---
 
-## 17.5 Storage Documentation
+## 19.5 Storage Documentation
 
 Each table specification shall document:
 
@@ -1228,7 +1286,7 @@ Each table specification shall document:
 
 ---
 
-# 18. Partition Specification
+# 20. Partition Specification
 
 Partition specifications define how large operational tables are physically partitioned.
 
@@ -1236,7 +1294,7 @@ Only approved tables shall contain partition definitions.
 
 ---
 
-## 18.1 Partition Eligibility
+## 20.1 Partition Eligibility
 
 Each table specification shall explicitly state whether the table is:
 
@@ -1252,7 +1310,7 @@ Tables not approved for partitioning shall omit partition definitions.
 
 ---
 
-## 18.2 Partition Method
+## 20.2 Partition Method
 
 Where partitioning is required, the specification shall define:
 
@@ -1282,7 +1340,7 @@ Monthly
 
 ---
 
-## 18.3 Partition Naming
+## 20.3 Partition Naming
 
 Partition names shall follow enterprise naming standards.
 
@@ -1300,7 +1358,7 @@ Naming shall remain deterministic to support automated deployment.
 
 ---
 
-## 18.4 Partition Maintenance
+## 20.4 Partition Maintenance
 
 Each partitioned table shall document:
 
@@ -1313,7 +1371,7 @@ Operational procedures remain outside the scope of this document.
 
 ---
 
-## 18.5 Partition Documentation
+## 20.5 Partition Documentation
 
 Each partition specification shall include:
 
@@ -1325,7 +1383,7 @@ Each partition specification shall include:
 
 ---
 
-## 18.6 DDL Generation
+## 20.6 DDL Generation
 
 Partition specifications shall provide sufficient information for deterministic generation of PostgreSQL partitioned table DDL.
 
@@ -1333,7 +1391,7 @@ No partition-related implementation decisions shall remain unresolved after comp
 
 ---
 
-# 19. Table Specification — Exchange
+# 21. Table Specification — Exchange
 
 This section defines the canonical physical implementation specification for the **Exchange** table.
 
@@ -1343,7 +1401,7 @@ The following specification is the authoritative source for generating the Postg
 
 ---
 
-## 19.1 Table Information
+## 21.1 Table Information
 
 | Item | Value |
 |------|-------|
@@ -1357,7 +1415,7 @@ The following specification is the authoritative source for generating the Postg
 
 ---
 
-## 19.2 Purpose
+## 21.2 Purpose
 
 The Exchange table stores the list of supported financial exchanges.
 
@@ -1367,529 +1425,10 @@ The table contains only master reference data and therefore experiences very low
 
 ---
 
-## 19.3 PostgreSQL Definition
-
-```sql
-CREATE TABLE market.exchange
-(
-    ...
-);
-```
-
----
-
-## 19.4 Column Specifications
-
-| Column | PostgreSQL Type | Nullable | Default | Description |
-|---------|-----------------|----------|----------|-------------|
-| id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
-| public_id | UUID | No | — | Public identifier |
-| exchange_code | VARCHAR(20) | No | — | Business code |
-| exchange_name | VARCHAR(200) | No | — | Official exchange name |
-| short_name | VARCHAR(50) | Yes | NULL | Abbreviated name |
-| country_code | CHAR(2) | Yes | NULL | ISO country code |
-| currency_code | CHAR(3) | Yes | NULL | ISO currency |
-| timezone_name | VARCHAR(100) | Yes | NULL | Time zone |
-| website | VARCHAR(300) | Yes | NULL | Official website |
-| description | TEXT | Yes | NULL | Additional notes |
-| created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
-| updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
-| created_by | BIGINT | Yes | NULL | Audit |
-| updated_by | BIGINT | Yes | NULL | Audit |
-| is_active | BOOLEAN | No | TRUE | Active status |
-
----
-
-## 19.5 Identity Strategy
-
-Internal Identity
-
-```sql
-id
-BIGINT GENERATED ALWAYS AS IDENTITY
-```
-
-Public Identity
-
-```sql
-public_id UUID
-```
-
-Business Identity
-
-```sql
-exchange_code
-```
-
----
-
-## 19.6 Default Values
-
-```sql
-created_at DEFAULT CURRENT_TIMESTAMP
-
-updated_at DEFAULT CURRENT_TIMESTAMP
-
-is_active DEFAULT TRUE
-```
-
----
-
-## 19.7 Generated Columns
-
-None.
-
----
-
-## 19.8 Primary Key
-
-```sql
-PRIMARY KEY (id)
-```
-
----
-
-## 19.9 Alternate Keys
-
-```sql
-UNIQUE (public_id)
-
-UNIQUE (exchange_code)
-```
-
----
-
-## 19.10 Foreign Keys
-
-None.
-
-Exchange is the root entity of the market hierarchy.
-
----
-
-## 19.11 Check Constraints
-
-Typical constraints include
-
-```sql
-exchange_code <> ''
-```
-
-```sql
-char_length(exchange_code) <= 20
-```
-
-Additional validation rules may be introduced where appropriate.
-
----
-
-## 19.12 Indexes
-
-Primary
-
-```sql
-PRIMARY KEY (id)
-```
-
-Unique
-
-```sql
-public_id
-
-exchange_code
-```
-
-Lookup
-
-```sql
-exchange_name
-```
-
----
-
-## 19.13 Partition Strategy
-
-```text
-Not Partitioned
-```
-
-Reference tables shall not be partitioned.
-
----
-
-## 19.14 Storage Parameters
-
-Default PostgreSQL storage parameters shall be used.
-
-No custom fillfactor or tablespace is required.
-
----
-
-## 19.15 Audit Implementation
-
-The Exchange table implements the standard Master Data audit model.
-
-Audit columns
-
-```text
-created_at
-
-updated_at
-
-created_by
-
-updated_by
-
-is_active
-```
-
----
-
-## 19.16 DDL Generation Notes
-
-DDL generation shall include:
-
-- identity column;
-- UUID column;
-- primary key;
-- alternate keys;
-- lookup indexes;
-- audit columns;
-- table comments (where applicable).
-
----
-
-## 19.17 Validation Requirements
-
-Validation shall verify:
-
-- exchange_code uniqueness;
-- public_id uniqueness;
-- mandatory columns;
-- audit defaults;
-- constraint implementation.
-
----
-
-## 19.18 Dependencies
-
-Referenced By
-
-```text
-Market
-
-Trading Board
-
-Future Market Engines
-```
-
-Depends On
-
-```text
-None
-```
-
----
-
-## 19.19 Future Extensions
-
-Future versions may introduce:
-
-- MIC code;
-- exchange category;
-- trading calendar association;
-- settlement information;
-- regulatory authority reference.
-
----
-
-# 20. Table Specification — Market
-
-The Market table represents individual financial markets operating within an Exchange.
-
-Markets are subordinate to Exchanges and provide the next level of organization within the Phoenix market hierarchy.
-
----
-
-## 20.1 Table Information
-
-| Item | Value |
-|------|-------|
-| Entity | Market |
-| Schema | market |
-| Table | market |
-| Category | Reference Data |
-| Physical Type | Master Table |
-| Lifecycle | Static |
-| Partitioned | No |
-
----
-
-## 20.2 Purpose
-
-The Market table stores the markets belonging to a specific Exchange.
-
-Typical examples include equity, bond, derivative, and other organized markets.
-
----
-
-## 20.3 PostgreSQL Definition
-
-```sql
-CREATE TABLE market.market
-(
-    ...
-);
-```
-
----
-
-## 20.4 Column Specifications
-
-| Column | PostgreSQL Type | Nullable | Default | Description |
-|---------|-----------------|----------|----------|-------------|
-| id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
-| public_id | UUID | No | — | Public identifier |
-| exchange_id | BIGINT | No | — | Parent exchange |
-| market_code | VARCHAR(20) | No | — | Business code |
-| market_name | VARCHAR(200) | No | — | Market name |
-| short_name | VARCHAR(50) | Yes | NULL | Short name |
-| description | TEXT | Yes | NULL | Description |
-| created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
-| updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
-| created_by | BIGINT | Yes | NULL | Audit |
-| updated_by | BIGINT | Yes | NULL | Audit |
-| is_active | BOOLEAN | No | TRUE | Active status |
-
----
-
-## 20.5 Identity Strategy
-
-Internal Identity
-
-```sql
-id
-BIGINT GENERATED ALWAYS AS IDENTITY
-```
-
-Public Identity
-
-```sql
-public_id UUID
-```
-
-Business Identity
-
-```text
-exchange_id
-
-+
-
-market_code
-```
-
----
-
-## 20.6 Default Values
-
-```sql
-created_at DEFAULT CURRENT_TIMESTAMP
-
-updated_at DEFAULT CURRENT_TIMESTAMP
-
-is_active DEFAULT TRUE
-```
-
----
-
-## 20.7 Generated Columns
-
-None.
-
----
-
-## 20.8 Primary Key
-
-```sql
-PRIMARY KEY (id)
-```
-
----
-
-## 20.9 Alternate Keys
-
-```sql
-UNIQUE (public_id)
-
-UNIQUE (exchange_id, market_code)
-```
-
----
-
-## 20.10 Foreign Keys
-
-```sql
-exchange_id
-
-REFERENCES market.exchange(id)
-```
-
-Referential Action
-
-```text
-RESTRICT
-```
-
----
-
-## 20.11 Check Constraints
-
-Typical validation includes
-
-```sql
-market_code <> ''
-```
-
----
-
-## 20.12 Indexes
-
-Primary
-
-```sql
-PRIMARY KEY (id)
-```
-
-Unique
-
-```sql
-public_id
-
-(exchange_id, market_code)
-```
-
-Foreign Key
-
-```sql
-exchange_id
-```
-
-Lookup
-
-```sql
-market_name
-```
-
----
-
-## 20.13 Partition Strategy
-
-```text
-Not Partitioned
-```
-
----
-
-## 20.14 Storage Parameters
-
-Default PostgreSQL storage configuration.
-
----
-
-## 20.15 Audit Implementation
-
-Standard Master Data audit implementation.
-
----
-
-## 20.16 DDL Generation Notes
-
-DDL generation shall include:
-
-- foreign key definition;
-- supporting foreign key index;
-- alternate key;
-- audit implementation.
-
----
-
-## 20.17 Validation Requirements
-
-Validation shall verify:
-
-- foreign key integrity;
-- business key uniqueness;
-- mandatory columns;
-- audit defaults.
-
----
-
-## 20.18 Dependencies
-
-Depends On
-
-```text
-Exchange
-```
-
-Referenced By
-
-```text
-Trading Board
-
-Future Reference Tables
-```
-
----
-
-## 20.19 Future Extensions
-
-Future implementations may include:
-
-- market classification;
-- trading session profile;
-- settlement model;
-- regulatory framework;
-- market operating status.
-
----
-
-# 21. Table Specification — Trading Board
-
-The **Trading Board** table represents the trading boards operating within a specific Market.
-
-A Trading Board defines the operational environment in which financial instruments are listed and traded.
-
-It is a reference (master) table with relatively static data and serves as a parent entity for listed instruments.
-
----
-
-## 21.1 Table Information
-
-| Item | Value |
-|------|-------|
-| Entity | Trading Board |
-| Schema | market |
-| Table | trading_board |
-| Category | Reference Data |
-| Physical Type | Master Table |
-| Lifecycle | Static |
-| Partitioned | No |
-
----
-
-## 21.2 Purpose
-
-The Trading Board table stores all approved trading boards belonging to individual markets.
-
-It provides the organizational level between Markets and listed Instruments.
-
----
-
 ## 21.3 PostgreSQL Definition
 
 ```sql
-CREATE TABLE market.trading_board
+CREATE TABLE market.exchange
 (
     ...
 );
@@ -1903,12 +1442,14 @@ CREATE TABLE market.trading_board
 |---------|-----------------|----------|----------|-------------|
 | id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
 | public_id | UUID | No | — | Public identifier |
-| market_id | BIGINT | No | — | Parent market |
-| board_code | VARCHAR(20) | No | — | Business code |
-| board_name | VARCHAR(200) | No | — | Official board name |
-| short_name | VARCHAR(50) | Yes | NULL | Short name |
-| trading_currency | CHAR(3) | Yes | NULL | ISO currency |
-| description | TEXT | Yes | NULL | Description |
+| exchange_code | VARCHAR(20) | No | — | Business code |
+| exchange_name | VARCHAR(200) | No | — | Official exchange name |
+| short_name | VARCHAR(50) | Yes | NULL | Abbreviated name |
+| country_code | CHAR(2) | Yes | NULL | ISO country code |
+| currency_code | CHAR(3) | Yes | NULL | ISO currency |
+| timezone_name | VARCHAR(100) | Yes | NULL | Time zone |
+| website | VARCHAR(300) | Yes | NULL | Official website |
+| description | TEXT | Yes | NULL | Additional notes |
 | created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
 | updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
 | created_by | BIGINT | Yes | NULL | Audit |
@@ -1934,12 +1475,8 @@ public_id UUID
 
 Business Identity
 
-```text
-market_id
-
-+
-
-board_code
+```sql
+exchange_code
 ```
 
 ---
@@ -1975,34 +1512,32 @@ PRIMARY KEY (id)
 ```sql
 UNIQUE (public_id)
 
-UNIQUE (market_id, board_code)
+UNIQUE (exchange_code)
 ```
 
 ---
 
 ## 21.10 Foreign Keys
 
-```sql
-market_id
+None.
 
-REFERENCES market.market(id)
-```
-
-Referential Action
-
-```text
-RESTRICT
-```
+Exchange is the root entity of the market hierarchy.
 
 ---
 
 ## 21.11 Check Constraints
 
-Typical validation includes
+Typical constraints include
 
 ```sql
-board_code <> ''
+exchange_code <> ''
 ```
+
+```sql
+char_length(exchange_code) <= 20
+```
+
+Additional validation rules may be introduced where appropriate.
 
 ---
 
@@ -2019,19 +1554,13 @@ Unique
 ```sql
 public_id
 
-(market_id, board_code)
-```
-
-Foreign Key
-
-```sql
-market_id
+exchange_code
 ```
 
 Lookup
 
 ```sql
-board_name
+exchange_name
 ```
 
 ---
@@ -2042,17 +1571,35 @@ board_name
 Not Partitioned
 ```
 
+Reference tables shall not be partitioned.
+
 ---
 
 ## 21.14 Storage Parameters
 
-Default PostgreSQL storage configuration.
+Default PostgreSQL storage parameters shall be used.
+
+No custom fillfactor or tablespace is required.
 
 ---
 
 ## 21.15 Audit Implementation
 
-Standard Master Data audit implementation.
+The Exchange table implements the standard Master Data audit model.
+
+Audit columns
+
+```text
+created_at
+
+updated_at
+
+created_by
+
+updated_by
+
+is_active
+```
 
 ---
 
@@ -2060,10 +1607,13 @@ Standard Master Data audit implementation.
 
 DDL generation shall include:
 
-- foreign key definition;
-- supporting foreign key index;
-- alternate key;
-- audit implementation.
+- identity column;
+- UUID column;
+- primary key;
+- alternate keys;
+- lookup indexes;
+- audit columns;
+- table comments (where applicable).
 
 ---
 
@@ -2071,50 +1621,51 @@ DDL generation shall include:
 
 Validation shall verify:
 
-- parent market existence;
-- business key uniqueness;
-- mandatory attributes;
-- audit defaults.
+- exchange_code uniqueness;
+- public_id uniqueness;
+- mandatory columns;
+- audit defaults;
+- constraint implementation.
 
 ---
 
 ## 21.18 Dependencies
 
-Depends On
-
-```text
-Market
-```
-
 Referenced By
 
 ```text
-Instrument
+Market
 
-Instrument Listing
+Trading Board
 
-Future Trading Rules
+Future Market Engines
+```
+
+Depends On
+
+```text
+None
 ```
 
 ---
 
 ## 21.19 Future Extensions
 
-Future implementations may include:
+Future versions may introduce:
 
-- trading sessions;
-- auction configuration;
-- settlement profile;
-- quotation rules;
-- board operational status.
+- MIC code;
+- exchange category;
+- trading calendar association;
+- settlement information;
+- regulatory authority reference.
 
 ---
 
-# 22. Table Specification — Sector
+# 22. Table Specification — Market
 
-The **Sector** table represents the first level of business classification applied to listed companies and financial instruments.
+The Market table represents individual financial markets operating within an Exchange.
 
-Sector definitions are relatively stable and are shared across multiple services within the Phoenix Platform.
+Markets are subordinate to Exchanges and provide the next level of organization within the Phoenix market hierarchy.
 
 ---
 
@@ -2122,9 +1673,9 @@ Sector definitions are relatively stable and are shared across multiple services
 
 | Item | Value |
 |------|-------|
-| Entity | Sector |
+| Entity | Market |
 | Schema | market |
-| Table | sector |
+| Table | market |
 | Category | Reference Data |
 | Physical Type | Master Table |
 | Lifecycle | Static |
@@ -2134,16 +1685,16 @@ Sector definitions are relatively stable and are shared across multiple services
 
 ## 22.2 Purpose
 
-The Sector table stores the highest level of business activity classification used throughout the platform.
+The Market table stores the markets belonging to a specific Exchange.
 
-It provides the parent classification for Industries.
+Typical examples include equity, bond, derivative, and other organized markets.
 
 ---
 
 ## 22.3 PostgreSQL Definition
 
 ```sql
-CREATE TABLE market.sector
+CREATE TABLE market.market
 (
     ...
 );
@@ -2157,10 +1708,10 @@ CREATE TABLE market.sector
 |---------|-----------------|----------|----------|-------------|
 | id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
 | public_id | UUID | No | — | Public identifier |
-| sector_code | VARCHAR(20) | No | — | Business code |
-| sector_name | VARCHAR(200) | No | — | Official sector name |
+| exchange_id | BIGINT | No | — | Parent exchange |
+| market_code | VARCHAR(20) | No | — | Business code |
+| market_name | VARCHAR(200) | No | — | Market name |
 | short_name | VARCHAR(50) | Yes | NULL | Short name |
-| display_order | INTEGER | Yes | NULL | Display sequence |
 | description | TEXT | Yes | NULL | Description |
 | created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
 | updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
@@ -2188,7 +1739,11 @@ public_id UUID
 Business Identity
 
 ```text
-sector_code
+exchange_id
+
++
+
+market_code
 ```
 
 ---
@@ -2224,16 +1779,24 @@ PRIMARY KEY (id)
 ```sql
 UNIQUE (public_id)
 
-UNIQUE (sector_code)
+UNIQUE (exchange_id, market_code)
 ```
 
 ---
 
 ## 22.10 Foreign Keys
 
-None.
+```sql
+exchange_id
 
-Sector represents the root of the classification hierarchy.
+REFERENCES market.exchange(id)
+```
+
+Referential Action
+
+```text
+RESTRICT
+```
 
 ---
 
@@ -2242,7 +1805,7 @@ Sector represents the root of the classification hierarchy.
 Typical validation includes
 
 ```sql
-sector_code <> ''
+market_code <> ''
 ```
 
 ---
@@ -2260,13 +1823,19 @@ Unique
 ```sql
 public_id
 
-sector_code
+(exchange_id, market_code)
+```
+
+Foreign Key
+
+```sql
+exchange_id
 ```
 
 Lookup
 
 ```sql
-sector_name
+market_name
 ```
 
 ---
@@ -2295,10 +1864,10 @@ Standard Master Data audit implementation.
 
 DDL generation shall include:
 
-- business unique constraints;
-- lookup indexes;
-- audit columns;
-- standard comments.
+- foreign key definition;
+- supporting foreign key index;
+- alternate key;
+- audit implementation.
 
 ---
 
@@ -2306,24 +1875,27 @@ DDL generation shall include:
 
 Validation shall verify:
 
-- sector uniqueness;
-- mandatory attributes;
-- audit implementation.
+- foreign key integrity;
+- business key uniqueness;
+- mandatory columns;
+- audit defaults.
 
 ---
 
 ## 22.18 Dependencies
 
-Referenced By
-
-```text
-Industry
-```
-
 Depends On
 
 ```text
-None
+Exchange
+```
+
+Referenced By
+
+```text
+Trading Board
+
+Future Reference Tables
 ```
 
 ---
@@ -2332,21 +1904,21 @@ None
 
 Future implementations may include:
 
-- international classification mapping;
-- GICS integration;
-- ICB integration;
-- custom reporting hierarchy;
-- external classification identifiers.
+- market classification;
+- trading session profile;
+- settlement model;
+- regulatory framework;
+- market operating status.
 
 ---
 
-# 23. Table Specification — Industry
+# 23. Table Specification — Trading Board
 
-The **Industry** table represents the second level of the enterprise market classification hierarchy.
+The **Trading Board** table represents the trading boards operating within a specific Market.
 
-Each Industry belongs to exactly one Sector and serves as the parent classification for Companies.
+A Trading Board defines the operational environment in which financial instruments are listed and traded.
 
-The Industry table contains relatively static reference data shared across multiple services of the Phoenix Platform.
+It is a reference (master) table with relatively static data and serves as a parent entity for listed instruments.
 
 ---
 
@@ -2354,9 +1926,9 @@ The Industry table contains relatively static reference data shared across multi
 
 | Item | Value |
 |------|-------|
-| Entity | Industry |
+| Entity | Trading Board |
 | Schema | market |
-| Table | industry |
+| Table | trading_board |
 | Category | Reference Data |
 | Physical Type | Master Table |
 | Lifecycle | Static |
@@ -2366,16 +1938,16 @@ The Industry table contains relatively static reference data shared across multi
 
 ## 23.2 Purpose
 
-The Industry table stores approved industry classifications used throughout the Phoenix Platform.
+The Trading Board table stores all approved trading boards belonging to individual markets.
 
-It provides a standardized classification model for listed companies, market analysis, screening, reporting, and future analytics engines.
+It provides the organizational level between Markets and listed Instruments.
 
 ---
 
 ## 23.3 PostgreSQL Definition
 
 ```sql
-CREATE TABLE market.industry
+CREATE TABLE market.trading_board
 (
     ...
 );
@@ -2389,11 +1961,11 @@ CREATE TABLE market.industry
 |---------|-----------------|----------|----------|-------------|
 | id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
 | public_id | UUID | No | — | Public identifier |
-| sector_id | BIGINT | No | — | Parent sector |
-| industry_code | VARCHAR(20) | No | — | Business code |
-| industry_name | VARCHAR(200) | No | — | Official industry name |
+| market_id | BIGINT | No | — | Parent market |
+| board_code | VARCHAR(20) | No | — | Business code |
+| board_name | VARCHAR(200) | No | — | Official board name |
 | short_name | VARCHAR(50) | Yes | NULL | Short name |
-| display_order | INTEGER | Yes | NULL | Display sequence |
+| trading_currency | CHAR(3) | Yes | NULL | ISO currency |
 | description | TEXT | Yes | NULL | Description |
 | created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
 | updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
@@ -2421,11 +1993,11 @@ public_id UUID
 Business Identity
 
 ```text
-sector_id
+market_id
 
 +
 
-industry_code
+board_code
 ```
 
 ---
@@ -2461,7 +2033,7 @@ PRIMARY KEY (id)
 ```sql
 UNIQUE (public_id)
 
-UNIQUE (sector_id, industry_code)
+UNIQUE (market_id, board_code)
 ```
 
 ---
@@ -2469,9 +2041,9 @@ UNIQUE (sector_id, industry_code)
 ## 23.10 Foreign Keys
 
 ```sql
-sector_id
+market_id
 
-REFERENCES market.sector(id)
+REFERENCES market.market(id)
 ```
 
 Referential Action
@@ -2487,7 +2059,7 @@ RESTRICT
 Typical validation includes
 
 ```sql
-industry_code <> ''
+board_code <> ''
 ```
 
 ---
@@ -2505,19 +2077,19 @@ Unique
 ```sql
 public_id
 
-(sector_id, industry_code)
+(market_id, board_code)
 ```
 
 Foreign Key
 
 ```sql
-sector_id
+market_id
 ```
 
 Lookup
 
 ```sql
-industry_name
+board_name
 ```
 
 ---
@@ -2548,7 +2120,7 @@ DDL generation shall include:
 
 - foreign key definition;
 - supporting foreign key index;
-- alternate keys;
+- alternate key;
 - audit implementation.
 
 ---
@@ -2557,7 +2129,7 @@ DDL generation shall include:
 
 Validation shall verify:
 
-- sector integrity;
+- parent market existence;
 - business key uniqueness;
 - mandatory attributes;
 - audit defaults.
@@ -2569,13 +2141,17 @@ Validation shall verify:
 Depends On
 
 ```text
-Sector
+Market
 ```
 
 Referenced By
 
 ```text
-Company
+Instrument
+
+Instrument Listing
+
+Future Trading Rules
 ```
 
 ---
@@ -2584,19 +2160,19 @@ Company
 
 Future implementations may include:
 
-- international industry mappings;
-- ISIC classifications;
-- GICS relationships;
-- ICB mappings;
-- analytical grouping metadata.
+- trading sessions;
+- auction configuration;
+- settlement profile;
+- quotation rules;
+- board operational status.
 
 ---
 
-# 24. Table Specification — Company
+# 24. Table Specification — Sector
 
-The **Company** table represents legal business entities whose financial instruments are listed within supported exchanges.
+The **Sector** table represents the first level of business classification applied to listed companies and financial instruments.
 
-It is one of the core master tables of the Phoenix Platform and serves as the parent entity for instruments, corporate actions, financial statements, disclosures, and analytical datasets.
+Sector definitions are relatively stable and are shared across multiple services within the Phoenix Platform.
 
 ---
 
@@ -2604,28 +2180,28 @@ It is one of the core master tables of the Phoenix Platform and serves as the pa
 
 | Item | Value |
 |------|-------|
-| Entity | Company |
+| Entity | Sector |
 | Schema | market |
-| Table | company |
-| Category | Master Data |
-| Physical Type | Core Business Entity |
-| Lifecycle | Long-lived |
+| Table | sector |
+| Category | Reference Data |
+| Physical Type | Master Table |
+| Lifecycle | Static |
 | Partitioned | No |
 
 ---
 
 ## 24.2 Purpose
 
-The Company table stores canonical information describing listed companies.
+The Sector table stores the highest level of business activity classification used throughout the platform.
 
-The table acts as the authoritative company reference across all services and future market engines.
+It provides the parent classification for Industries.
 
 ---
 
 ## 24.3 PostgreSQL Definition
 
 ```sql
-CREATE TABLE market.company
+CREATE TABLE market.sector
 (
     ...
 );
@@ -2639,16 +2215,10 @@ CREATE TABLE market.company
 |---------|-----------------|----------|----------|-------------|
 | id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
 | public_id | UUID | No | — | Public identifier |
-| industry_id | BIGINT | No | — | Parent industry |
-| company_code | VARCHAR(30) | No | — | Internal company code |
-| company_name | VARCHAR(250) | No | — | Official company name |
-| short_name | VARCHAR(100) | Yes | NULL | Short company name |
-| legal_name | VARCHAR(300) | Yes | NULL | Registered legal name |
-| registration_number | VARCHAR(50) | Yes | NULL | Company registration |
-| national_identifier | VARCHAR(50) | Yes | NULL | National identifier |
-| tax_identifier | VARCHAR(50) | Yes | NULL | Tax identifier |
-| incorporation_date | DATE | Yes | NULL | Establishment date |
-| website | VARCHAR(300) | Yes | NULL | Official website |
+| sector_code | VARCHAR(20) | No | — | Business code |
+| sector_name | VARCHAR(200) | No | — | Official sector name |
+| short_name | VARCHAR(50) | Yes | NULL | Short name |
+| display_order | INTEGER | Yes | NULL | Display sequence |
 | description | TEXT | Yes | NULL | Description |
 | created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
 | updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
@@ -2676,7 +2246,7 @@ public_id UUID
 Business Identity
 
 ```text
-company_code
+sector_code
 ```
 
 ---
@@ -2712,34 +2282,16 @@ PRIMARY KEY (id)
 ```sql
 UNIQUE (public_id)
 
-UNIQUE (company_code)
+UNIQUE (sector_code)
 ```
-
-Additional unique constraints may be defined for:
-
-```text
-registration_number
-
-national_identifier
-```
-
-when business rules require uniqueness.
 
 ---
 
 ## 24.10 Foreign Keys
 
-```sql
-industry_id
+None.
 
-REFERENCES market.industry(id)
-```
-
-Referential Action
-
-```text
-RESTRICT
-```
+Sector represents the root of the classification hierarchy.
 
 ---
 
@@ -2748,11 +2300,7 @@ RESTRICT
 Typical validation includes
 
 ```sql
-company_code <> ''
-```
-
-```sql
-company_name <> ''
+sector_code <> ''
 ```
 
 ---
@@ -2770,21 +2318,13 @@ Unique
 ```sql
 public_id
 
-company_code
-```
-
-Foreign Key
-
-```sql
-industry_id
+sector_code
 ```
 
 Lookup
 
 ```sql
-company_name
-
-short_name
+sector_name
 ```
 
 ---
@@ -2805,7 +2345,7 @@ Default PostgreSQL storage configuration.
 
 ## 24.15 Audit Implementation
 
-The Company table implements the standard Master Data audit model.
+Standard Master Data audit implementation.
 
 ---
 
@@ -2813,13 +2353,10 @@ The Company table implements the standard Master Data audit model.
 
 DDL generation shall include:
 
-- surrogate identity;
-- UUID identifier;
-- foreign key implementation;
 - business unique constraints;
 - lookup indexes;
 - audit columns;
-- table comments.
+- standard comments.
 
 ---
 
@@ -2827,34 +2364,24 @@ DDL generation shall include:
 
 Validation shall verify:
 
-- industry existence;
-- company uniqueness;
+- sector uniqueness;
 - mandatory attributes;
-- audit implementation;
-- constraint integrity.
+- audit implementation.
 
 ---
 
 ## 24.18 Dependencies
 
-Depends On
+Referenced By
 
 ```text
 Industry
 ```
 
-Referenced By
+Depends On
 
 ```text
-Instrument
-
-Corporate Action
-
-Financial Statement
-
-Disclosure
-
-Future Fundamental Analysis Services
+None
 ```
 
 ---
@@ -2863,21 +2390,21 @@ Future Fundamental Analysis Services
 
 Future implementations may include:
 
-- international company identifiers;
-- LEI (Legal Entity Identifier);
-- ESG classifications;
-- ownership profile;
-- issuer classifications;
-- regulatory information;
-- listing lifecycle attributes.
+- international classification mapping;
+- GICS integration;
+- ICB integration;
+- custom reporting hierarchy;
+- external classification identifiers.
 
 ---
 
-# 25. Table Specification — Instrument
+# 25. Table Specification — Industry
 
-The **Instrument** table represents financial instruments that are listed and traded within supported markets.
+The **Industry** table represents the second level of the enterprise market classification hierarchy.
 
-It is one of the central master tables of the Phoenix Platform and acts as the primary reference for market data, trading history, corporate actions, analytics, portfolio management, and future trading engines.
+Each Industry belongs to exactly one Sector and serves as the parent classification for Companies.
+
+The Industry table contains relatively static reference data shared across multiple services of the Phoenix Platform.
 
 ---
 
@@ -2885,30 +2412,28 @@ It is one of the central master tables of the Phoenix Platform and acts as the p
 
 | Item | Value |
 |------|-------|
-| Entity | Instrument |
+| Entity | Industry |
 | Schema | market |
-| Table | instrument |
-| Category | Master Data |
-| Physical Type | Core Business Entity |
-| Lifecycle | Long-lived |
+| Table | industry |
+| Category | Reference Data |
+| Physical Type | Master Table |
+| Lifecycle | Static |
 | Partitioned | No |
 
 ---
 
 ## 25.2 Purpose
 
-The Instrument table stores the canonical definition of every tradable financial instrument supported by the Phoenix Platform.
+The Industry table stores approved industry classifications used throughout the Phoenix Platform.
 
-Each instrument belongs to exactly one company and one trading board.
-
-The table is referenced extensively throughout operational and analytical datasets.
+It provides a standardized classification model for listed companies, market analysis, screening, reporting, and future analytics engines.
 
 ---
 
 ## 25.3 PostgreSQL Definition
 
 ```sql
-CREATE TABLE market.instrument
+CREATE TABLE market.industry
 (
     ...
 );
@@ -2922,16 +2447,11 @@ CREATE TABLE market.instrument
 |---------|-----------------|----------|----------|-------------|
 | id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
 | public_id | UUID | No | — | Public identifier |
-| company_id | BIGINT | No | — | Parent company |
-| trading_board_id | BIGINT | No | — | Trading board |
-| instrument_code | VARCHAR(30) | No | — | Internal instrument code |
-| symbol | VARCHAR(50) | No | — | Trading symbol |
-| instrument_name | VARCHAR(250) | No | — | Official instrument name |
-| short_name | VARCHAR(100) | Yes | NULL | Short display name |
-| isin | VARCHAR(20) | Yes | NULL | International ISIN |
-| instrument_type | VARCHAR(50) | No | — | Instrument type |
-| listing_date | DATE | Yes | NULL | Listing date |
-| delisting_date | DATE | Yes | NULL | Delisting date |
+| sector_id | BIGINT | No | — | Parent sector |
+| industry_code | VARCHAR(20) | No | — | Business code |
+| industry_name | VARCHAR(200) | No | — | Official industry name |
+| short_name | VARCHAR(50) | Yes | NULL | Short name |
+| display_order | INTEGER | Yes | NULL | Display sequence |
 | description | TEXT | Yes | NULL | Description |
 | created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
 | updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
@@ -2959,7 +2479,11 @@ public_id UUID
 Business Identity
 
 ```text
-instrument_code
+sector_id
+
++
+
+industry_code
 ```
 
 ---
@@ -2995,6 +2519,540 @@ PRIMARY KEY (id)
 ```sql
 UNIQUE (public_id)
 
+UNIQUE (sector_id, industry_code)
+```
+
+---
+
+## 25.10 Foreign Keys
+
+```sql
+sector_id
+
+REFERENCES market.sector(id)
+```
+
+Referential Action
+
+```text
+RESTRICT
+```
+
+---
+
+## 25.11 Check Constraints
+
+Typical validation includes
+
+```sql
+industry_code <> ''
+```
+
+---
+
+## 25.12 Indexes
+
+Primary
+
+```sql
+PRIMARY KEY (id)
+```
+
+Unique
+
+```sql
+public_id
+
+(sector_id, industry_code)
+```
+
+Foreign Key
+
+```sql
+sector_id
+```
+
+Lookup
+
+```sql
+industry_name
+```
+
+---
+
+## 25.13 Partition Strategy
+
+```text
+Not Partitioned
+```
+
+---
+
+## 25.14 Storage Parameters
+
+Default PostgreSQL storage configuration.
+
+---
+
+## 25.15 Audit Implementation
+
+Standard Master Data audit implementation.
+
+---
+
+## 25.16 DDL Generation Notes
+
+DDL generation shall include:
+
+- foreign key definition;
+- supporting foreign key index;
+- alternate keys;
+- audit implementation.
+
+---
+
+## 25.17 Validation Requirements
+
+Validation shall verify:
+
+- sector integrity;
+- business key uniqueness;
+- mandatory attributes;
+- audit defaults.
+
+---
+
+## 25.18 Dependencies
+
+Depends On
+
+```text
+Sector
+```
+
+Referenced By
+
+```text
+Company
+```
+
+---
+
+## 25.19 Future Extensions
+
+Future implementations may include:
+
+- international industry mappings;
+- ISIC classifications;
+- GICS relationships;
+- ICB mappings;
+- analytical grouping metadata.
+
+---
+
+# 26. Table Specification — Company
+
+The **Company** table represents legal business entities whose financial instruments are listed within supported exchanges.
+
+It is one of the core master tables of the Phoenix Platform and serves as the parent entity for instruments, corporate actions, financial statements, disclosures, and analytical datasets.
+
+---
+
+## 26.1 Table Information
+
+| Item | Value |
+|------|-------|
+| Entity | Company |
+| Schema | market |
+| Table | company |
+| Category | Master Data |
+| Physical Type | Core Business Entity |
+| Lifecycle | Long-lived |
+| Partitioned | No |
+
+---
+
+## 26.2 Purpose
+
+The Company table stores canonical information describing listed companies.
+
+The table acts as the authoritative company reference across all services and future market engines.
+
+---
+
+## 26.3 PostgreSQL Definition
+
+```sql
+CREATE TABLE market.company
+(
+    ...
+);
+```
+
+---
+
+## 26.4 Column Specifications
+
+| Column | PostgreSQL Type | Nullable | Default | Description |
+|---------|-----------------|----------|----------|-------------|
+| id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
+| public_id | UUID | No | — | Public identifier |
+| industry_id | BIGINT | No | — | Parent industry |
+| company_code | VARCHAR(30) | No | — | Internal company code |
+| company_name | VARCHAR(250) | No | — | Official company name |
+| short_name | VARCHAR(100) | Yes | NULL | Short company name |
+| legal_name | VARCHAR(300) | Yes | NULL | Registered legal name |
+| registration_number | VARCHAR(50) | Yes | NULL | Company registration |
+| national_identifier | VARCHAR(50) | Yes | NULL | National identifier |
+| tax_identifier | VARCHAR(50) | Yes | NULL | Tax identifier |
+| incorporation_date | DATE | Yes | NULL | Establishment date |
+| website | VARCHAR(300) | Yes | NULL | Official website |
+| description | TEXT | Yes | NULL | Description |
+| created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
+| updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
+| created_by | BIGINT | Yes | NULL | Audit |
+| updated_by | BIGINT | Yes | NULL | Audit |
+| is_active | BOOLEAN | No | TRUE | Active status |
+
+---
+
+## 26.5 Identity Strategy
+
+Internal Identity
+
+```sql
+id
+BIGINT GENERATED ALWAYS AS IDENTITY
+```
+
+Public Identity
+
+```sql
+public_id UUID
+```
+
+Business Identity
+
+```text
+company_code
+```
+
+---
+
+## 26.6 Default Values
+
+```sql
+created_at DEFAULT CURRENT_TIMESTAMP
+
+updated_at DEFAULT CURRENT_TIMESTAMP
+
+is_active DEFAULT TRUE
+```
+
+---
+
+## 26.7 Generated Columns
+
+None.
+
+---
+
+## 26.8 Primary Key
+
+```sql
+PRIMARY KEY (id)
+```
+
+---
+
+## 26.9 Alternate Keys
+
+```sql
+UNIQUE (public_id)
+
+UNIQUE (company_code)
+```
+
+Additional unique constraints may be defined for:
+
+```text
+registration_number
+
+national_identifier
+```
+
+when business rules require uniqueness.
+
+---
+
+## 26.10 Foreign Keys
+
+```sql
+industry_id
+
+REFERENCES market.industry(id)
+```
+
+Referential Action
+
+```text
+RESTRICT
+```
+
+---
+
+## 26.11 Check Constraints
+
+Typical validation includes
+
+```sql
+company_code <> ''
+```
+
+```sql
+company_name <> ''
+```
+
+---
+
+## 26.12 Indexes
+
+Primary
+
+```sql
+PRIMARY KEY (id)
+```
+
+Unique
+
+```sql
+public_id
+
+company_code
+```
+
+Foreign Key
+
+```sql
+industry_id
+```
+
+Lookup
+
+```sql
+company_name
+
+short_name
+```
+
+---
+
+## 26.13 Partition Strategy
+
+```text
+Not Partitioned
+```
+
+---
+
+## 26.14 Storage Parameters
+
+Default PostgreSQL storage configuration.
+
+---
+
+## 26.15 Audit Implementation
+
+The Company table implements the standard Master Data audit model.
+
+---
+
+## 26.16 DDL Generation Notes
+
+DDL generation shall include:
+
+- surrogate identity;
+- UUID identifier;
+- foreign key implementation;
+- business unique constraints;
+- lookup indexes;
+- audit columns;
+- table comments.
+
+---
+
+## 26.17 Validation Requirements
+
+Validation shall verify:
+
+- industry existence;
+- company uniqueness;
+- mandatory attributes;
+- audit implementation;
+- constraint integrity.
+
+---
+
+## 26.18 Dependencies
+
+Depends On
+
+```text
+Industry
+```
+
+Referenced By
+
+```text
+Instrument
+
+Corporate Action
+
+Financial Statement
+
+Disclosure
+
+Future Fundamental Analysis Services
+```
+
+---
+
+## 26.19 Future Extensions
+
+Future implementations may include:
+
+- international company identifiers;
+- LEI (Legal Entity Identifier);
+- ESG classifications;
+- ownership profile;
+- issuer classifications;
+- regulatory information;
+- listing lifecycle attributes.
+
+---
+
+# 27. Table Specification — Instrument
+
+The **Instrument** table represents financial instruments that are listed and traded within supported markets.
+
+It is one of the central master tables of the Phoenix Platform and acts as the primary reference for market data, trading history, corporate actions, analytics, portfolio management, and future trading engines.
+
+---
+
+## 27.1 Table Information
+
+| Item | Value |
+|------|-------|
+| Entity | Instrument |
+| Schema | market |
+| Table | instrument |
+| Category | Master Data |
+| Physical Type | Core Business Entity |
+| Lifecycle | Long-lived |
+| Partitioned | No |
+
+---
+
+## 27.2 Purpose
+
+The Instrument table stores the canonical definition of every tradable financial instrument supported by the Phoenix Platform.
+
+Each instrument belongs to exactly one company and one trading board.
+
+The table is referenced extensively throughout operational and analytical datasets.
+
+---
+
+## 27.3 PostgreSQL Definition
+
+```sql
+CREATE TABLE market.instrument
+(
+    ...
+);
+```
+
+---
+
+## 27.4 Column Specifications
+
+| Column | PostgreSQL Type | Nullable | Default | Description |
+|---------|-----------------|----------|----------|-------------|
+| id | BIGINT GENERATED ALWAYS AS IDENTITY | No | Identity | Primary key |
+| public_id | UUID | No | — | Public identifier |
+| company_id | BIGINT | No | — | Parent company |
+| trading_board_id | BIGINT | No | — | Trading board |
+| instrument_code | VARCHAR(30) | No | — | Internal instrument code |
+| symbol | VARCHAR(50) | No | — | Trading symbol |
+| instrument_name | VARCHAR(250) | No | — | Official instrument name |
+| short_name | VARCHAR(100) | Yes | NULL | Short display name |
+| isin | VARCHAR(20) | Yes | NULL | International ISIN |
+| instrument_type | VARCHAR(50) | No | — | Instrument type |
+| listing_date | DATE | Yes | NULL | Listing date |
+| delisting_date | DATE | Yes | NULL | Delisting date |
+| description | TEXT | Yes | NULL | Description |
+| created_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
+| updated_at | TIMESTAMP WITH TIME ZONE | No | CURRENT_TIMESTAMP | Audit |
+| created_by | BIGINT | Yes | NULL | Audit |
+| updated_by | BIGINT | Yes | NULL | Audit |
+| is_active | BOOLEAN | No | TRUE | Active status |
+
+---
+
+## 27.5 Identity Strategy
+
+Internal Identity
+
+```sql
+id
+BIGINT GENERATED ALWAYS AS IDENTITY
+```
+
+Public Identity
+
+```sql
+public_id UUID
+```
+
+Business Identity
+
+```text
+instrument_code
+```
+
+---
+
+## 27.6 Default Values
+
+```sql
+created_at DEFAULT CURRENT_TIMESTAMP
+
+updated_at DEFAULT CURRENT_TIMESTAMP
+
+is_active DEFAULT TRUE
+```
+
+---
+
+## 27.7 Generated Columns
+
+None.
+
+---
+
+## 27.8 Primary Key
+
+```sql
+PRIMARY KEY (id)
+```
+
+---
+
+## 27.9 Alternate Keys
+
+```sql
+UNIQUE (public_id)
+
 UNIQUE (instrument_code)
 ```
 
@@ -3008,7 +3066,7 @@ Symbol within Trading Board
 
 ---
 
-## 25.10 Foreign Keys
+## 27.10 Foreign Keys
 
 ```sql
 company_id
@@ -3030,7 +3088,7 @@ RESTRICT
 
 ---
 
-## 25.11 Check Constraints
+## 27.11 Check Constraints
 
 Typical validation includes
 
@@ -3050,7 +3108,7 @@ delisting_date >= listing_date
 
 ---
 
-## 25.12 Indexes
+## 27.12 Indexes
 
 Primary
 
@@ -3086,7 +3144,7 @@ isin
 
 ---
 
-## 25.13 Partition Strategy
+## 27.13 Partition Strategy
 
 ```text
 Not Partitioned
@@ -3094,19 +3152,19 @@ Not Partitioned
 
 ---
 
-## 25.14 Storage Parameters
+## 27.14 Storage Parameters
 
 Default PostgreSQL storage parameters.
 
 ---
 
-## 25.15 Audit Implementation
+## 27.15 Audit Implementation
 
 Standard Master Data audit implementation.
 
 ---
 
-## 25.16 DDL Generation Notes
+## 27.16 DDL Generation Notes
 
 DDL generation shall include:
 
@@ -3119,7 +3177,7 @@ DDL generation shall include:
 
 ---
 
-## 25.17 Validation Requirements
+## 27.17 Validation Requirements
 
 Validation shall verify:
 
@@ -3130,7 +3188,7 @@ Validation shall verify:
 
 ---
 
-## 25.18 Dependencies
+## 27.18 Dependencies
 
 Depends On
 
@@ -3160,7 +3218,7 @@ Future Trading Engines
 
 ---
 
-## 25.19 Future Extensions
+## 27.19 Future Extensions
 
 Future versions may include:
 
@@ -3173,7 +3231,7 @@ Future versions may include:
 
 ---
 
-# 26. Table Specification — Instrument Listing
+# 28. Table Specification — Instrument Listing
 
 The **Instrument Listing** table maintains the listing history of financial instruments.
 
@@ -3183,7 +3241,7 @@ Unlike the Instrument table, this entity supports historical tracking of listing
 
 ---
 
-## 26.1 Table Information
+## 28.1 Table Information
 
 | Item | Value |
 |------|-------|
@@ -3197,7 +3255,7 @@ Unlike the Instrument table, this entity supports historical tracking of listing
 
 ---
 
-## 26.2 Purpose
+## 28.2 Purpose
 
 The Instrument Listing table stores the listing lifecycle of every financial instrument.
 
@@ -3205,7 +3263,7 @@ It enables the Phoenix Platform to maintain historical listing information while
 
 ---
 
-## 26.3 PostgreSQL Definition
+## 28.3 PostgreSQL Definition
 
 ```sql
 CREATE TABLE market.instrument_listing
@@ -3216,7 +3274,7 @@ CREATE TABLE market.instrument_listing
 
 ---
 
-## 26.4 Column Specifications
+## 28.4 Column Specifications
 
 | Column | PostgreSQL Type | Nullable | Default | Description |
 |---------|-----------------|----------|----------|-------------|
@@ -3235,7 +3293,7 @@ CREATE TABLE market.instrument_listing
 
 ---
 
-## 26.5 Identity Strategy
+## 28.5 Identity Strategy
 
 Internal surrogate identifier
 
@@ -3256,7 +3314,7 @@ Effective From
 
 ---
 
-## 26.6 Default Values
+## 28.6 Default Values
 
 ```sql
 created_at DEFAULT CURRENT_TIMESTAMP
@@ -3266,13 +3324,13 @@ updated_at DEFAULT CURRENT_TIMESTAMP
 
 ---
 
-## 26.7 Generated Columns
+## 28.7 Generated Columns
 
 None.
 
 ---
 
-## 26.8 Primary Key
+## 28.8 Primary Key
 
 ```sql
 PRIMARY KEY (id)
@@ -3280,7 +3338,7 @@ PRIMARY KEY (id)
 
 ---
 
-## 26.9 Alternate Keys
+## 28.9 Alternate Keys
 
 ```sql
 UNIQUE (instrument_id, effective_from)
@@ -3288,7 +3346,7 @@ UNIQUE (instrument_id, effective_from)
 
 ---
 
-## 26.10 Foreign Keys
+## 28.10 Foreign Keys
 
 ```sql
 instrument_id
@@ -3304,7 +3362,7 @@ REFERENCES market.trading_board(id)
 
 ---
 
-## 26.11 Check Constraints
+## 28.11 Check Constraints
 
 Typical validation
 
@@ -3316,7 +3374,7 @@ effective_to >= effective_from
 
 ---
 
-## 26.12 Indexes
+## 28.12 Indexes
 
 Primary
 
@@ -3342,7 +3400,7 @@ listing_status
 
 ---
 
-## 26.13 Partition Strategy
+## 28.13 Partition Strategy
 
 ```text
 Not Partitioned
@@ -3352,19 +3410,19 @@ Historical volume is expected to remain manageable.
 
 ---
 
-## 26.14 Storage Parameters
+## 28.14 Storage Parameters
 
 Default PostgreSQL storage configuration.
 
 ---
 
-## 26.15 Audit Implementation
+## 28.15 Audit Implementation
 
 Standard operational audit implementation.
 
 ---
 
-## 26.16 DDL Generation Notes
+## 28.16 DDL Generation Notes
 
 DDL generation shall include:
 
@@ -3375,7 +3433,7 @@ DDL generation shall include:
 
 ---
 
-## 26.17 Validation Requirements
+## 28.17 Validation Requirements
 
 Validation shall verify:
 
@@ -3386,7 +3444,7 @@ Validation shall verify:
 
 ---
 
-## 26.18 Dependencies
+## 28.18 Dependencies
 
 Depends On
 
@@ -3408,7 +3466,7 @@ Future Regulatory Services
 
 ---
 
-## 26.19 Future Extensions
+## 28.19 Future Extensions
 
 Future implementations may include:
 
@@ -3420,7 +3478,7 @@ Future implementations may include:
 
 ---
 
-# 27. Table Specification — Trading Calendar
+# 29. Table Specification — Trading Calendar
 
 The **Trading Calendar** table defines the official trading calendar used by the Phoenix Platform.
 
@@ -3430,7 +3488,7 @@ The Trading Calendar serves as the authoritative source for all time-based proce
 
 ---
 
-## 27.1 Table Information
+## 29.1 Table Information
 
 | Item | Value |
 |------|-------|
@@ -3444,7 +3502,7 @@ The Trading Calendar serves as the authoritative source for all time-based proce
 
 ---
 
-## 27.2 Purpose
+## 29.2 Purpose
 
 The Trading Calendar provides the official calendar defining whether a specific date is tradable for a given market.
 
@@ -3452,7 +3510,7 @@ It is referenced throughout the platform to ensure that every time-series proces
 
 ---
 
-## 27.3 PostgreSQL Definition
+## 29.3 PostgreSQL Definition
 
 ```sql
 CREATE TABLE market.trading_calendar
@@ -3463,7 +3521,7 @@ CREATE TABLE market.trading_calendar
 
 ---
 
-## 27.4 Column Specifications
+## 29.4 Column Specifications
 
 | Column | PostgreSQL Type | Nullable | Default | Description |
 |---------|-----------------|----------|----------|-------------|
@@ -3482,7 +3540,7 @@ CREATE TABLE market.trading_calendar
 
 ---
 
-## 27.5 Identity Strategy
+## 29.5 Identity Strategy
 
 Internal Identity
 
@@ -3507,7 +3565,7 @@ trading_date
 
 ---
 
-## 27.6 Default Values
+## 29.6 Default Values
 
 ```sql
 created_at DEFAULT CURRENT_TIMESTAMP
@@ -3521,13 +3579,13 @@ is_holiday DEFAULT FALSE
 
 ---
 
-## 27.7 Generated Columns
+## 29.7 Generated Columns
 
 None.
 
 ---
 
-## 27.8 Primary Key
+## 29.8 Primary Key
 
 ```sql
 PRIMARY KEY (id)
@@ -3535,7 +3593,7 @@ PRIMARY KEY (id)
 
 ---
 
-## 27.9 Alternate Keys
+## 29.9 Alternate Keys
 
 ```sql
 UNIQUE
@@ -3548,7 +3606,7 @@ UNIQUE
 
 ---
 
-## 27.10 Foreign Keys
+## 29.10 Foreign Keys
 
 ```sql
 exchange_id
@@ -3564,7 +3622,7 @@ REFERENCES market.market(id)
 
 ---
 
-## 27.11 Check Constraints
+## 29.11 Check Constraints
 
 Typical validation includes
 
@@ -3574,7 +3632,7 @@ day_of_week BETWEEN 1 AND 7
 
 ---
 
-## 27.12 Indexes
+## 29.12 Indexes
 
 Primary
 
@@ -3604,7 +3662,7 @@ market_id
 
 ---
 
-## 27.13 Partition Strategy
+## 29.13 Partition Strategy
 
 ```text
 Not Partitioned
@@ -3614,19 +3672,19 @@ Calendar data volume is expected to remain relatively small.
 
 ---
 
-## 27.14 Storage Parameters
+## 29.14 Storage Parameters
 
 Default PostgreSQL storage configuration.
 
 ---
 
-## 27.15 Audit Implementation
+## 29.15 Audit Implementation
 
 Standard operational audit implementation.
 
 ---
 
-## 27.16 DDL Generation Notes
+## 29.16 DDL Generation Notes
 
 DDL generation shall include:
 
@@ -3637,7 +3695,7 @@ DDL generation shall include:
 
 ---
 
-## 27.17 Validation Requirements
+## 29.17 Validation Requirements
 
 Validation shall verify:
 
@@ -3648,7 +3706,7 @@ Validation shall verify:
 
 ---
 
-## 27.18 Dependencies
+## 29.18 Dependencies
 
 Depends On
 
@@ -3674,7 +3732,7 @@ Analytics
 
 ---
 
-## 27.19 Future Extensions
+## 29.19 Future Extensions
 
 Future implementations may include:
 
@@ -3686,7 +3744,7 @@ Future implementations may include:
 
 ---
 
-# 28. Table Specification — Daily Market Data
+# 30. Table Specification — Daily Market Data
 
 The **Daily Market Data** table stores the official end-of-day (EOD) market data for every listed financial instrument.
 
@@ -3694,7 +3752,7 @@ This table is expected to become one of the largest operational tables within th
 
 ---
 
-## 28.1 Table Information
+## 30.1 Table Information
 
 | Item | Value |
 |------|-------|
@@ -3708,7 +3766,7 @@ This table is expected to become one of the largest operational tables within th
 
 ---
 
-## 28.2 Purpose
+## 30.2 Purpose
 
 The Daily Market Data table stores historical daily trading information for every financial instrument supported by the platform.
 
@@ -3716,7 +3774,7 @@ Each record represents exactly one trading day for one instrument.
 
 ---
 
-## 28.3 PostgreSQL Definition
+## 30.3 PostgreSQL Definition
 
 ```sql
 CREATE TABLE trading.daily_market_data
@@ -3727,7 +3785,7 @@ CREATE TABLE trading.daily_market_data
 
 ---
 
-## 28.4 Column Specifications
+## 30.4 Column Specifications
 
 | Column | PostgreSQL Type | Nullable | Default | Description |
 |---------|-----------------|----------|----------|-------------|
@@ -3747,7 +3805,7 @@ CREATE TABLE trading.daily_market_data
 
 ---
 
-## 28.5 Identity Strategy
+## 30.5 Identity Strategy
 
 Internal Identity
 
@@ -3768,7 +3826,7 @@ trading_date
 
 ---
 
-## 28.6 Default Values
+## 30.6 Default Values
 
 ```sql
 created_at DEFAULT CURRENT_TIMESTAMP
@@ -3780,13 +3838,13 @@ volume DEFAULT 0
 
 ---
 
-## 28.7 Generated Columns
+## 30.7 Generated Columns
 
 None.
 
 ---
 
-## 28.8 Primary Key
+## 30.8 Primary Key
 
 ```sql
 PRIMARY KEY (id)
@@ -3794,7 +3852,7 @@ PRIMARY KEY (id)
 
 ---
 
-## 28.9 Alternate Keys
+## 30.9 Alternate Keys
 
 ```sql
 UNIQUE
@@ -3806,7 +3864,7 @@ UNIQUE
 
 ---
 
-## 28.10 Foreign Keys
+## 30.10 Foreign Keys
 
 ```sql
 instrument_id
@@ -3816,7 +3874,7 @@ REFERENCES market.instrument(id)
 
 ---
 
-## 28.11 Check Constraints
+## 30.11 Check Constraints
 
 Typical validation includes
 
@@ -3834,7 +3892,7 @@ volume >= 0
 
 ---
 
-## 28.12 Indexes
+## 30.12 Indexes
 
 Primary
 
@@ -3862,7 +3920,7 @@ Composite
 
 ---
 
-## 28.13 Partition Strategy
+## 30.13 Partition Strategy
 
 ```text
 Partition Method
@@ -3880,7 +3938,7 @@ Monthly
 
 ---
 
-## 28.14 Storage Parameters
+## 30.14 Storage Parameters
 
 Large historical dataset.
 
@@ -3888,13 +3946,13 @@ Default storage parameters may later be optimized based on production workload.
 
 ---
 
-## 28.15 Audit Implementation
+## 30.15 Audit Implementation
 
 Standard operational audit implementation.
 
 ---
 
-## 28.16 DDL Generation Notes
+## 30.16 DDL Generation Notes
 
 DDL generation shall include:
 
@@ -3906,7 +3964,7 @@ DDL generation shall include:
 
 ---
 
-## 28.17 Validation Requirements
+## 30.17 Validation Requirements
 
 Validation shall verify:
 
@@ -3918,7 +3976,7 @@ Validation shall verify:
 
 ---
 
-## 28.18 Dependencies
+## 30.18 Dependencies
 
 Depends On
 
@@ -3950,7 +4008,7 @@ Reporting
 
 ---
 
-## 28.19 Future Extensions
+## 30.19 Future Extensions
 
 Future implementations may include:
 
@@ -3964,7 +4022,7 @@ Future implementations may include:
 
 ---
 
-# 29. Table Specification — Corporate Action
+# 31. Table Specification — Corporate Action
 
 The **Corporate Action** table stores events that affect listed financial instruments throughout their lifecycle.
 
@@ -3974,7 +4032,7 @@ The table serves as the authoritative source for all corporate event processing 
 
 ---
 
-## 29.1 Table Information
+## 31.1 Table Information
 
 | Item | Value |
 |------|-------|
@@ -3988,7 +4046,7 @@ The table serves as the authoritative source for all corporate event processing 
 
 ---
 
-## 29.2 Purpose
+## 31.2 Purpose
 
 The Corporate Action table records all approved corporate events affecting listed financial instruments.
 
@@ -4010,7 +4068,7 @@ The table provides the basis for historical price adjustments and corporate even
 
 ---
 
-## 29.3 PostgreSQL Definition
+## 31.3 PostgreSQL Definition
 
 ```sql
 CREATE TABLE trading.corporate_action
@@ -4021,7 +4079,7 @@ CREATE TABLE trading.corporate_action
 
 ---
 
-## 29.4 Column Specifications
+## 31.4 Column Specifications
 
 | Column | PostgreSQL Type | Nullable | Default | Description |
 |---------|-----------------|----------|----------|-------------|
@@ -4041,7 +4099,7 @@ CREATE TABLE trading.corporate_action
 
 ---
 
-## 29.5 Identity Strategy
+## 31.5 Identity Strategy
 
 Internal Identity
 
@@ -4066,7 +4124,7 @@ action_type
 
 ---
 
-## 29.6 Default Values
+## 31.6 Default Values
 
 ```sql
 created_at DEFAULT CURRENT_TIMESTAMP
@@ -4076,13 +4134,13 @@ updated_at DEFAULT CURRENT_TIMESTAMP
 
 ---
 
-## 29.7 Generated Columns
+## 31.7 Generated Columns
 
 None.
 
 ---
 
-## 29.8 Primary Key
+## 31.8 Primary Key
 
 ```sql
 PRIMARY KEY (id)
@@ -4090,7 +4148,7 @@ PRIMARY KEY (id)
 
 ---
 
-## 29.9 Alternate Keys
+## 31.9 Alternate Keys
 
 ```sql
 UNIQUE
@@ -4103,7 +4161,7 @@ UNIQUE
 
 ---
 
-## 29.10 Foreign Keys
+## 31.10 Foreign Keys
 
 ```sql
 instrument_id
@@ -4119,7 +4177,7 @@ RESTRICT
 
 ---
 
-## 29.11 Check Constraints
+## 31.11 Check Constraints
 
 Typical validation includes
 
@@ -4133,7 +4191,7 @@ amount >= 0
 
 ---
 
-## 29.12 Indexes
+## 31.12 Indexes
 
 Primary
 
@@ -4161,7 +4219,7 @@ action_type
 
 ---
 
-## 29.13 Partition Strategy
+## 31.13 Partition Strategy
 
 ```text
 Partition Method
@@ -4179,7 +4237,7 @@ Yearly
 
 ---
 
-## 29.14 Storage Parameters
+## 31.14 Storage Parameters
 
 Default PostgreSQL storage configuration.
 
@@ -4187,13 +4245,13 @@ Yearly partitioning is recommended to simplify historical maintenance.
 
 ---
 
-## 29.15 Audit Implementation
+## 31.15 Audit Implementation
 
 Standard operational audit implementation.
 
 ---
 
-## 29.16 DDL Generation Notes
+## 31.16 DDL Generation Notes
 
 DDL generation shall include:
 
@@ -4205,7 +4263,7 @@ DDL generation shall include:
 
 ---
 
-## 29.17 Validation Requirements
+## 31.17 Validation Requirements
 
 Validation shall verify:
 
@@ -4216,7 +4274,7 @@ Validation shall verify:
 
 ---
 
-## 29.18 Dependencies
+## 31.18 Dependencies
 
 Depends On
 
@@ -4240,7 +4298,7 @@ Reporting
 
 ---
 
-## 29.19 Future Extensions
+## 31.19 Future Extensions
 
 Future implementations may include:
 
@@ -4252,7 +4310,7 @@ Future implementations may include:
 
 ---
 
-# 30. Table Specification — External Identifier
+# 32. Table Specification — External Identifier
 
 The **External Identifier** table maintains mappings between Phoenix internal entities and identifiers assigned by external data providers, exchanges, regulators, brokers, and third-party information vendors.
 
@@ -4260,7 +4318,7 @@ This table enables the platform to integrate multiple heterogeneous data sources
 
 ---
 
-## 30.1 Table Information
+## 32.1 Table Information
 
 | Item | Value |
 |------|-------|
@@ -4274,7 +4332,7 @@ This table enables the platform to integrate multiple heterogeneous data sources
 
 ---
 
-## 30.2 Purpose
+## 32.2 Purpose
 
 The External Identifier table stores mappings between Phoenix entities and external systems.
 
@@ -4293,7 +4351,7 @@ The table supports future multi-provider data integration.
 
 ---
 
-## 30.3 PostgreSQL Definition
+## 32.3 PostgreSQL Definition
 
 ```sql
 CREATE TABLE market.external_identifier
@@ -4304,7 +4362,7 @@ CREATE TABLE market.external_identifier
 
 ---
 
-## 30.4 Column Specifications
+## 32.4 Column Specifications
 
 | Column | PostgreSQL Type | Nullable | Default | Description |
 |---------|-----------------|----------|----------|-------------|
@@ -4322,7 +4380,7 @@ CREATE TABLE market.external_identifier
 
 ---
 
-## 30.5 Identity Strategy
+## 32.5 Identity Strategy
 
 Internal Identity
 
@@ -4347,7 +4405,7 @@ external_code
 
 ---
 
-## 30.6 Default Values
+## 32.6 Default Values
 
 ```sql
 created_at DEFAULT CURRENT_TIMESTAMP
@@ -4357,13 +4415,13 @@ updated_at DEFAULT CURRENT_TIMESTAMP
 
 ---
 
-## 30.7 Generated Columns
+## 32.7 Generated Columns
 
 None.
 
 ---
 
-## 30.8 Primary Key
+## 32.8 Primary Key
 
 ```sql
 PRIMARY KEY (id)
@@ -4371,7 +4429,7 @@ PRIMARY KEY (id)
 
 ---
 
-## 30.9 Alternate Keys
+## 32.9 Alternate Keys
 
 ```sql
 UNIQUE
@@ -4384,7 +4442,7 @@ UNIQUE
 
 ---
 
-## 30.10 Foreign Keys
+## 32.10 Foreign Keys
 
 No direct foreign keys are defined.
 
@@ -4404,7 +4462,7 @@ Referential integrity is enforced by application services.
 
 ---
 
-## 30.11 Check Constraints
+## 32.11 Check Constraints
 
 Typical validation includes
 
@@ -4422,7 +4480,7 @@ effective_to >= effective_from
 
 ---
 
-## 30.12 Indexes
+## 32.12 Indexes
 
 Primary
 
@@ -4450,7 +4508,7 @@ external_code
 
 ---
 
-## 30.13 Partition Strategy
+## 32.13 Partition Strategy
 
 ```text
 Not Partitioned
@@ -4458,19 +4516,19 @@ Not Partitioned
 
 ---
 
-## 30.14 Storage Parameters
+## 32.14 Storage Parameters
 
 Default PostgreSQL storage configuration.
 
 ---
 
-## 30.15 Audit Implementation
+## 32.15 Audit Implementation
 
 Standard Master Data audit implementation.
 
 ---
 
-## 30.16 DDL Generation Notes
+## 32.16 DDL Generation Notes
 
 DDL generation shall include:
 
@@ -4481,7 +4539,7 @@ DDL generation shall include:
 
 ---
 
-## 30.17 Validation Requirements
+## 32.17 Validation Requirements
 
 Validation shall verify:
 
@@ -4491,7 +4549,7 @@ Validation shall verify:
 
 ---
 
-## 30.18 Dependencies
+## 32.18 Dependencies
 
 Referenced By
 
@@ -4515,7 +4573,7 @@ Multiple Business Entities
 
 ---
 
-## 30.19 Future Extensions
+## 32.19 Future Extensions
 
 Future implementations may include:
 
@@ -4527,7 +4585,7 @@ Future implementations may include:
 
 ---
 
-# 31. DDL Generation Rules
+# 33. DDL Generation Rules
 
 This document serves as the authoritative specification for generating PostgreSQL DDL scripts within the Phoenix Platform.
 
@@ -4545,7 +4603,7 @@ Manual interpretation during DDL development is not permitted.
 
 ---
 
-## 31.1 Generation Principles
+## 33.1 Generation Principles
 
 DDL generation shall satisfy the following principles:
 
@@ -4566,7 +4624,7 @@ Generated SQL shall never contradict:
 
 ---
 
-## 31.2 Generation Sequence
+## 33.2 Generation Sequence
 
 The recommended implementation order is:
 
@@ -4598,7 +4656,7 @@ This sequence minimizes dependency-related deployment issues.
 
 ---
 
-## 31.3 Naming Compliance
+## 33.3 Naming Compliance
 
 Generated SQL objects shall comply with Enterprise Naming Standards.
 
@@ -4626,7 +4684,7 @@ Automatically generated PostgreSQL names shall not be used.
 
 ---
 
-## 31.4 SQL Formatting
+## 33.4 SQL Formatting
 
 Generated SQL scripts shall follow a consistent formatting standard.
 
@@ -4641,7 +4699,7 @@ Requirements include:
 
 ---
 
-## 31.5 Object Ordering
+## 33.5 Object Ordering
 
 Within each CREATE TABLE statement the following order shall be maintained:
 
@@ -4677,7 +4735,7 @@ Indexes shall be created after table creation.
 
 ---
 
-## 31.6 Repository Location
+## 33.6 Repository Location
 
 Generated table scripts shall be stored under:
 
@@ -4706,7 +4764,7 @@ daily_market_data.sql
 
 ---
 
-# 32. Validation Rules
+# 34. Validation Rules
 
 Every generated PostgreSQL object shall pass architectural validation before being accepted into the repository.
 
@@ -4714,7 +4772,7 @@ Validation confirms that implementation remains consistent with the approved arc
 
 ---
 
-## 32.1 Structural Validation
+## 34.1 Structural Validation
 
 Each table shall verify:
 
@@ -4728,7 +4786,7 @@ Each table shall verify:
 
 ---
 
-## 32.2 Constraint Validation
+## 34.2 Constraint Validation
 
 Validation shall verify:
 
@@ -4740,7 +4798,7 @@ Validation shall verify:
 
 ---
 
-## 32.3 Index Validation
+## 34.3 Index Validation
 
 Validation shall confirm:
 
@@ -4751,7 +4809,7 @@ Validation shall confirm:
 
 ---
 
-## 32.4 Naming Validation
+## 34.4 Naming Validation
 
 Every generated object shall comply with:
 
@@ -4761,7 +4819,7 @@ Every generated object shall comply with:
 
 ---
 
-## 32.5 Traceability Validation
+## 34.5 Traceability Validation
 
 Each physical object shall remain traceable back to:
 
@@ -4789,7 +4847,7 @@ No object may exist without an approved architectural source.
 
 ---
 
-## 32.6 Deployment Validation
+## 34.6 Deployment Validation
 
 Before deployment every generated script shall successfully execute on the supported PostgreSQL version.
 
@@ -4802,7 +4860,7 @@ Validation shall confirm:
 
 ---
 
-# 33. Traceability Matrix
+# 35. Traceability Matrix
 
 Every physical database object shall maintain complete architectural traceability.
 
@@ -4810,7 +4868,7 @@ The purpose of traceability is to ensure that implementation never diverges from
 
 ---
 
-## 33.1 Traceability Flow
+## 35.1 Traceability Flow
 
 ```text
 Business Requirement
@@ -4845,7 +4903,7 @@ Database Deployment
 
 ---
 
-## 33.2 Object Traceability
+## 35.2 Object Traceability
 
 Each physical table shall be traceable to:
 
@@ -4857,7 +4915,7 @@ Each physical table shall be traceable to:
 
 ---
 
-## 33.3 Repository Traceability
+## 35.3 Repository Traceability
 
 Repository relationships shall remain as follows:
 
@@ -4884,7 +4942,7 @@ Neither directory shall duplicate the responsibilities of the other.
 
 ---
 
-# 34. Related Documents
+# 36. Related Documents
 
 The following architectural documents define or support this specification:
 
@@ -4899,7 +4957,7 @@ The following architectural documents define or support this specification:
 
 ---
 
-# 35. Repository Integration
+# 37. Repository Integration
 
 This document occupies the final architectural position before SQL implementation.
 
@@ -4919,7 +4977,7 @@ It shall not duplicate:
 
 ---
 
-# 36. Governance
+# 38. Governance
 
 Changes to this document require approval from the Database Architect.
 
@@ -4934,7 +4992,7 @@ Modifications shall preserve:
 
 ---
 
-# 37. Revision History
+# 39. Revision History
 
 | Version | Date | Description |
 |----------|------|-------------|
@@ -4942,7 +5000,7 @@ Modifications shall preserve:
 
 ---
 
-# 38. Final Statement
+# 40. Final Statement
 
 This document is the canonical implementation specification for PostgreSQL table definitions within the Phoenix Platform.
 
