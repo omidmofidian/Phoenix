@@ -1,656 +1,587 @@
+# Phoenix Platform
+
 # Index Specifications
 
-| Property | Value |
-|----------|-------|
-| Document ID | STD-013 |
-| Document Name | Index Specifications |
-| Project | Phoenix Platform |
-| Version | 1.0 |
+| Item | Value |
+|------|-------|
+| Document ID | PHX-DB-SPEC-INDEX-001 |
+| Version | 2026.1 |
 | Status | Approved |
 | Owner | Phoenix Architecture Team |
-| Type | Enterprise Database Standard |
+| Approver | Phoenix Architecture Team |
+| Classification | Canonical |
+| Last Updated | 2026-07-25 |
 
 ---
 
 # 1. Purpose
 
-This document defines the enterprise standards for designing, naming,
-implementing, and maintaining database indexes throughout the Phoenix Platform.
+This document defines the technical specifications governing the implementation of database indexes within the Phoenix Platform.
 
-The objective of this standard is to provide a consistent indexing strategy that:
+Its purpose is to establish a consistent and maintainable implementation approach for all database indexes by standardizing index naming, supported index types, implementation options, storage considerations, and database-specific capabilities.
 
-- Improves query performance.
-- Supports efficient transaction processing.
-- Optimizes analytical workloads.
-- Prevents redundant or unnecessary indexes.
-- Reduces maintenance overhead.
-- Ensures consistency across all database objects.
-- Aligns with PostgreSQL 17 best practices.
-- Supports long-term scalability of the Phoenix Platform.
-
-This specification applies to all database schemas developed within the
-Phoenix Platform, including reference, market, analytics, operational,
-configuration, security, audit, and future extension schemas.
+Unlike **IndexDevelopmentStandard**, which defines **when** and **why** indexes shall be created, this document specifies **how** indexes shall be implemented.
 
 ---
 
 # 2. Scope
 
-This standard applies to every database object that may require indexing,
-including but not limited to:
+This specification applies to all indexes created for database objects maintained within the Phoenix Platform, including:
 
 - Tables
 - Materialized Views
 - Partitioned Tables
-- Large Operational Tables
 - Historical Tables
 - Analytical Tables
 
-This document defines:
+This specification covers:
 
-- Index naming conventions.
-- Index classifications.
-- Design principles.
-- Implementation rules.
-- PostgreSQL index types.
-- Performance recommendations.
-- Maintenance guidelines.
-- Architecture compliance requirements.
+- Index naming conventions
+- Supported index types
+- Index implementation options
+- SQL implementation guidelines
+- Database-specific capabilities
+- Performance-related implementation recommendations
+
+This specification does **not** define:
+
+- Business justification for index creation
+- Index creation policies
+- Index lifecycle management
+- Architecture decisions
+
+These topics are governed by **IndexDevelopmentStandard**.
 
 ---
 
 # 3. Objectives
 
-The primary objectives of this standard are:
+The objectives of this specification are to:
 
-1. Provide predictable query performance.
-
-2. Standardize index implementation across the repository.
-
-3. Support high-volume analytical processing.
-
-4. Minimize unnecessary storage consumption.
-
-5. Reduce write overhead caused by excessive indexing.
-
-6. Ensure every index has a clearly defined business or technical purpose.
-
-7. Maintain long-term consistency throughout the Phoenix Platform.
+- Standardize index implementation across the Phoenix Platform.
+- Promote consistent use of PostgreSQL indexing capabilities.
+- Improve maintainability and readability of database objects.
+- Encourage efficient and predictable index implementation.
+- Reduce implementation inconsistencies.
+- Provide a common technical reference for database developers.
+- Support long-term evolution of database indexing strategies.
 
 ---
 
-# 4. Index Classification
+# 4. Relationship to IndexDevelopmentStandard
 
-Indexes within the Phoenix Platform are classified into six categories.
+The relationship between the two documents is defined as follows.
 
-Each category serves a specific architectural purpose and follows dedicated
-implementation rules.
+| Document | Responsibility |
+|----------|----------------|
+| IndexDevelopmentStandard | Defines why and when indexes shall be created. |
+| IndexSpecifications | Defines how approved indexes shall be implemented. |
 
----
+This specification shall never redefine architectural policies established by **IndexDevelopmentStandard**.
 
-## 4.1 Primary Key Indexes
-
-Primary Key indexes uniquely identify each record within a table.
-
-Characteristics:
-
-- Automatically created by PostgreSQL.
-- Clustered by logical identifier.
-- One per table.
-- Mandatory.
-
-Example
-
-```sql
-CONSTRAINT PK_Company
-PRIMARY KEY (company_id);
-```
-
----
-
-## 4.2 Unique Indexes
-
-Unique indexes enforce business uniqueness while improving lookup performance.
-
-Characteristics
-
-- Automatically created by UNIQUE constraints.
-- Mandatory for all business keys.
-- Should be implemented using constraints rather than CREATE UNIQUE INDEX whenever possible.
-
-Examples
-
-```sql
-public_id
-
-code
-
-ticker
-
-isin
-```
-
-Example
-
-```sql
-CONSTRAINT UQ_Instrument_PublicId
-UNIQUE (public_id);
-```
-
----
-
-## 4.3 Foreign Key Indexes
-
-Foreign Key indexes improve JOIN performance and reduce locking during UPDATE
-and DELETE operations.
-
-PostgreSQL does not automatically create indexes for foreign keys.
-
-Therefore,
-
-Every Foreign Key in the Phoenix Platform SHALL have a corresponding index,
-unless a documented architectural exception has been approved.
-
-Example
-
-```sql
-exchange_id
-
-market_id
-
-board_id
-
-industry_id
-
-sector_id
-
-company_id
-```
-
-Example
-
-```sql
-CREATE INDEX IX_Instrument_Company
-ON reference.Instrument (company_id);
-```
-
----
-
-## 4.4 Business Search Indexes
-
-Business Search indexes support the most common application queries.
-
-Typical examples include searches by:
-
-- Business Code
-- Name
-- Short Name
-- External Identifier
-- Trading Symbol
-- ISIN
-
-Business Search indexes shall be created only when justified by application
-workloads.
-
----
-
-## 4.5 Composite Indexes
-
-Composite indexes optimize queries that filter or sort using multiple columns.
-
-Column order shall always follow expected query selectivity.
-
-Example
-
-```text
-(exchange_id, calendar_date)
-```
-
-is preferred over
-
-```text
-(calendar_date, exchange_id)
-```
-
-when Exchange is always specified in application queries.
-
-Composite indexes shall not duplicate existing indexes.
-
----
-
-## 4.6 Specialized Indexes
-
-Specialized indexes are intended for advanced workloads.
-
-Supported PostgreSQL index families include:
-
-- B-tree
-- Hash
-- GIN
-- GiST
-- SP-GiST
-- BRIN
-
-Specialized indexes shall be introduced only when justified by workload
-analysis and documented design decisions.
+Implementation shall always comply with the policies defined by that standard.
 
 ---
 
 # 5. Index Naming Convention
 
-All indexes within the Phoenix Platform shall follow a consistent naming
-convention to improve repository readability, maintainability, and operational
-support.
+All indexes shall follow a consistent naming convention to ensure readability, maintainability, and administrative efficiency.
 
-Index names shall be unique within the owning schema.
+Index names shall uniquely identify:
 
-The following naming standards are mandatory.
+- The indexed object
+- The indexed columns
+- The index purpose
 
----
-
-## 5.1 Primary Key
-
-Format
-
-```text
-PK_<TableName>
-```
-
-Example
-
-```text
-PK_Exchange
-PK_Market
-PK_Company
-PK_Instrument
-```
+Names shall be deterministic and easily understandable without requiring inspection of the underlying definition.
 
 ---
 
-## 5.2 Unique Constraint
+## 5.1 General Naming Rules
 
-Format
+All index names shall:
 
-```text
-UQ_<TableName>_<BusinessKey>
-```
-
-Examples
-
-```text
-UQ_Exchange_PublicId
-
-UQ_Exchange_Code
-
-UQ_Instrument_ISIN
-
-UQ_TradingCalendar_Exchange_Date
-```
+- Use lowercase characters.
+- Use snake_case formatting.
+- Be descriptive and concise.
+- Avoid abbreviations unless officially standardized.
+- Avoid database reserved keywords.
+- Be unique within the schema.
 
 ---
 
-## 5.3 Foreign Key
+## 5.2 Naming Pattern
 
-Format
+The canonical naming pattern is:
 
 ```text
-FK_<ChildTable>_<ParentTable>
+IX_<table_name>_<column_name>
 ```
 
-Examples
+For composite indexes:
 
 ```text
-FK_Market_Exchange
+IX_<table_name>_<column1>_<column2>
+```
 
-FK_Board_Market
+Examples:
 
-FK_Company_Industry
+```text
+IX_symbol_symbol_code
 
-FK_Instrument_Company
+IX_market_exchange_id
 
-FK_TradingCalendar_Exchange
-
-FK_HolidayCalendar_Exchange
+IX_daily_market_data_symbol_id_trade_date
 ```
 
 ---
 
-## 5.4 Standard Index
+## 5.3 Unique Indexes
 
-Format
+Indexes supporting UNIQUE constraints shall follow the same naming convention.
 
-```text
-IX_<TableName>_<ColumnName>
-```
-
-Examples
+Examples:
 
 ```text
-IX_Company_Name
+IX_exchange_exchange_code
 
-IX_Company_EnglishName
-
-IX_Instrument_Ticker
-
-IX_TradingCalendar_CalendarDate
+IX_symbol_isin
 ```
+
+Constraint names remain governed by **ConstraintDevelopmentStandard**.
 
 ---
 
-## 5.5 Composite Index
+## 5.4 Composite Indexes
 
-Format
+Composite index names shall preserve the column order defined by the index.
+
+Example:
 
 ```text
-IX_<TableName>_<Column1>_<Column2>
+IX_daily_market_data_symbol_id_trade_date
 ```
 
-Examples
+Column ordering shall not be rearranged for naming convenience.
+
+---
+
+## 5.5 Expression Indexes
+
+Expression indexes should indicate the indexed expression whenever practical.
+
+Example:
 
 ```text
-IX_TradingCalendar_Exchange_CalendarDate
-
-IX_Company_Exchange_Code
-
-IX_Instrument_Company_Ticker
+IX_symbol_lower_symbol_code
 ```
 
----
-
-## 5.6 Partial Index
-
-Format
-
-```text
-PIX_<TableName>_<ColumnName>
-```
-
-Examples
-
-```text
-PIX_Company_IsActive
-
-PIX_Instrument_IsActive
-```
+Names should remain concise while clearly identifying the indexed expression.
 
 ---
 
-## 5.7 Specialized Index
+## 5.6 Partial Indexes
 
-Specialized indexes shall use the following prefixes.
+Partial indexes shall follow the standard naming convention.
 
-| Prefix | Index Type |
-|---------|------------|
-| GIN | Generalized Inverted Index |
-| GIST | Generalized Search Tree |
-| SPGIST | Space-partitioned GiST |
-| BRIN | Block Range Index |
-| HASH | Hash Index |
+Conditions shall not normally be included in the index name.
 
-Examples
-
-```text
-GIN_Announcement_Content
-
-GIN_News_Content
-
-BRIN_DailyMarketData_TradeDate
-```
+Documentation shall describe the associated filtering condition.
 
 ---
 
-# 6. General Design Rules
+## 5.7 Partitioned Tables
 
-The following architectural rules apply to every index created within the
-Phoenix Platform.
+Indexes created for partitioned tables shall follow the same naming convention as regular tables.
 
----
-
-## Rule IX-001
-
-Every index shall have a clearly documented business or technical purpose.
-
-Indexes shall never be created "just in case."
+Partition implementation details are governed by **PartitionStrategy**.
 
 ---
 
-## Rule IX-002
+## 5.8 Deprecated Indexes
 
-Duplicate indexes are prohibited.
+Deprecated indexes shall retain their original names until formally removed.
 
-Before creating a new index, existing indexes shall be reviewed.
-
----
-
-## Rule IX-003
-
-Indexes shall support actual application queries.
-
-Indexes shall be derived from workload analysis rather than assumptions.
+Renaming existing indexes solely to comply with newer naming conventions should be avoided unless justified by broader refactoring activities.
 
 ---
 
-## Rule IX-004
+# 6. Supported PostgreSQL Index Types
 
-Column order within composite indexes shall follow query selectivity.
+Phoenix Platform adopts the indexing capabilities provided by PostgreSQL.
 
-The most selective columns should normally appear first unless application
-access patterns require a different order.
+Index selection shall be based on the workload characteristics and the intended access pattern.
 
----
-
-## Rule IX-005
-
-Indexes shall be as narrow as practical.
-
-Avoid indexing unnecessary columns.
+The appropriate index type shall be selected according to the requirements of each database object.
 
 ---
 
-## Rule IX-006
+## 6.1 B-Tree Index
 
-Business constraints shall be implemented using PRIMARY KEY or UNIQUE
-constraints rather than manually created unique indexes whenever possible.
+B-tree is the default and preferred index type for general-purpose workloads.
 
----
+It shall be used for:
 
-## Rule IX-007
+- Equality comparisons (`=`)
+- Range searches (`<`, `<=`, `>`, `>=`)
+- BETWEEN predicates
+- ORDER BY operations
+- DISTINCT operations
+- Most JOIN operations
 
-Every Foreign Key should have a supporting index unless an approved
-architectural exception has been documented.
-
----
-
-## Rule IX-008
-
-Index names shall remain stable throughout the lifetime of the database.
-
-Renaming indexes without architectural justification is discouraged.
+Unless another index type provides a clear advantage, B-tree shall be considered the default implementation.
 
 ---
 
-# 7. PostgreSQL Best Practices
+## 6.2 Hash Index
 
-The following best practices shall be followed for all indexes created within
-the Phoenix Platform.
+Hash indexes are optimized for equality comparisons.
+
+They should only be considered when:
+
+- Queries exclusively perform equality lookups.
+- Range searches are not required.
+- Performance analysis demonstrates measurable benefits over B-tree.
+
+Hash indexes shall not be used as the default index type.
 
 ---
 
-## 7.1 Prefer B-Tree Indexes
+## 6.3 GiST Index
 
-B-tree indexes shall be used as the default index type unless another index
-type provides a measurable benefit.
+GiST (Generalized Search Tree) indexes support extensible search operations.
 
 Typical use cases include:
 
-- Equality searches
-- Range searches
-- ORDER BY
-- JOIN operations
+- Geometric data
+- Spatial searches
+- Range types
+- Network address types
+- Full-text search extensions
+
+GiST indexes shall only be implemented when supported by the application data model.
 
 ---
 
-## 7.2 Use BRIN for Very Large Historical Tables
+## 6.4 SP-GiST Index
 
-BRIN indexes are recommended for append-only historical tables containing
-millions of rows where physical ordering follows insertion order.
+SP-GiST indexes are suitable for partitioned search spaces and specialized data structures.
 
-Typical examples include:
+Typical use cases include:
 
-- DailyMarketData
-- IntradayMarketData
-- TickData
+- Hierarchical structures
+- Non-balanced data distributions
+- Specialized search algorithms
+
+SP-GiST shall only be used when justified by workload analysis.
 
 ---
 
-## 7.3 Use GIN for Search Operations
+## 6.5 GIN Index
 
-GIN indexes should be used for:
+GIN (Generalized Inverted Index) is optimized for multi-valued data structures.
 
-- Full-text search
-- JSONB
+Typical use cases include:
+
+- JSONB documents
 - Arrays
+- Full-text search
+- Composite values
 
-Examples include:
-
-- News
-- Announcements
-- Financial Reports
+GIN indexes should be preferred whenever searching within document-oriented data.
 
 ---
 
-## 7.4 Avoid Indexing Low Cardinality Columns
+## 6.6 BRIN Index
 
-Indexes should generally not be created for columns having very few distinct
-values.
+BRIN (Block Range Index) is intended for very large tables where data exhibits natural physical ordering.
 
-Examples include:
+Typical use cases include:
 
-- is_active
-- is_deleted
-- is_weekend
-- gender
+- Historical data
+- Time-series data
+- Append-only tables
+- Large analytical datasets
 
-Partial indexes may be considered when justified.
-
----
-
-## 7.5 Avoid Over-Indexing
-
-Each additional index increases:
-
-- INSERT cost
-- UPDATE cost
-- DELETE cost
-- Storage consumption
-- VACUUM overhead
-
-Indexes shall therefore be created only when justified.
+BRIN indexes provide minimal storage overhead and should be considered for very large datasets.
 
 ---
 
-# 8. Index Maintenance
+## 6.7 Bloom Index
 
-Indexes require periodic monitoring and maintenance.
+Bloom indexes may be used when supported by the target PostgreSQL deployment.
 
-Recommended activities include:
+They are intended for workloads involving multiple equality predicates across numerous columns.
 
-- Detect unused indexes.
-- Remove duplicate indexes.
-- Monitor index bloat.
-- Rebuild fragmented indexes when necessary.
-- Review execution plans.
-- Update database statistics.
-
-Maintenance activities should be scheduled as part of regular database
-administration procedures.
+Bloom indexes shall only be introduced following performance validation.
 
 ---
 
-# 9. Index Review Checklist
+## 6.8 Index Type Selection
 
-Every new index shall be reviewed using the following checklist.
+The following table provides general guidance for index selection.
 
-| Question | Required |
-|----------|----------|
-| Does the index support a documented query? | Yes |
-| Is an equivalent index already present? | No |
-| Is the naming convention correct? | Yes |
-| Is the index type appropriate? | Yes |
-| Does the index improve performance? | Yes |
-| Is storage overhead acceptable? | Yes |
-| Has PostgreSQL best practice been followed? | Yes |
-| Has the index been documented? | Yes |
-
----
-
-# 10. Compliance
-
-All database objects created within the Phoenix Platform shall comply with this
-standard.
-
-Any deviation from this specification shall be documented and approved through
-the Architecture Decision Record (ADR) process.
-
-Database reviews, architecture audits, and code reviews shall verify compliance
-with this standard before implementation.
+| Requirement | Recommended Index |
+|-------------|-------------------|
+| Equality search | B-tree |
+| Range search | B-tree |
+| Sorting | B-tree |
+| Join operations | B-tree |
+| JSONB search | GIN |
+| Array search | GIN |
+| Full-text search | GIN / GiST |
+| Spatial search | GiST |
+| Time-series analytics | BRIN |
+| Extremely large historical tables | BRIN |
+| Specialized hierarchical search | SP-GiST |
 
 ---
 
-# 11. References
+## 6.9 Future Compatibility
 
-The following Phoenix standards and architecture documents are related to this
-specification.
+Future PostgreSQL index types may be adopted following architectural review and performance validation.
 
-- SQLScriptDevelopmentStandard
-- DatabaseDDLDevelopmentStandard
+This specification shall evolve as PostgreSQL introduces new indexing capabilities.
+
+---
+
+# 7. PostgreSQL Index Implementation Options
+
+This section defines the PostgreSQL-specific implementation options that may be used when creating indexes within the Phoenix Platform.
+
+These options shall be selected according to workload characteristics and implementation requirements.
+
+---
+
+## 7.1 Unique Indexes
+
+Unique indexes enforce value uniqueness while providing efficient lookup performance.
+
+They shall be used when uniqueness is required independently of a PRIMARY KEY constraint.
+
+Example:
+
+```sql
+CREATE UNIQUE INDEX IX_symbol_isin
+ON symbol (isin);
+```
+
+---
+
+## 7.2 Partial Indexes
+
+Partial indexes index only rows satisfying a specified condition.
+
+They are recommended when:
+
+- Only a subset of rows is frequently queried.
+- The filtering condition is stable.
+- Storage optimization is desirable.
+
+Example:
+
+```sql
+CREATE INDEX IX_symbol_active
+ON symbol (symbol_code)
+WHERE is_active = TRUE;
+```
+
+---
+
+## 7.3 Expression Indexes
+
+Expression indexes index the result of an expression rather than the underlying column.
+
+Typical use cases include:
+
+- Case-insensitive searches
+- Calculated values
+- Derived expressions
+
+Example:
+
+```sql
+CREATE INDEX IX_symbol_lower_symbol_code
+ON symbol (LOWER(symbol_code));
+```
+
+---
+
+## 7.4 INCLUDE Columns
+
+PostgreSQL supports covering indexes through the INCLUDE clause.
+
+Included columns participate in index-only scans without affecting index ordering.
+
+Example:
+
+```sql
+CREATE INDEX IX_daily_market_data_symbol_date
+ON daily_market_data
+(
+    symbol_id,
+    trade_date
+)
+INCLUDE
+(
+    close_price,
+    volume
+);
+```
+
+---
+
+## 7.5 Concurrent Index Creation
+
+Indexes on production systems should normally be created using the CONCURRENTLY option whenever operational requirements prohibit extended table locking.
+
+Example:
+
+```sql
+CREATE INDEX CONCURRENTLY IX_symbol_symbol_code
+ON symbol (symbol_code);
+```
+
+Implementation teams shall evaluate operational trade-offs before selecting concurrent index creation.
+
+---
+
+## 7.6 Fillfactor
+
+Fillfactor specifies the percentage of each index page to be initially filled.
+
+Default PostgreSQL values should normally be used unless workload analysis demonstrates measurable benefit from customization.
+
+Changes to Fillfactor shall be documented.
+
+---
+
+## 7.7 Tablespace
+
+Indexes may be assigned to dedicated tablespaces when required for operational or storage optimization.
+
+Tablespace selection shall comply with the organization's storage strategy.
+
+---
+
+## 7.8 Storage Parameters
+
+PostgreSQL storage parameters shall only be customized when supported by documented performance analysis.
+
+Default storage settings should remain the preferred configuration.
+
+---
+
+## 7.9 Reindex Operations
+
+Indexes requiring rebuild due to fragmentation or corruption shall be recreated using PostgreSQL REINDEX capabilities.
+
+Maintenance operations shall be performed according to operational procedures.
+
+---
+
+## 7.10 Implementation Guidelines
+
+When implementing indexes:
+
+- Prefer the simplest implementation.
+- Use PostgreSQL defaults whenever appropriate.
+- Avoid unnecessary implementation complexity.
+- Document non-default implementation choices.
+- Validate implementation using execution plans and performance testing.
+
+Database-specific implementation shall remain consistent across the Phoenix Platform.
+
+---
+
+# 8. Performance Recommendations
+
+The following recommendations support efficient and maintainable index implementations within the Phoenix Platform.
+
+These recommendations complement, but do not replace, the architectural policies defined in **IndexDevelopmentStandard**.
+
+---
+
+## 8.1 Use the Simplest Suitable Index
+
+The simplest index implementation capable of satisfying the workload shall be preferred.
+
+Complex index structures should only be introduced when supported by measurable performance improvements.
+
+---
+
+## 8.2 Minimize Index Maintenance Overhead
+
+Each additional index increases the cost of data modification operations.
+
+Index implementations should therefore minimize unnecessary maintenance while preserving query performance.
+
+---
+
+## 8.3 Prefer Default PostgreSQL Settings
+
+Default PostgreSQL index configuration should be used unless documented performance analysis demonstrates a clear advantage from customization.
+
+Custom configuration shall be justified and documented.
+
+---
+
+## 8.4 Validate Using Execution Plans
+
+Index effectiveness shall be validated using PostgreSQL execution plans.
+
+Validation should confirm that indexes are utilized as intended and provide measurable performance improvements.
+
+---
+
+## 8.5 Monitor Index Utilization
+
+Index usage should be periodically monitored to identify:
+
+- Unused indexes
+- Duplicate indexes
+- Inefficient indexes
+- Opportunities for optimization
+
+Indexes that no longer provide measurable value should be reviewed.
+
+---
+
+## 8.6 Periodically Reassess Index Design
+
+Database workloads evolve over time.
+
+Index implementations should be periodically reviewed to ensure continued alignment with application requirements and performance objectives.
+
+---
+
+# 9. Compliance
+
+Compliance with this specification is mandatory for all database index implementations within the Phoenix Platform.
+
+Database developers and reviewers shall ensure that all implemented indexes conform to this specification.
+
+Implementation deviations shall require documented technical justification and architectural approval.
+
+---
+
+# 10. Related Standards
+
+This specification should be used together with the following documents:
+
+- IndexDevelopmentStandard
+- EnterpriseTableConvention
 - TableDevelopmentStandard
 - ConstraintDevelopmentStandard
-- EnterpriseTableConvention
-- PostgreSQLDevelopmentGuidelines
-- ADR-015 — Market Classification Model
-- ADR-026 — Reference Data Normalization Model
+- QueryExecutionStrategy
+- PartitionStrategy
+- DatabaseStandardsGovernance
 
 ---
 
-# 12. Revision History
+# 11. Revision History
 
 | Version | Date | Description |
 |----------|------------|--------------------------------------------------------------|
-| 1.0 | 2026-07-24 | Initial enterprise version. |
-
----
-
-# 13. Approval
-
-This document is approved as the official enterprise standard governing
-database index design throughout the Phoenix Platform.
-
-All future database development activities shall comply with the principles,
-rules, and requirements defined in this specification.
-
-Changes to this standard shall be reviewed and approved through the Phoenix
-Architecture Governance process.
-
----
-
-# 14. Summary
-
-This specification establishes a consistent enterprise-wide indexing strategy
-for the Phoenix Platform.
-
-By standardizing index naming, classification, implementation rules, PostgreSQL
-best practices, and review procedures, the platform achieves:
-
-- Consistent repository structure.
-- Predictable query performance.
-- Reduced maintenance complexity.
-- Improved scalability.
-- Better architectural governance.
-- Long-term maintainability.
-
-Compliance with this specification is mandatory for all current and future
-database objects developed within the Phoenix Platform.
-
----
+| 2026.1 | 2026-07-25 | Complete rewrite. Refactored as the canonical technical specification for PostgreSQL index implementation. |
 
