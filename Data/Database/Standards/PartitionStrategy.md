@@ -59,7 +59,32 @@ tables unless explicitly approved through the Architecture Decision Record
 
 ---
 
-# 3. Objectives
+---
+
+# 3. Relationship to StorageStrategy
+
+PartitionStrategy and StorageStrategy are complementary standards that govern different aspects of database architecture within the Phoenix Platform.
+
+PartitionStrategy defines the logical organization of data by determining how large database objects are divided into smaller, manageable partitions based on business or operational criteria.
+
+StorageStrategy defines the physical placement and management of database objects, including storage allocation, tablespaces, data files, storage optimization, and long-term capacity planning.
+
+Although partitioning may influence storage behavior, it shall not define physical storage policies.
+
+Likewise, StorageStrategy shall not define partitioning rules or partition lifecycle management.
+
+The relationship between the two standards is summarized below.
+
+| Standard | Primary Responsibility |
+|----------|------------------------|
+| PartitionStrategy | Logical partitioning of database objects |
+| StorageStrategy | Physical storage organization and allocation |
+
+Implementation decisions shall comply with both standards whenever partitioned database objects are deployed.
+
+---
+
+# 4. Objectives
 
 The primary objectives of this standard are:
 
@@ -80,7 +105,7 @@ Phoenix Platform.
 
 ---
 
-# 4. Partitioning Principles
+# 5. Partitioning Principles
 
 Partitioning is an architectural optimization technique intended for very
 large datasets.
@@ -96,13 +121,13 @@ possible.
 
 ---
 
-# 5. Partition Classification
+# 6. Partition Classification
 
 The Phoenix Platform recognizes the following partitioning strategies.
 
 ---
 
-## 5.1 Range Partitioning
+## 6.1 Range Partitioning
 
 Range partitioning divides data according to continuous value ranges.
 
@@ -125,7 +150,7 @@ Range partitioning is the preferred strategy for time-series data.
 
 ---
 
-## 5.2 List Partitioning
+## 6.2 List Partitioning
 
 List partitioning divides data according to discrete values.
 
@@ -147,7 +172,7 @@ small and relatively stable.
 
 ---
 
-## 5.3 Hash Partitioning
+## 6.3 Hash Partitioning
 
 Hash partitioning distributes data evenly across multiple partitions.
 
@@ -162,7 +187,7 @@ partitioning satisfies workload requirements.
 
 ---
 
-# 6. When Partitioning Shall Be Used
+# 7. When Partitioning Shall Be Used
 
 Partitioning is recommended when one or more of the following conditions
 exist.
@@ -179,7 +204,7 @@ Partitioning shall always be justified by measurable operational benefits.
 
 ---
 
-# 7. When Partitioning Shall NOT Be Used
+# 8. When Partitioning Shall NOT Be Used
 
 Partitioning shall not be used for:
 
@@ -197,7 +222,7 @@ avoided.
 
 ---
 
-# 8. Phoenix Partition Strategy
+# 9. Phoenix Partition Strategy
 
 The Phoenix Platform adopts a conservative partitioning strategy.
 
@@ -211,7 +236,7 @@ actual workload characteristics.
 
 ---
 
-## 8.1 Reference Schema
+## 9.1 Reference Schema
 
 The following tables shall not be partitioned.
 
@@ -232,7 +257,7 @@ and primarily serve as master reference data.
 
 ---
 
-## 8.2 Operational Schema
+## 9.2 Operational Schema
 
 Operational tables shall be evaluated individually.
 
@@ -252,7 +277,7 @@ Range Partitioning by Business Date or Trading Date.
 
 ---
 
-## 8.3 Analytics Schema
+## 9.3 Analytics Schema
 
 Analytical datasets may be partitioned when query performance or maintenance
 requirements justify partitioning.
@@ -270,7 +295,7 @@ Range Partitioning combined with periodic archival.
 
 ---
 
-## 8.4 Audit Schema
+## 9.4 Audit Schema
 
 Audit and logging tables shall normally be partitioned by time.
 
@@ -290,7 +315,7 @@ depending on expected data volume.
 
 ---
 
-# 9. Partition Naming Convention
+# 10. Partition Naming Convention
 
 Partition names shall remain predictable and human-readable.
 
@@ -318,7 +343,7 @@ Partition names shall not contain implementation-specific identifiers.
 
 ---
 
-# 10. Partition Lifecycle
+# 11. Partition Lifecycle
 
 Every partitioned table shall define an operational lifecycle.
 
@@ -338,7 +363,7 @@ policy.
 
 ---
 
-# 11. Retention Strategy
+# 12. Retention Strategy
 
 Retention policies shall be determined according to business requirements.
 
@@ -357,14 +382,14 @@ procedures and may vary according to regulatory or business requirements.
 
 ---
 
-# 12. Best Practices
+# 13. Best Practices
 
 The following best practices shall be observed for all partitioned database
 objects within the Phoenix Platform.
 
 ---
 
-## 12.1 Prefer Simplicity
+## 13.1 Prefer Simplicity
 
 Partitioning introduces architectural and operational complexity.
 
@@ -373,7 +398,7 @@ benefits.
 
 ---
 
-## 12.2 Partition by Business Access Pattern
+## 13.2 Partition by Business Access Pattern
 
 Partition keys shall be selected according to actual application access
 patterns rather than physical storage considerations alone.
@@ -383,7 +408,7 @@ used by business operations.
 
 ---
 
-## 12.3 Avoid Excessive Partitions
+## 13.3 Avoid Excessive Partitions
 
 Creating an excessive number of partitions increases planning overhead,
 metadata management complexity, and maintenance cost.
@@ -393,7 +418,7 @@ performance.
 
 ---
 
-## 12.4 Align Partition Boundaries
+## 13.4 Align Partition Boundaries
 
 Partition boundaries should follow natural business periods whenever
 possible.
@@ -408,7 +433,7 @@ Daily partitions should be introduced only for extremely high-volume data.
 
 ---
 
-## 12.5 Automate Partition Maintenance
+## 13.5 Automate Partition Maintenance
 
 Creation of future partitions, retirement of obsolete partitions, and
 maintenance activities should be automated whenever practical.
@@ -418,7 +443,7 @@ new data arrives.
 
 ---
 
-# 13. Anti-Patterns
+# 14. Anti-Patterns
 
 The following practices are prohibited.
 
@@ -433,7 +458,7 @@ The following practices are prohibited.
 
 ---
 
-# 14. Partition Review Checklist
+# 15. Partition Review Checklist
 
 Every partitioning decision shall be reviewed before implementation.
 
@@ -450,7 +475,7 @@ Every partitioning decision shall be reviewed before implementation.
 
 ---
 
-# 15. Compliance
+# 16. Compliance
 
 All partitioned database objects developed within the Phoenix Platform shall
 comply with this standard.
@@ -463,7 +488,7 @@ compliance with this standard before implementation.
 
 ---
 
-# 16. References
+# 17. References
 
 The following Phoenix standards and architecture documents are related to
 this specification.
@@ -479,7 +504,7 @@ this specification.
 
 ---
 
-# 17. Revision History
+# 18. Revision History
 
 | Version | Date | Description |
 |----------|------------|--------------------------------------------------------------|
@@ -487,7 +512,7 @@ this specification.
 
 ---
 
-# 18. Approval
+# 19. Approval
 
 This document is approved as the official enterprise standard governing
 database partitioning throughout the Phoenix Platform.
@@ -500,7 +525,7 @@ Phoenix Architecture Governance process.
 
 ---
 
-# 19. Summary
+# 20. Summary
 
 This specification establishes the enterprise partitioning strategy for the
 Phoenix Platform.
