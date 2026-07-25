@@ -69,7 +69,27 @@ performance tuning activities.
 
 ---
 
-# 3. Objectives
+# 3. Relationship to Other Database Standards
+
+QueryExecutionStrategy defines how PostgreSQL executes SQL statements, evaluates execution plans, and selects execution strategies during runtime.
+
+This standard does not define the implementation of database objects.
+
+Implementation details for database objects are governed by dedicated standards, including:
+
+| Standard | Responsibility |
+|----------|----------------|
+| IndexSpecifications | Index implementation |
+| TableDevelopmentStandard | Table implementation |
+| ConstraintDevelopmentStandard | Constraint implementation |
+| PartitionStrategy | Partition architecture |
+| StorageStrategy | Physical storage architecture |
+
+QueryExecutionStrategy focuses on runtime execution behavior rather than physical database implementation.
+
+---
+
+# 4. Objectives
 
 The primary objectives of this standard are:
 
@@ -95,7 +115,7 @@ The primary objectives of this standard are:
 
 ---
 
-# 4. Query Optimization Principles
+# 5. Query Optimization Principles
 
 Query optimization is an integral part of enterprise database architecture.
 
@@ -118,7 +138,7 @@ Optimization decisions shall always preserve correctness and maintainability.
 
 ---
 
-# 5. PostgreSQL Query Planner
+# 6. PostgreSQL Query Planner
 
 The PostgreSQL Query Planner is responsible for determining the most efficient
 execution strategy for every SQL statement.
@@ -136,12 +156,16 @@ Planner decisions are based on:
 - Storage characteristics
 - Available system resources
 
+The Query Planner evaluates available database structures but does not define their implementation.
+
+Implementation details for indexes, partitions, and storage structures are governed by their respective standards.
+
 Application developers shall understand planner behavior before attempting
 manual query optimization.
 
 ---
 
-## 5.1 Planner Cost Model
+## 6.1 Planner Cost Model
 
 The PostgreSQL planner estimates execution cost using an internal cost model.
 
@@ -161,7 +185,7 @@ Lower estimated cost generally indicates a more efficient execution strategy.
 
 ---
 
-## 5.2 Statistics
+## 6.2 Statistics
 
 Accurate statistics are essential for effective query planning.
 
@@ -185,7 +209,7 @@ Manual ANALYZE may be executed following:
 
 ---
 
-# 6. Execution Plan Analysis
+# 7. Execution Plan Analysis
 
 Execution plans shall be reviewed whenever:
 
@@ -202,7 +226,7 @@ expectations.
 
 ---
 
-## 6.1 EXPLAIN
+## 7.1 EXPLAIN
 
 The EXPLAIN command displays the estimated execution plan selected by the
 planner.
@@ -220,7 +244,7 @@ EXPLAIN should be the first step of every performance investigation.
 
 ---
 
-## 6.2 EXPLAIN ANALYZE
+## 7.2 EXPLAIN ANALYZE
 
 EXPLAIN ANALYZE executes the SQL statement and reports actual execution
 statistics.
@@ -242,7 +266,11 @@ the statement is actually executed.
 
 ---
 
-# 7. Scan Strategies
+# 8. Scan Strategies
+
+The following scan strategies describe execution behaviors selected by the PostgreSQL Query Planner.
+
+These sections explain execution plan interpretation and shall not be interpreted as implementation guidance for database indexes.
 
 The PostgreSQL Query Planner selects an appropriate scan strategy based on
 table statistics, index availability, data distribution, and estimated cost.
@@ -251,7 +279,7 @@ Understanding scan strategies is essential for interpreting execution plans.
 
 ---
 
-## 7.1 Sequential Scan
+## 8.1 Sequential Scan
 
 Sequential Scan reads every row of a table.
 
@@ -267,7 +295,7 @@ performance issue without workload analysis.
 
 ---
 
-## 7.2 Index Scan
+## 8.2 Index Scan
 
 Index Scan retrieves qualifying rows through an index.
 
@@ -282,7 +310,7 @@ Index Scan should be expected for highly selective predicates.
 
 ---
 
-## 7.3 Index Only Scan
+## 8.3 Index Only Scan
 
 Index Only Scan retrieves all required information directly from an index
 without accessing the underlying table.
@@ -298,7 +326,7 @@ executed read-only queries.
 
 ---
 
-## 7.4 Bitmap Index Scan
+## 8.4 Bitmap Index Scan
 
 Bitmap Index Scan combines index lookups with bitmap processing before
 accessing table pages.
@@ -314,7 +342,7 @@ and Index Scan.
 
 ---
 
-## 7.5 Scan Selection
+## 8.5 Scan Selection
 
 Developers shall not force scan methods unless justified by measurable
 performance improvements.
@@ -324,7 +352,7 @@ strategy.
 
 ---
 
-# 8. Join Strategies
+# 9. Join Strategies
 
 The planner automatically selects an appropriate join algorithm.
 
@@ -338,7 +366,7 @@ Selection depends upon:
 
 ---
 
-## 8.1 Nested Loop Join
+## 9.1 Nested Loop Join
 
 Nested Loop Join is appropriate when:
 
@@ -348,7 +376,7 @@ Nested Loop Join is appropriate when:
 
 ---
 
-## 8.2 Merge Join
+## 9.2 Merge Join
 
 Merge Join requires sorted input.
 
@@ -360,7 +388,7 @@ Typical characteristics:
 
 ---
 
-## 8.3 Hash Join
+## 9.3 Hash Join
 
 Hash Join builds an in-memory hash table for one relation before processing
 the second relation.
@@ -375,7 +403,7 @@ Adequate working memory is essential for efficient Hash Join execution.
 
 ---
 
-# 9. Parallel Execution
+# 10. Parallel Execution
 
 PostgreSQL supports parallel query execution for suitable workloads.
 
@@ -393,7 +421,7 @@ benefit.
 
 ---
 
-## 9.1 Parallel Workers
+## 10.1 Parallel Workers
 
 The planner estimates the optimal number of parallel workers based on:
 
@@ -406,7 +434,7 @@ Application code shall not assume that parallel execution will always occur.
 
 ---
 
-## 9.2 Parallel Safety
+## 10.2 Parallel Safety
 
 Database functions used within SQL statements should be classified correctly
 regarding parallel execution.
@@ -419,14 +447,14 @@ review.
 
 ---
 
-# 10. Query Optimization Best Practices
+# 11. Query Optimization Best Practices
 
 The following best practices shall be followed for all SQL statements
 developed within the Phoenix Platform.
 
 ---
 
-## 10.1 Optimize for Readability First
+## 11.1 Optimize for Readability First
 
 SQL statements shall remain clear, maintainable, and self-explanatory.
 
@@ -435,7 +463,7 @@ performance improvements justify the additional complexity.
 
 ---
 
-## 10.2 Optimize Only After Measurement
+## 11.2 Optimize Only After Measurement
 
 Performance optimization shall always be based on measurable evidence.
 
@@ -446,7 +474,7 @@ Assumptions shall not be used as justification for SQL optimization.
 
 ---
 
-## 10.3 Avoid Premature Optimization
+## 11.3 Avoid Premature Optimization
 
 Queries shall not be optimized before a demonstrated performance requirement
 exists.
@@ -454,9 +482,11 @@ exists.
 Database design, indexing strategy, and statistics should be reviewed before
 modifying SQL statements.
 
+Index implementation decisions remain governed by IndexSpecifications.
+
 ---
 
-## 10.4 Keep Statistics Current
+## 11.4 Keep Statistics Current
 
 Accurate planner statistics are essential for reliable execution plans.
 
@@ -464,7 +494,7 @@ Routine maintenance shall ensure that database statistics remain current.
 
 ---
 
-## 10.5 Review Performance After Schema Changes
+## 11.5 Review Performance After Schema Changes
 
 Execution plans should be reviewed following significant database changes,
 including:
@@ -477,7 +507,7 @@ including:
 
 ---
 
-# 11. Anti-Patterns
+# 12. Anti-Patterns
 
 The following practices are prohibited unless supported by documented
 performance analysis.
@@ -492,7 +522,7 @@ performance analysis.
 
 ---
 
-# 12. Query Review Checklist
+# 13. Query Review Checklist
 
 Every performance-sensitive SQL statement shall be reviewed before
 deployment.
@@ -510,7 +540,7 @@ deployment.
 
 ---
 
-# 13. Compliance
+# 14. Compliance
 
 All SQL statements developed within the Phoenix Platform shall comply with
 this standard.
@@ -523,7 +553,7 @@ shall verify compliance before deployment.
 
 ---
 
-# 14. References
+# 15. References
 
 The following Phoenix standards and architecture documents are related to
 this specification.
