@@ -6,7 +6,7 @@
  * Object Name      : Exchange
  * Schema           : ref
  * Version          : 2026.1
- * Status           : Under Synchronization
+ * Status           : Approved
  *
  * Description
  * -------------------------------------------------------------------------------------------------
@@ -162,19 +162,19 @@ CREATE TABLE ref.exchange
     CONSTRAINT uk_exchange_code
         UNIQUE
         (
-            code
+            exchange_code
         ),
 
     CONSTRAINT ck_exchange_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(code)) > 0
+            LENGTH(TRIM(exchange_code)) > 0
         ),
 
     CONSTRAINT ck_exchange_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(name)) > 0
+            LENGTH(TRIM(exchange_name)) > 0
         ),
 
     CONSTRAINT ck_exchange_display_order
@@ -186,8 +186,8 @@ CREATE TABLE ref.exchange
     CONSTRAINT ck_exchange_country_code
         CHECK
         (
-            country_code IS NULL
-            OR country_code ~ '^[A-Z]{2}$'
+            country_id IS NULL
+            OR country_id ~ '^[A-Z]{2}$'
         )
 );
 --------------------------------------------------------------------------------
@@ -212,11 +212,11 @@ COMMENT ON COLUMN ref.exchange.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.exchange.code
+COMMENT ON COLUMN ref.exchange.exchange_code
 IS
 'Unique business code identifying the exchange.';
 
-COMMENT ON COLUMN ref.exchange.name
+COMMENT ON COLUMN ref.exchange.exchange_name
 IS
 'Official business name of the exchange.';
 
@@ -224,11 +224,11 @@ COMMENT ON COLUMN ref.exchange.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.exchange.english_name
+COMMENT ON COLUMN ref.exchange.local_name
 IS
 'Official English name of the exchange when applicable.';
 
-COMMENT ON COLUMN ref.exchange.country_code
+COMMENT ON COLUMN ref.exchange.country_id
 IS
 'ISO 3166-1 Alpha-2 country code representing the country in which the exchange operates.';
 
@@ -243,6 +243,7 @@ IS
 COMMENT ON COLUMN ref.exchange.description
 IS
 'Optional business description of the exchange.';
+
 COMMENT ON COLUMN ref.exchange.is_active
 IS
 'Indicates whether the exchange is currently active and available for business operations.';
