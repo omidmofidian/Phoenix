@@ -133,10 +133,10 @@ CREATE TABLE ref.exchange
                                 NOT NULL
                                 DEFAULT CURRENT_TIMESTAMP,
 
+    updated_at              TIMESTAMPTZ,
+
     created_by              BIGINT
                                 NOT NULL,
-
-    updated_at              TIMESTAMPTZ,
 
     updated_by              BIGINT,
     version                 INTEGER

@@ -4,7 +4,7 @@
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : Market
- * Schema           : reference
+ * Schema           : market
  * Version          : 2026.1
  * Status           : Approved
  *
@@ -18,9 +18,11 @@
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
+ * - Architecture Decision Records (ADR)
+ * - Domain Model
+ * - Enterprise Data Dictionary
+ * - Logical Database Model
  * - Physical Database Model
- * - PostgreSQLPhysicalDatabaseDesign.md
- * - PostgreSQLDesignDecisions.md
  * - TablePhysicalSpecifications.md
  * - ConstraintSpecifications.md
  * - DDLTemplateSpecification.md
@@ -28,14 +30,14 @@
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
- *     - Schema : reference
- *     - Table  : reference.exchange
+ *     - Schema : market
+ *     - Table  : ref.exchange
  *
  * Referenced Objects
- *     - reference.exchange
+ *     - ref.exchange
  *
  * Referenced By
- *     - reference.trading_board
+ *     - market.trading_board
  *     - Additional market classification entities
  *
  * Standards
@@ -66,13 +68,13 @@
  *                        architecture.
  **************************************************************************************************/
 
-CREATE TABLE reference.market
+CREATE TABLE market.market
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    id                      BIGINT
+    market_id                      BIGINT
                                 GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
@@ -80,7 +82,8 @@ CREATE TABLE reference.market
     ----------------------------------------------------------------------------
 
     public_id               UUID
-                                NOT NULL,
+                                NOT NULL
+                                DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
@@ -89,15 +92,15 @@ CREATE TABLE reference.market
     exchange_id             BIGINT
                                 NOT NULL,
 
-    code                    VARCHAR(20)
+    market_code                    VARCHAR(20)
                                 NOT NULL,
 
-    name                    VARCHAR(200)
+    market_name                    VARCHAR(200)
                                 NOT NULL,
 
     short_name              VARCHAR(100),
 
-    english_name            VARCHAR(200),
+    local_name             VARCHAR(200),
 
     display_order           SMALLINT
                                 NOT NULL
@@ -121,17 +124,16 @@ CREATE TABLE reference.market
                                 NOT NULL
                                 DEFAULT CURRENT_TIMESTAMP,
 
+    updated_at              TIMESTAMPTZ,
+
     created_by              BIGINT
                                 NOT NULL,
-
-    updated_at              TIMESTAMPTZ,
 
     updated_by              BIGINT,
 
     version                 INTEGER
                                 NOT NULL
                                 DEFAULT 1,
-                                    
                                     
                                     
     ----------------------------------------------------------------------------
