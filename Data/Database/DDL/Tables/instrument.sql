@@ -112,12 +112,15 @@ CREATE TABLE ref.instrument
                                     DEFAULT 1,
 
     description                 VARCHAR(500),
-
+    
     ----------------------------------------------------------------------------
     -- Classification Reference
     ----------------------------------------------------------------------------
 
     company_id                  BIGINT
+                                    NOT NULL,
+
+    instrument_type_id          BIGINT 
                                     NOT NULL,
 
     ----------------------------------------------------------------------------
@@ -222,6 +225,18 @@ CREATE TABLE ref.instrument
             company_id
         )
         ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_instrument_instrument_type
+        FOREIGN KEY 
+        (
+            instrument_type_id
+        )
+        REFERENCES ref.instrument_type 
+        (
+            instrument_type_id
+        )
+        ON UPDATE RESTRICT
         ON DELETE RESTRICT
 );
 
@@ -283,6 +298,10 @@ IS
 COMMENT ON COLUMN ref.instrument.company_id
 IS
 'Reference to the parent company that issued the financial instrument.';
+
+COMMENT ON COLUMN ref.instrument.instrument_type_id
+IS
+'Reference to the standardized financial instrument type assigned to the instrument.';
 
 COMMENT ON COLUMN ref.instrument.is_active
 IS
