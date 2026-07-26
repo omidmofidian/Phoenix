@@ -306,7 +306,7 @@ IS
 
 COMMENT ON COLUMN market.company.local_name
 IS
-'Official local name of the company when applicable.';
+'Official local-language name of the company.';
 
 COMMENT ON COLUMN market.company.national_id
 IS

@@ -220,7 +220,7 @@ IS
 
 COMMENT ON COLUMN ref.exchange.local_name
 IS
-'Official English name of the exchange when applicable.';
+'Official local-language name of the exchange.';
 
 COMMENT ON COLUMN ref.exchange.country_id
 IS
