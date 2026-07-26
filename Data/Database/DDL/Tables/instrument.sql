@@ -4,7 +4,7 @@
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : Instrument
- * Schema           : reference
+ * Schema           : ref
  * Version          : 2026.1
  * Status           : Approved
  *
@@ -13,16 +13,18 @@
  * Creates the canonical Instrument reference table.
  *
  * The Instrument table represents the tradable financial instruments supported
- * by the Phoenix Platform. Each instrument belongs to exactly one Company and
- * represents the security traded on a specific trading board. This entity is the
- * master reference for market data, corporate actions, analytics, portfolio
- * management, and trading services.
+ * by the Phoenix Platform. Each instrument belongs to exactly one Company and 
+ * represents a tradable financial security issued by that company.
+ * This entity is the master reference for market data, corporate actions, 
+ * analytics, portfolio management, and trading services.
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
+ * - Architecture Decision Records (ADR)
+ * - Domain Model
+ * - Enterprise Data Dictionary
+ * - Logical Database Model
  * - Physical Database Model
- * - PostgreSQLPhysicalDatabaseDesign.md
- * - PostgreSQLDesignDecisions.md
  * - TablePhysicalSpecifications.md
  * - ConstraintSpecifications.md
  * - DDLTemplateSpecification.md
@@ -30,17 +32,15 @@
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
- *     - Schema : reference
- *     - Table  : reference.company
+ *     - Schema : ref
+ *     - Table  : market.company
  *
  * Referenced Objects
- *     - reference.company
+ *     - market.company
  *
  * Referenced By
  *     - market.daily_market_data
  *     - market.corporate_action
- *     - portfolio.position
- *     - analytics.feature
  *     - Additional transactional entities
  *
  * Standards
@@ -71,13 +71,13 @@
  *                        architecture.
  **************************************************************************************************/
 
-CREATE TABLE reference.instrument
+CREATE TABLE ref.instrument
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    id                          BIGINT
+    instrument_id                          BIGINT
                                     GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
@@ -85,24 +85,25 @@ CREATE TABLE reference.instrument
     ----------------------------------------------------------------------------
 
     public_id                   UUID
-                                    NOT NULL,
+                                    NOT NULL
+                                    DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    code                        VARCHAR(50)
+    instrument_code                        VARCHAR(50)
                                     NOT NULL,
 
     ticker                      VARCHAR(50)
                                     NOT NULL,
 
-    name                        VARCHAR(250)
+    instrument_name                        VARCHAR(200)
                                     NOT NULL,
 
     short_name                  VARCHAR(100),
 
-    english_name                VARCHAR(250),
+    local_name                  VARCHAR(200),
 
     isin                        VARCHAR(12),
 
@@ -135,10 +136,10 @@ CREATE TABLE reference.instrument
                                     NOT NULL
                                     DEFAULT CURRENT_TIMESTAMP,
 
+    updated_at                  TIMESTAMPTZ,
+
     created_by                  BIGINT
                                     NOT NULL,
-
-    updated_at                  TIMESTAMPTZ,
 
     updated_by                  BIGINT,
 
@@ -153,7 +154,7 @@ CREATE TABLE reference.instrument
     CONSTRAINT pk_instrument
         PRIMARY KEY
         (
-            id
+            instrument_id
         ),
 
     CONSTRAINT uk_instrument_public_id
@@ -165,7 +166,7 @@ CREATE TABLE reference.instrument
     CONSTRAINT uk_instrument_code
         UNIQUE
         (
-            code
+            instrument_code
         ),
 
     CONSTRAINT uk_instrument_ticker
@@ -183,7 +184,7 @@ CREATE TABLE reference.instrument
     CONSTRAINT ck_instrument_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(code)) > 0
+            LENGTH(TRIM(instrument_code)) > 0
         ),
 
     CONSTRAINT ck_instrument_ticker_not_empty
@@ -195,7 +196,7 @@ CREATE TABLE reference.instrument
     CONSTRAINT ck_instrument_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(name)) > 0
+            LENGTH(TRIM(instrument_name)) > 0
         ),
 
     CONSTRAINT ck_instrument_display_order
@@ -204,14 +205,21 @@ CREATE TABLE reference.instrument
             display_order > 0
         ),
 
+    CONSTRAINT ck_instrument_isin_length
+        CHECK
+        (
+            isin IS NULL
+            OR LENGTH(TRIM(isin)) = 12
+        ),
+
     CONSTRAINT fk_instrument_company
         FOREIGN KEY
         (
             company_id
         )
-        REFERENCES reference.company
+        REFERENCES market.company
         (
-            id
+            company_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT
@@ -221,82 +229,82 @@ CREATE TABLE reference.instrument
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE reference.instrument
+COMMENT ON TABLE ref.instrument
 IS
 'Reference table containing the tradable financial instruments supported by the
-Phoenix Platform. Each instrument belongs to exactly one company and serves as
-the authoritative master entity for market data, trading, analytics, portfolio
-management, and other investment services.';
+Phoenix Platform. Each instrument represents a tradable financial security
+issued by exactly one company and serves as the authoritative master entity for
+market data, corporate actions, analytics, and investment services.';
 
 --------------------------------------------------------------------------------
 -- Column Comments
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN reference.instrument.id
+COMMENT ON COLUMN ref.instrument.instrument_id
 IS
 'Internal surrogate primary key generated by PostgreSQL.';
 
-COMMENT ON COLUMN reference.instrument.public_id
+COMMENT ON COLUMN ref.instrument.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN reference.instrument.code
+COMMENT ON COLUMN ref.instrument.instrument_code
 IS
 'Unique internal business code identifying the financial instrument.';
 
-COMMENT ON COLUMN reference.instrument.ticker
+COMMENT ON COLUMN ref.instrument.ticker
 IS
 'Trading ticker or trading symbol assigned by the exchange.';
 
-COMMENT ON COLUMN reference.instrument.name
+COMMENT ON COLUMN ref.instrument.instrument_name
 IS
 'Official business name of the financial instrument.';
 
-COMMENT ON COLUMN reference.instrument.short_name
+COMMENT ON COLUMN ref.instrument.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN reference.instrument.english_name
+COMMENT ON COLUMN ref.instrument.local_name
 IS
-'Official English name of the financial instrument when applicable.';
+'Official local-language name of the financial instrument.';
 
-COMMENT ON COLUMN reference.instrument.isin
+COMMENT ON COLUMN ref.instrument.isin
 IS
-'International Securities Identification Number (ISIN).';
+'International Securities Identification Number (ISIN) assigned to the instrument.';
 
-COMMENT ON COLUMN reference.instrument.display_order
+COMMENT ON COLUMN ref.instrument.display_order
 IS
 'Display sequence used by applications when presenting financial instruments to users.';
 
-COMMENT ON COLUMN reference.instrument.description
+COMMENT ON COLUMN ref.instrument.description
 IS
 'Optional business description of the financial instrument.';
 
-COMMENT ON COLUMN reference.instrument.company_id
+COMMENT ON COLUMN ref.instrument.company_id
 IS
 'Reference to the parent company that issued the financial instrument.';
 
-COMMENT ON COLUMN reference.instrument.is_active
+COMMENT ON COLUMN ref.instrument.is_active
 IS
-'Indicates whether the financial instrument is currently active and available for trading and business operations.';
+'Indicates whether the financial instrument is currently active and available for use throughout the Phoenix Platform.';
 
-COMMENT ON COLUMN reference.instrument.created_at
+COMMENT ON COLUMN ref.instrument.created_at
 IS
 'Timestamp indicating when the record was created.';
 
-COMMENT ON COLUMN reference.instrument.created_by
+COMMENT ON COLUMN ref.instrument.created_by
 IS
 'Identifier of the user, service, or process that created the record.';
 
-COMMENT ON COLUMN reference.instrument.updated_at
+COMMENT ON COLUMN ref.instrument.updated_at
 IS
 'Timestamp indicating when the record was last modified.';
 
-COMMENT ON COLUMN reference.instrument.updated_by
+COMMENT ON COLUMN ref.instrument.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN reference.instrument.version
+COMMENT ON COLUMN ref.instrument.version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 
