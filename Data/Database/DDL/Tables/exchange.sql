@@ -18,16 +18,15 @@
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
- * - Physical Database Model
- * - PostgreSQLPhysicalDatabaseDesign.md
- * - PostgreSQLDesignDecisions.md
- * - TablePhysicalSpecifications.md
- * - ConstraintSpecifications.md
- * - DDLTemplateSpecification.md
  * - Architecture Decision Records (ADR)
  * - Domain Model
  * - Enterprise Data Dictionary
- *
+ * - Logical Database Model
+ * - Physical Database Model
+ * - TablePhysicalSpecifications.md
+ * - ConstraintSpecifications.md
+ * - DDLTemplateSpecification.md
+ * 
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
@@ -84,23 +83,31 @@ CREATE TABLE ref.exchange
     ----------------------------------------------------------------------------
 
     public_id               UUID
-                                NOT NULL,
+                                NOT NULL
+                                DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    code                    VARCHAR(20)
+    exchange_code                    VARCHAR(20)
                                 NOT NULL,
 
-    name                    VARCHAR(200)
+    exchange_name                    VARCHAR(200)
                                 NOT NULL,
 
     short_name              VARCHAR(100),
 
-    english_name            VARCHAR(200),
+    local_name            VARCHAR(200),
 
-    country_code            CHAR(2),
+    country_id            BIGINT
+                            NOT NULL,
+
+    currency_id           BIGINT 
+                            NOT NULL,
+
+    timezone_id            BIGINT
+                            NOT NULL,
 
     website                 VARCHAR(300),
 
