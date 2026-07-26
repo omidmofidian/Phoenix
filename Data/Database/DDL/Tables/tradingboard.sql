@@ -4,7 +4,7 @@
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingBoard
- * Schema           : reference
+ * Schema           : market
  * Version          : 2026.1
  * Status           : Approved
  *
@@ -19,9 +19,11 @@
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
+ * - Architecture Decision Records (ADR)
+ * - Domain Model
+ * - Enterprise Data Dictionary
+ * - Logical Database Model
  * - Physical Database Model
- * - PostgreSQLPhysicalDatabaseDesign.md
- * - PostgreSQLDesignDecisions.md
  * - TablePhysicalSpecifications.md
  * - ConstraintSpecifications.md
  * - DDLTemplateSpecification.md
@@ -29,14 +31,14 @@
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
- *     - Schema : reference
- *     - Table  : reference.market
+ *     - Schema : market
+ *     - Table  : market.market
  *
  * Referenced Objects
- *     - reference.market
+ *     - market.market
  *
  * Referenced By
- *     - reference.instrument
+ *     - market.instrument
  *     - Additional trading classification entities
  *
  * Standards
@@ -67,21 +69,22 @@
  *                        architecture.
  **************************************************************************************************/
 
-CREATE TABLE reference.trading_board
+CREATE TABLE market.trading_board
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    id                      BIGINT
+    trading_board_id                      BIGINT
                                 GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
     -- Public Identifier
     ----------------------------------------------------------------------------
 
-    public_id               UUID
-                                NOT NULL,
+    public_id                             UUID
+                                        NOT NULL
+                                        DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
@@ -90,15 +93,15 @@ CREATE TABLE reference.trading_board
     market_id               BIGINT
                                 NOT NULL,
 
-    code                    VARCHAR(20)
+    trading_board_code                    VARCHAR(20)
                                 NOT NULL,
 
-    name                    VARCHAR(200)
+    trading_board_name                    VARCHAR(200)
                                 NOT NULL,
 
     short_name              VARCHAR(100),
 
-    english_name            VARCHAR(200),
+    local_name              VARCHAR(200),
 
     display_order           SMALLINT
                                 NOT NULL
@@ -122,25 +125,25 @@ CREATE TABLE reference.trading_board
                                 NOT NULL
                                 DEFAULT CURRENT_TIMESTAMP,
 
-    created_by              BIGINT
-                                NOT NULL,
-
     updated_at              TIMESTAMPTZ,
 
+    created_by              BIGINT
+                                NOT NULL,
+ 
     updated_by              BIGINT,
 
     version                 INTEGER
                                 NOT NULL
                                 DEFAULT 1,
 
-        ----------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
     -- Constraints
     ----------------------------------------------------------------------------
 
     CONSTRAINT pk_trading_board
         PRIMARY KEY
         (
-            id
+            trading_board_id
         ),
 
     CONSTRAINT uk_trading_board_public_id
@@ -153,19 +156,19 @@ CREATE TABLE reference.trading_board
         UNIQUE
         (
             market_id,
-            code
+            trading_board_code
         ),
 
     CONSTRAINT ck_trading_board_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(code)) > 0
+            LENGTH(TRIM(trading_board_code)) > 0
         ),
 
     CONSTRAINT ck_trading_board_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(name)) > 0
+            LENGTH(TRIM(trading_board_name)) > 0
         ),
 
     CONSTRAINT ck_trading_board_display_order
@@ -179,9 +182,9 @@ CREATE TABLE reference.trading_board
         (
             market_id
         )
-        REFERENCES reference.market
+        REFERENCES market.market
         (
-            id
+            market_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT
@@ -191,7 +194,7 @@ CREATE TABLE reference.trading_board
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE reference.trading_board
+COMMENT ON TABLE market.trading_board
 IS
 'Reference table containing the trading boards supported by the Phoenix Platform.
 Each trading board belongs to exactly one market and provides the authoritative
@@ -201,63 +204,63 @@ classification for listing and trading financial instruments.';
 -- Column Comments
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN reference.trading_board.id
+COMMENT ON COLUMN market.trading_board.trading_board_id
 IS
 'Internal surrogate primary key generated by PostgreSQL.';
 
-COMMENT ON COLUMN reference.trading_board.public_id
+COMMENT ON COLUMN market.trading_board.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN reference.trading_board.market_id
+COMMENT ON COLUMN market.trading_board.market_id
 IS
 'Reference to the parent market to which the trading board belongs.';
 
-COMMENT ON COLUMN reference.trading_board.code
+COMMENT ON COLUMN market.trading_board.trading_board_code
 IS
 'Unique business code identifying the trading board within its parent market.';
 
-COMMENT ON COLUMN reference.trading_board.name
+COMMENT ON COLUMN market.trading_board.trading_board_name
 IS
 'Official business name of the trading board.';
 
-COMMENT ON COLUMN reference.trading_board.short_name
+COMMENT ON COLUMN market.trading_board.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN reference.trading_board.english_name
+COMMENT ON COLUMN market.trading_board.local_name
 IS
-'Official English name of the trading board when applicable.';
+'Official local-language name of the trading board.';
 
-COMMENT ON COLUMN reference.trading_board.display_order
+COMMENT ON COLUMN market.trading_board.display_order
 IS
 'Display sequence used by applications when presenting trading boards to users.';
 
-COMMENT ON COLUMN reference.trading_board.description
+COMMENT ON COLUMN market.trading_board.description
 IS
 'Optional business description of the trading board.';
 
-COMMENT ON COLUMN reference.trading_board.is_active
+COMMENT ON COLUMN market.trading_board.is_active
 IS
 'Indicates whether the trading board is currently active and available for business operations.';
 
-COMMENT ON COLUMN reference.trading_board.created_at
+COMMENT ON COLUMN market.trading_board.created_at
 IS
 'Timestamp indicating when the record was created.';
 
-COMMENT ON COLUMN reference.trading_board.created_by
+COMMENT ON COLUMN market.trading_board.created_by
 IS
 'Identifier of the user, service, or process that created the record.';
 
-COMMENT ON COLUMN reference.trading_board.updated_at
+COMMENT ON COLUMN market.trading_board.updated_at
 IS
 'Timestamp indicating when the record was last modified.';
 
-COMMENT ON COLUMN reference.trading_board.updated_by
+COMMENT ON COLUMN market.trading_board.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN reference.trading_board.version
+COMMENT ON COLUMN market.trading_board.version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 
