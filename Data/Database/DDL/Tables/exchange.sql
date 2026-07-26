@@ -4,7 +4,7 @@
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : Exchange
- * Schema           : reference
+ * Schema           : ref
  * Version          : 2026.1
  * Status           : Approved
  *
@@ -73,7 +73,7 @@ CREATE TABLE reference.exchange
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    id                      BIGINT
+    exchange_id                      BIGINT
                                 GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
@@ -184,7 +184,7 @@ CREATE TABLE reference.exchange
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE reference.exchange
+COMMENT ON TABLE ref.exchange
 IS
 'Reference table containing the stock exchanges supported by the Phoenix Platform.
 Each record represents one exchange and serves as the authoritative source for
