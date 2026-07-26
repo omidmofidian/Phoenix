@@ -182,13 +182,7 @@ CREATE TABLE ref.exchange
         (
             display_order > 0
         ),
-
-    CONSTRAINT ck_exchange_country_code
-        CHECK
-        (
-            country_id IS NULL
-            OR country_id ~ '^[A-Z]{2}$'
-        )
+    
 );
 --------------------------------------------------------------------------------
 -- Table Comment
