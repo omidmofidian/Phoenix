@@ -4,7 +4,7 @@
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : Company
- * Schema           : reference
+ * Schema           : market
  * Version          : 2026.1
  * Status           : Approved
  *
@@ -12,16 +12,19 @@
  * -------------------------------------------------------------------------------------------------
  * Creates the canonical Company reference table.
  *
- * The Company table represents the legal entities listed on supported exchanges.
+ * The Company table represents legal business entities recognized by the Phoenix Platform.
+ * A company may issue one or more financial instruments supported by the Phoenix Platform.
  * Each company is classified by Exchange, Market, Trading Board, Industry, and
  * Sector, providing the master business entity for financial instruments,
  * market data, and analytical services throughout the Phoenix Platform.
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
+ * - Architecture Decision Records (ADR)
+ * - Domain Model
+ * - Enterprise Data Dictionary
+ * - Logical Database Model
  * - Physical Database Model
- * - PostgreSQLPhysicalDatabaseDesign.md
- * - PostgreSQLDesignDecisions.md
  * - TablePhysicalSpecifications.md
  * - ConstraintSpecifications.md
  * - DDLTemplateSpecification.md
@@ -29,22 +32,22 @@
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
- *     - Schema : reference
- *     - Table  : reference.exchange
- *     - Table  : reference.market
- *     - Table  : reference.trading_board
- *     - Table  : reference.industry
- *     - Table  : reference.sector
+ *     - Schema : market
+ *     - Table  : ref.exchange
+ *     - Table  : market.market
+ *     - Table  : market.trading_board
+ *     - Table  : ref.industry
+ *     - Table  : ref.sector
  *
  * Referenced Objects
- *     - reference.exchange
- *     - reference.market
- *     - reference.trading_board
- *     - reference.industry
- *     - reference.sector
+ *     - ref.exchange
+ *     - market.market
+ *     - market.trading_board
+ *     - ref.industry
+ *     - ref.sector
  *
  * Referenced By
- *     - reference.instrument
+ *     - market.instrument
  *     - market.daily_market_data
  *     - Additional business entities
  *
@@ -76,13 +79,13 @@
  *                        architecture.
  **************************************************************************************************/
 
-CREATE TABLE reference.company
+CREATE TABLE market.company
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    id                          BIGINT
+    company_id                  BIGINT
                                     GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
@@ -90,21 +93,22 @@ CREATE TABLE reference.company
     ----------------------------------------------------------------------------
 
     public_id                   UUID
-                                    NOT NULL,
+                                    NOT NULL
+                                    DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    code                        VARCHAR(20)
+    company_code                        VARCHAR(20)
                                     NOT NULL,
 
-    name                        VARCHAR(250)
+    company_name                        VARCHAR(200)
                                     NOT NULL,
 
     short_name                  VARCHAR(100),
 
-    english_name                VARCHAR(250),
+    local_name                  VARCHAR(200),
 
     national_id                 VARCHAR(50),
 
@@ -171,7 +175,7 @@ CREATE TABLE reference.company
     CONSTRAINT pk_company
         PRIMARY KEY
         (
-            id
+            company_id
         ),
 
     CONSTRAINT uk_company_public_id
@@ -183,19 +187,19 @@ CREATE TABLE reference.company
     CONSTRAINT uk_company_code
         UNIQUE
         (
-            code
+            company_code
         ),
 
     CONSTRAINT ck_company_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(code)) > 0
+            LENGTH(TRIM(company_code)) > 0
         ),
 
     CONSTRAINT ck_company_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(name)) > 0
+            LENGTH(TRIM(company_name)) > 0
         ),
 
     CONSTRAINT ck_company_display_order
@@ -209,9 +213,9 @@ CREATE TABLE reference.company
         (
             exchange_id
         )
-        REFERENCES reference.exchange
+        REFERENCES ref.exchange
         (
-            id
+            exchange_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -221,9 +225,9 @@ CREATE TABLE reference.company
         (
             market_id
         )
-        REFERENCES reference.market
+        REFERENCES market.market
         (
-            id
+            market_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -233,9 +237,9 @@ CREATE TABLE reference.company
         (
             trading_board_id
         )
-        REFERENCES reference.trading_board
+        REFERENCES market.trading_board
         (
-            id
+            trading_board_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -245,9 +249,9 @@ CREATE TABLE reference.company
         (
             industry_id
         )
-        REFERENCES reference.industry
+        REFERENCES ref.industry
         (
-            id
+            industry_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -257,9 +261,9 @@ CREATE TABLE reference.company
         (
             sector_id
         )
-        REFERENCES reference.sector
+        REFERENCES ref.sector
         (
-            id
+            sector_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT
@@ -269,7 +273,7 @@ CREATE TABLE reference.company
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE reference.company
+COMMENT ON TABLE market.company
 IS
 'Reference table containing the legal companies supported by the Phoenix Platform.
 Each company is classified by exchange, market, trading board, industry, and
@@ -280,91 +284,91 @@ market data, and analytical services.';
 -- Column Comments
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN reference.company.id
+COMMENT ON COLUMN market.company.company_id
 IS
 'Internal surrogate primary key generated by PostgreSQL.';
 
-COMMENT ON COLUMN reference.company.public_id
+COMMENT ON COLUMN market.company.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN reference.company.code
+COMMENT ON COLUMN market.company.company_code
 IS
 'Unique business code identifying the company.';
 
-COMMENT ON COLUMN reference.company.name
+COMMENT ON COLUMN market.company.company_name
 IS
 'Official legal name of the company.';
 
-COMMENT ON COLUMN reference.company.short_name
+COMMENT ON COLUMN market.company.short_name
 IS
 'Abbreviated company name used by user interfaces and reports.';
 
-COMMENT ON COLUMN reference.company.english_name
+COMMENT ON COLUMN market.company.local_name
 IS
-'Official English name of the company when applicable.';
+'Official local name of the company when applicable.';
 
-COMMENT ON COLUMN reference.company.national_id
+COMMENT ON COLUMN market.company.national_id
 IS
 'National legal identifier assigned to the company.';
 
-COMMENT ON COLUMN reference.company.registration_number
+COMMENT ON COLUMN market.company.registration_number
 IS
 'Official company registration number issued by the registration authority.';
 
-COMMENT ON COLUMN reference.company.economic_code
+COMMENT ON COLUMN market.company.economic_code
 IS
 'Official economic or tax identification code assigned to the company.';
 
-COMMENT ON COLUMN reference.company.display_order
+COMMENT ON COLUMN market.company.display_order
 IS
 'Display sequence used by applications when presenting companies to users.';
 
-COMMENT ON COLUMN reference.company.description
+COMMENT ON COLUMN market.company.description
 IS
 'Optional business description of the company.';
 
-COMMENT ON COLUMN reference.company.exchange_id
+COMMENT ON COLUMN market.company.exchange_id
 IS
 'Reference to the parent exchange to which the company belongs.';
 
-COMMENT ON COLUMN reference.company.market_id
+COMMENT ON COLUMN market.company.market_id
 IS
 'Reference to the parent market to which the company belongs.';
 
-COMMENT ON COLUMN reference.company.trading_board_id
+COMMENT ON COLUMN market.company.trading_board_id
 IS
 'Reference to the parent trading board to which the company belongs.';
 
-COMMENT ON COLUMN reference.company.industry_id
+COMMENT ON COLUMN market.company.industry_id
 IS
 'Reference to the parent industry to which the company belongs.';
 
-COMMENT ON COLUMN reference.company.sector_id
+COMMENT ON COLUMN market.company.sector_id
 IS
 'Reference to the parent sector to which the company belongs.';
 
-COMMENT ON COLUMN reference.company.is_active
+COMMENT ON COLUMN market.company.is_active
 IS
 'Indicates whether the company is currently active and available for business operations.';
 
-COMMENT ON COLUMN reference.company.created_at
+COMMENT ON COLUMN market.company.created_at
 IS
 'Timestamp indicating when the record was created.';
 
-COMMENT ON COLUMN reference.company.created_by
+COMMENT ON COLUMN market.company.created_by
 IS
 'Identifier of the user, service, or process that created the record.';
 
-COMMENT ON COLUMN reference.company.updated_at
+COMMENT ON COLUMN market.company.updated_at
 IS
 'Timestamp indicating when the record was last modified.';
 
-COMMENT ON COLUMN reference.company.updated_by
+COMMENT ON COLUMN market.company.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN reference.company.version
+COMMENT ON COLUMN market.company.version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 
