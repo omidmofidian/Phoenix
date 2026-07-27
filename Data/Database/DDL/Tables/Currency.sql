@@ -102,7 +102,7 @@
     currency_name           VARCHAR(200)
                                 NOT NULL,
 
-    local_name              VARCHAR(200),
+    currency_local_name              VARCHAR(200),
 
     symbol                  VARCHAR(20),
 
@@ -265,7 +265,7 @@ COMMENT ON COLUMN ref.currency.currency_name
 IS
 'Official business name of the currency.';
 
-COMMENT ON COLUMN ref.currency.local_name
+COMMENT ON COLUMN ref.currency.currency_local_name
 IS
 'Official local-language name of the currency.';
 

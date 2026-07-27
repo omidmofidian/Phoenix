@@ -102,7 +102,7 @@ CREATE TABLE ref.time_zone
 
     short_name               VARCHAR(20),
 
-    local_name               VARCHAR(200),
+    time_zone_local_name               VARCHAR(200),
 
     display_order            SMALLINT
                                  NOT NULL
@@ -229,7 +229,7 @@ COMMENT ON COLUMN ref.time_zone.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.time_zone.local_name
+COMMENT ON COLUMN ref.time_zone.time_zone_local_name
 IS
 'Official local-language name of the time zone.';
 

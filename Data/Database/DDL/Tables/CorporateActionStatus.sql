@@ -96,7 +96,7 @@ CREATE TABLE ref.corporate_action_status
 
     short_name                       VARCHAR(50),
 
-    local_name                       VARCHAR(100),
+    corporate_action_status_local_name                       VARCHAR(100),
 
     display_order                    SMALLINT
                                         NOT NULL
@@ -213,7 +213,7 @@ COMMENT ON COLUMN ref.corporate_action_status.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.corporate_action_status.local_name
+COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_local_name
 IS
 'Official local-language name of the corporate action status.';
 

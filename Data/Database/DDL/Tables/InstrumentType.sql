@@ -98,7 +98,7 @@
 
     short_name                   VARCHAR(100),
 
-    local_name                   VARCHAR(200),
+    instrument_type_local_name                   VARCHAR(200),
 
     display_order                SMALLINT
                                      NOT NULL
@@ -215,7 +215,7 @@ COMMENT ON COLUMN ref.instrument_type.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.instrument_type.local_name
+COMMENT ON COLUMN ref.instrument_type.instrument_type_local_name
 IS
 'Official local-language name of the financial instrument type.';
 

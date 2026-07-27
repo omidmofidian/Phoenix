@@ -100,7 +100,7 @@ CREATE TABLE market.market
 
     short_name              VARCHAR(100),
 
-    local_name             VARCHAR(200),
+    market_local_name             VARCHAR(200),
 
     display_order           SMALLINT
                                 NOT NULL
@@ -228,7 +228,7 @@ COMMENT ON COLUMN market.market.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN market.market.local_name
+COMMENT ON COLUMN market.market.market_local_name
 IS
 'Official local-language name of the market.';
 

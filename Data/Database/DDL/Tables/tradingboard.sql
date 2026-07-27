@@ -101,7 +101,7 @@ CREATE TABLE market.trading_board
 
     short_name              VARCHAR(100),
 
-    local_name              VARCHAR(200),
+    trading_board_local_name              VARCHAR(200),
 
     display_order           SMALLINT
                                 NOT NULL
@@ -228,7 +228,7 @@ COMMENT ON COLUMN market.trading_board.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN market.trading_board.local_name
+COMMENT ON COLUMN market.trading_board.trading_board_local_name
 IS
 'Official local-language name of the trading board.';
 

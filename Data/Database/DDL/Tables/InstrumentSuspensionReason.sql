@@ -1,26 +1,24 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : MarketStatus.sql
+ * Script           : InstrumentSuspensionReason.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
- * Object Name      : MarketStatus
+ * Object Name      : InstrumentSuspensionReason
  * Schema           : ref
  * Version          : 2026.1
  * Status           : Approved
  *
  * Description
  * -------------------------------------------------------------------------------------------------
- * Creates the canonical MarketStatus reference table.
+ * Creates the canonical InstrumentSuspensionReason reference table.
  *
- * The MarketStatus table defines the standardized operational statuses that may
- * be assigned to a financial market during its lifecycle. These statuses are
- * used consistently across all supported markets, including stock exchanges,
- * derivatives markets, commodity exchanges, foreign exchange markets, and
- * cryptocurrency exchanges.
+ * The InstrumentSuspensionReason table defines the standardized business reasons
+ * that may cause a listed financial instrument to become suspended from trading.
+ * These reasons are used to classify suspension events consistently across all
+ * exchanges supported by the Phoenix Platform.
  *
- * The table provides the authoritative reference for describing whether a market
- * is open, closed, halted, suspended, under maintenance, or operating under
- * another predefined status.
+ * The table provides a controlled vocabulary for regulatory reporting,
+ * surveillance, analytics, notifications, and historical market analysis.
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
@@ -39,12 +37,10 @@
  *     - Schema : ref
  *
  * Referenced Objects
- *     None
+ *     - None
  *
  * Referenced By
- *     - market.market
- *     - market.trading_session
- *     - Additional business entities
+ *     - market.instrument_suspension
  *
  * Standards
  * -------------------------------------------------------------------------------------------------
@@ -62,7 +58,6 @@
  * - One table per file.
  * - Architecture-driven implementation.
  * - PostgreSQL 17 compatible.
- * - Designed for multi-market support.
  *
  * Author           : Phoenix Architecture Team
  * Created          : 2026-07-26
@@ -74,111 +69,115 @@
  * 2026.1    2026-07-26   Initial canonical implementation.
  **************************************************************************************************/
 
-CREATE TABLE ref.market_status
+CREATE TABLE ref.instrument_suspension_reason
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    market_status_id          BIGINT
-                                  GENERATED ALWAYS AS IDENTITY,
+    instrument_suspension_reason_id      BIGINT
+                                             GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
     -- Public Identifier
     ----------------------------------------------------------------------------
 
-    public_id                 UUID
-                                  NOT NULL
-                                  DEFAULT gen_random_uuid(),
+    public_id                            UUID
+                                             NOT NULL
+                                             DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    market_status_code        VARCHAR(30)
-                                  NOT NULL,
+    reason_code                          VARCHAR(50)
+                                             NOT NULL,
 
-    market_status_name        VARCHAR(200)
-                                  NOT NULL,
+    reason_name                          VARCHAR(100)
+                                             NOT NULL,
 
-    short_name               VARCHAR(100),
+    short_name                           VARCHAR(50),
 
-    market_status_local_name               VARCHAR(200),
+    display_order                        SMALLINT
+                                             NOT NULL
+                                             DEFAULT 1,
 
-    display_order            SMALLINT
-                                  NOT NULL
-                                  DEFAULT 1,
-
-    description              VARCHAR(500),
+    description                          VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                BOOLEAN
-                                  NOT NULL
-                                  DEFAULT TRUE,
+    is_active                            BOOLEAN
+                                             NOT NULL
+                                             DEFAULT TRUE,
 
     ----------------------------------------------------------------------------
     -- Audit Columns
     ----------------------------------------------------------------------------
 
-    created_at               TIMESTAMPTZ
-                                  NOT NULL
-                                  DEFAULT CURRENT_TIMESTAMP,
+    created_at                           TIMESTAMPTZ
+                                             NOT NULL
+                                             DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at               TIMESTAMPTZ,
+    updated_at                           TIMESTAMPTZ,
 
-    created_by               BIGINT
-                                  NOT NULL,
+    created_by                           BIGINT
+                                             NOT NULL,
 
-    updated_by               BIGINT,
+    updated_by                           BIGINT,
 
-    version                  INTEGER
-                                  NOT NULL
-                                  DEFAULT 1,
+    version                              INTEGER
+                                             NOT NULL
+                                             DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- Constraints
     ----------------------------------------------------------------------------
 
-    CONSTRAINT pk_market_status
+    CONSTRAINT pk_instrument_suspension_reason
         PRIMARY KEY
         (
-            market_status_id
+            instrument_suspension_reason_id
         ),
 
-    CONSTRAINT uq_market_status_public_id
+    CONSTRAINT uq_instrument_suspension_reason_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_market_status_code
+    CONSTRAINT uq_instrument_suspension_reason_code
         UNIQUE
         (
-            market_status_code
+            reason_code
         ),
 
-    CONSTRAINT ck_market_status_code_not_empty
+    CONSTRAINT uq_instrument_suspension_reason_name
+        UNIQUE
+        (
+            reason_name
+        ),
+
+    CONSTRAINT ck_instrument_suspension_reason_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(market_status_code)) > 0
+            LENGTH(TRIM(reason_code)) > 0
         ),
 
-    CONSTRAINT ck_market_status_name_not_empty
+    CONSTRAINT ck_instrument_suspension_reason_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(market_status_name)) > 0
+            LENGTH(TRIM(reason_name)) > 0
         ),
 
-    CONSTRAINT ck_market_status_display_order
+    CONSTRAINT ck_instrument_suspension_reason_display_order_positive
         CHECK
         (
             display_order > 0
         ),
 
-    CONSTRAINT ck_market_status_version_positive
+    CONSTRAINT ck_instrument_suspension_reason_version_positive
         CHECK
         (
             version > 0
@@ -189,70 +188,63 @@ CREATE TABLE ref.market_status
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE ref.market_status
+COMMENT ON TABLE ref.instrument_suspension_reason
 IS
-'Reference table containing the standardized market operational statuses
-supported by the Phoenix Platform. Each record represents an authoritative
-status describing the operational state of a financial market and is used
-consistently across all supported financial markets.';
+'Reference table defining the standardized business reasons for suspending a listed financial instrument. These reasons provide consistent classification of suspension events across all exchanges supported by the Phoenix Platform.';
 
 --------------------------------------------------------------------------------
 -- Column Comments
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.market_status.market_status_id
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_id
 IS
 'Internal surrogate primary key generated by PostgreSQL.';
 
-COMMENT ON COLUMN ref.market_status.public_id
+COMMENT ON COLUMN ref.instrument_suspension_reason.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.market_status.market_status_code
+COMMENT ON COLUMN ref.instrument_suspension_reason.reason_code
 IS
-'Unique business code identifying the market status.';
+'Unique business code identifying the instrument suspension reason.';
 
-COMMENT ON COLUMN ref.market_status.market_status_name
+COMMENT ON COLUMN ref.instrument_suspension_reason.reason_name
 IS
-'Official business name of the market status.';
+'Official business name of the instrument suspension reason.';
 
-COMMENT ON COLUMN ref.market_status.short_name
+COMMENT ON COLUMN ref.instrument_suspension_reason.short_name
 IS
-'Abbreviated name used by user interfaces and reports.';
+'Abbreviated name used by applications, reports, and user interfaces.';
 
-COMMENT ON COLUMN ref.market_status.market_status_local_name
+COMMENT ON COLUMN ref.instrument_suspension_reason.display_order
 IS
-'Official local-language name of the market status.';
+'Display sequence used when presenting suspension reasons within user interfaces and reports.';
 
-COMMENT ON COLUMN ref.market_status.display_order
+COMMENT ON COLUMN ref.instrument_suspension_reason.description
 IS
-'Display sequence used by applications when presenting market statuses to users.';
+'Optional business description providing additional information about the suspension reason.';
 
-COMMENT ON COLUMN ref.market_status.description
+COMMENT ON COLUMN ref.instrument_suspension_reason.is_active
 IS
-'Optional business description of the market status.';
+'Indicates whether the suspension reason is currently active and available for business operations within the Phoenix Platform.';
 
-COMMENT ON COLUMN ref.market_status.is_active
-IS
-'Indicates whether the market status is currently active and available for use throughout the Phoenix Platform.';
-
-COMMENT ON COLUMN ref.market_status.created_at
+COMMENT ON COLUMN ref.instrument_suspension_reason.created_at
 IS
 'Timestamp indicating when the record was created.';
 
-COMMENT ON COLUMN ref.market_status.created_by
+COMMENT ON COLUMN ref.instrument_suspension_reason.created_by
 IS
 'Identifier of the user, service, or process that created the record.';
 
-COMMENT ON COLUMN ref.market_status.updated_at
+COMMENT ON COLUMN ref.instrument_suspension_reason.updated_at
 IS
 'Timestamp indicating when the record was last modified.';
 
-COMMENT ON COLUMN ref.market_status.updated_by
+COMMENT ON COLUMN ref.instrument_suspension_reason.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.market_status.version
+COMMENT ON COLUMN ref.instrument_suspension_reason.version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

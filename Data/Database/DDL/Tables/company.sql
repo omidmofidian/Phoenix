@@ -108,7 +108,7 @@ CREATE TABLE market.company
 
     short_name                  VARCHAR(100),
 
-    local_name                  VARCHAR(200),
+    company_local_name                  VARCHAR(200),
 
     national_id                 VARCHAR(50),
 
@@ -304,7 +304,7 @@ COMMENT ON COLUMN market.company.short_name
 IS
 'Abbreviated company name used by user interfaces and reports.';
 
-COMMENT ON COLUMN market.company.local_name
+COMMENT ON COLUMN market.company.company_local_name
 IS
 'Official local-language name of the company.';
 

@@ -98,7 +98,7 @@ CREATE TABLE ref.industry
 
     short_name              VARCHAR(100),
 
-    local_name              VARCHAR(200),
+    industry_local_name              VARCHAR(200),
 
     display_order           SMALLINT
                                 NOT NULL
@@ -208,7 +208,7 @@ COMMENT ON COLUMN ref.industry.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.industry.local_name
+COMMENT ON COLUMN ref.industry.industry_local_name
 IS
 'Official local-language name of the industry.';
 

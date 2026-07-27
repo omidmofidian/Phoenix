@@ -103,7 +103,7 @@ CREATE TABLE ref.instrument
 
     short_name                  VARCHAR(100),
 
-    local_name                  VARCHAR(200),
+    instrument_local_name                  VARCHAR(200),
 
     isin                        VARCHAR(12),
 
@@ -279,7 +279,7 @@ COMMENT ON COLUMN ref.instrument.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.instrument.local_name
+COMMENT ON COLUMN ref.instrument.instrument_local_name
 IS
 'Official local-language name of the financial instrument.';
 

@@ -99,7 +99,7 @@ CREATE TABLE ref.calendar_type
 
     short_name               VARCHAR(50),
 
-    local_name               VARCHAR(100),
+    calendar_type_local_name               VARCHAR(100),
 
     display_order            SMALLINT
                                  NOT NULL
@@ -216,7 +216,7 @@ COMMENT ON COLUMN ref.calendar_type.short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.calendar_type.local_name
+COMMENT ON COLUMN ref.calendar_type.calendar_type_local_name
 IS
 'Official local-language name of the calendar system.';
 

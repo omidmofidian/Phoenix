@@ -1,20 +1,21 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : exchange.sql
+ * Script           : MarketEventType.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
- * Object Name      : Exchange
+ * Object Name      : MarketEventType
  * Schema           : ref
  * Version          : 2026.1
  * Status           : Approved
  *
  * Description
  * -------------------------------------------------------------------------------------------------
- * Creates the canonical Exchange reference table.
+ * Creates the canonical MarketEventType reference table.
  *
- * The Exchange table represents stock exchanges supported by the Phoenix Platform.
- * It serves as the root reference entity for market classification and provides the
- * authoritative source for exchange metadata used throughout the platform.
+ * The MarketEventType table defines the standardized business classifications
+ * of market events supported by the Phoenix Platform. These event types provide
+ * a common taxonomy for operational processing, analytics, notifications,
+ * workflow automation, regulatory reporting, and event-driven services.
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
@@ -26,20 +27,22 @@
  * - TablePhysicalSpecifications.md
  * - ConstraintSpecifications.md
  * - DDLTemplateSpecification.md
- * 
+ *
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
  *     - Schema : ref
- *     - Extension : pgcrypto (UUID generation, if applicable)
  *
  * Referenced Objects
- *     None
+ *     - None
  *
  * Referenced By
- *     - market.market
- *     - market.trading_board
- *     - Additional reference entities
+ *     - market.trading_halt
+ *     - market.instrument_suspension
+ *     - market.corporate_action
+ *     - market.corporate_announcement_reference
+ *     - market.market_snapshot
+ *     - Future event-driven services
  *
  * Standards
  * -------------------------------------------------------------------------------------------------
@@ -59,206 +62,194 @@
  * - PostgreSQL 17 compatible.
  *
  * Author           : Phoenix Architecture Team
- * Created          : 2026-07-24
+ * Created          : 2026-07-26
  *
  * Revision History
  * -------------------------------------------------------------------------------------------------
  * Version   Date         Description
  * -------   ----------   ---------------------------------------------------------
- * 2026.1    2026-07-24   Canonical implementation aligned with the Physical Design
- *                        architecture.
+ * 2026.1    2026-07-26   Initial canonical implementation.
  **************************************************************************************************/
 
-CREATE TABLE ref.exchange
+CREATE TABLE ref.market_event_type
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    exchange_id                      BIGINT
-                                GENERATED ALWAYS AS IDENTITY,
+    market_event_type_id             BIGINT
+                                         GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
     -- Public Identifier
     ----------------------------------------------------------------------------
 
-    public_id               UUID
-                                NOT NULL
-                                DEFAULT gen_random_uuid(),
+    public_id                        UUID
+                                         NOT NULL
+                                         DEFAULT gen_random_uuid(),
 
     ----------------------------------------------------------------------------
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    exchange_code                    VARCHAR(20)
-                                NOT NULL,
+    event_code                       VARCHAR(50)
+                                         NOT NULL,
 
-    exchange_name                    VARCHAR(200)
-                                NOT NULL,
+    event_name                       VARCHAR(100)
+                                         NOT NULL,
 
-    short_name              VARCHAR(100),
+    short_name                       VARCHAR(50),
 
-    exchange_local_name            VARCHAR(200),
+    display_order                    SMALLINT
+                                         NOT NULL
+                                         DEFAULT 1,
 
-    country_id            BIGINT
-                            NOT NULL,
-
-    currency_id           BIGINT 
-                            NOT NULL,
-
-    timezone_id            BIGINT
-                            NOT NULL,
-
-    website                 VARCHAR(300),
-
-    display_order           SMALLINT
-                                NOT NULL
-                                DEFAULT 1,
-
-    description             VARCHAR(500),
+    description                      VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
-                                NOT NULL
-                                DEFAULT TRUE,
+    is_active                        BOOLEAN
+                                         NOT NULL
+                                         DEFAULT TRUE,
 
     ----------------------------------------------------------------------------
     -- Audit Columns
     ----------------------------------------------------------------------------
 
-    created_at              TIMESTAMPTZ
-                                NOT NULL
-                                DEFAULT CURRENT_TIMESTAMP,
+    created_at                       TIMESTAMPTZ
+                                         NOT NULL
+                                         DEFAULT CURRENT_TIMESTAMP,
 
-    updated_at              TIMESTAMPTZ,
+    updated_at                       TIMESTAMPTZ,
 
-    created_by              BIGINT
-                                NOT NULL,
+    created_by                       BIGINT
+                                         NOT NULL,
 
-    updated_by              BIGINT,
-    version                 INTEGER
-                                NOT NULL
-                                DEFAULT 1,
+    updated_by                       BIGINT,
+
+    version                          INTEGER
+                                         NOT NULL
+                                         DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- Constraints
     ----------------------------------------------------------------------------
 
-    CONSTRAINT pk_exchange
+    CONSTRAINT pk_market_event_type
         PRIMARY KEY
         (
-            exchange_id
+            market_event_type_id
         ),
 
-    CONSTRAINT uk_exchange_public_id
+    CONSTRAINT uq_market_event_type_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uk_exchange_code
+    CONSTRAINT uq_market_event_type_code
         UNIQUE
         (
-            exchange_code
+            event_code
         ),
 
-    CONSTRAINT ck_exchange_code_not_empty
+    CONSTRAINT uq_market_event_type_name
+        UNIQUE
+        (
+            event_name
+        ),
+
+    CONSTRAINT ck_market_event_type_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(exchange_code)) > 0
+            LENGTH(TRIM(event_code)) > 0
         ),
 
-    CONSTRAINT ck_exchange_name_not_empty
+    CONSTRAINT ck_market_event_type_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(exchange_name)) > 0
+            LENGTH(TRIM(event_name)) > 0
         ),
 
-    CONSTRAINT ck_exchange_display_order
+    CONSTRAINT ck_market_event_type_display_order_positive
         CHECK
         (
             display_order > 0
         ),
-    
+
+    CONSTRAINT ck_market_event_type_version_positive
+        CHECK
+        (
+            version > 0
+        )
 );
+
 --------------------------------------------------------------------------------
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE ref.exchange
+COMMENT ON TABLE ref.market_event_type
 IS
-'Reference table containing the stock exchanges supported by the Phoenix Platform.
-Each record represents one exchange and serves as the authoritative source for
-exchange metadata across all platform services.';
+'Reference table defining the standardized business classifications of market
+events supported by the Phoenix Platform. Market event types provide a common
+taxonomy for event-driven processing, analytics, workflow automation,
+notifications, and regulatory reporting across all supported financial markets.';
 
 --------------------------------------------------------------------------------
 -- Column Comments
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.exchange.exchange_id
+COMMENT ON COLUMN ref.market_event_type.market_event_type_id
 IS
 'Internal surrogate primary key generated by PostgreSQL.';
 
-COMMENT ON COLUMN ref.exchange.public_id
+COMMENT ON COLUMN ref.market_event_type.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.exchange.exchange_code
+COMMENT ON COLUMN ref.market_event_type.event_code
 IS
-'Unique business code identifying the exchange.';
+'Unique business code identifying the market event type.';
 
-COMMENT ON COLUMN ref.exchange.exchange_name
+COMMENT ON COLUMN ref.market_event_type.event_name
 IS
-'Official business name of the exchange.';
+'Official business name of the market event type.';
 
-COMMENT ON COLUMN ref.exchange.short_name
+COMMENT ON COLUMN ref.market_event_type.short_name
 IS
-'Abbreviated name used by user interfaces and reports.';
+'Abbreviated business name used by applications, dashboards, reports, and user interfaces.';
 
-COMMENT ON COLUMN ref.exchange.exchange_local_name
+COMMENT ON COLUMN ref.market_event_type.display_order
 IS
-'Official local-language name of the exchange.';
+'Display sequence used when presenting market event types within user interfaces and reports.';
 
-COMMENT ON COLUMN ref.exchange.country_id
+COMMENT ON COLUMN ref.market_event_type.description
 IS
-'ISO 3166-1 Alpha-2 country code representing the country in which the exchange operates.';
+'Optional business description providing additional information about the market event type.';
 
-COMMENT ON COLUMN ref.exchange.website
+COMMENT ON COLUMN ref.market_event_type.is_active
 IS
-'Official website of the exchange.';
+'Indicates whether the market event type is currently active and available for business operations within the Phoenix Platform.';
 
-COMMENT ON COLUMN ref.exchange.display_order
-IS
-'Display sequence used by applications when presenting exchanges to users.';
-
-COMMENT ON COLUMN ref.exchange.description
-IS
-'Optional business description of the exchange.';
-
-COMMENT ON COLUMN ref.exchange.is_active
-IS
-'Indicates whether the exchange is currently active and available for business operations.';
-
-COMMENT ON COLUMN ref.exchange.created_at
+COMMENT ON COLUMN ref.market_event_type.created_at
 IS
 'Timestamp indicating when the record was created.';
 
-COMMENT ON COLUMN ref.exchange.created_by
+COMMENT ON COLUMN ref.market_event_type.created_by
 IS
 'Identifier of the user, service, or process that created the record.';
 
-COMMENT ON COLUMN ref.exchange.updated_at
+COMMENT ON COLUMN ref.market_event_type.updated_at
 IS
 'Timestamp indicating when the record was last modified.';
 
-COMMENT ON COLUMN ref.exchange.updated_by
+COMMENT ON COLUMN ref.market_event_type.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.exchange.version
+COMMENT ON COLUMN ref.market_event_type.version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

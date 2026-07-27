@@ -104,7 +104,7 @@ CREATE TABLE ref.country
     country_name            VARCHAR(200)
                                 NOT NULL,
 
-    local_name              VARCHAR(200),
+    country_local_name              VARCHAR(200),
 
     nationality             VARCHAR(100),
 
@@ -263,7 +263,7 @@ COMMENT ON COLUMN ref.country.country_name
 IS
 'Official English name of the country.';
 
-COMMENT ON COLUMN ref.country.local_name
+COMMENT ON COLUMN ref.country.country_local_name
 IS
 'Official local-language name of the country.';
 
