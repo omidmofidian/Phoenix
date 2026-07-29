@@ -10,3 +10,6 @@ CREATE DATABASE phoenix
 WITH
     ENCODING = 'UTF8'
     TEMPLATE = template0;
+
+COMMENT ON DATABASE phoenix IS
+'Phoenix Enterprise Database';
