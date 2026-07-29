@@ -1957,3 +1957,220 @@ approval through the repository governance process.
 
 ---
 
+# 17. References
+
+## 17.1 Purpose
+
+This section identifies the repository standards and architectural
+documents referenced by this standard.
+
+ForeignKeyDesignStandard SHALL be interpreted together with these
+documents to ensure a consistent enterprise database architecture.
+
+---
+
+## 17.2 Mandatory Standards
+
+The following standards are mandatory references:
+
+- EnterpriseNamingStandard
+- EnterpriseDataTypeStandard
+- MasterEntityColumnNamingStandard
+- AuditModelStandard
+
+Compliance with these standards is mandatory unless an approved
+Architecture Decision Record (ADR) explicitly authorizes an exception.
+
+---
+
+## 17.3 Related Database Standards
+
+The following database standards complement this document:
+
+- MasterEntityDesignStandard
+- ReferenceTableDesignStandard
+- FactTableDesignStandard
+- EventTableDesignStandard
+- BridgeTableDesignStandard
+
+Together these standards define the canonical database table architecture
+of the Phoenix Platform.
+
+---
+
+## 17.4 Related Constraint Standards
+
+The following standards are closely related to Foreign Key design:
+
+- PrimaryKeyDesignStandard
+- UniqueConstraintDesignStandard
+- CheckConstraintDesignStandard
+- IndexDesignStandard
+
+Foreign Keys SHALL be designed consistently with these standards.
+
+---
+
+## 17.5 Repository Standards
+
+Foreign Keys SHALL comply with repository-wide standards governing:
+
+- Repository organization
+- Documentation
+- Database architecture
+- Naming conventions
+- Governance
+
+Repository standards take precedence over local implementation
+preferences.
+
+---
+
+## 17.6 Architecture Decision Records
+
+Whenever this standard conflicts with an approved Architecture Decision
+Record (ADR), the ADR SHALL take precedence.
+
+Approved exceptions SHALL be documented through an ADR.
+
+---
+
+## 17.7 Future Revisions
+
+This standard SHALL evolve together with the Phoenix Platform.
+
+Future revisions SHOULD preserve backward compatibility whenever
+reasonably possible.
+
+Breaking changes SHALL undergo architectural review before adoption.
+
+---
+
+## 17.8 Summary
+
+ForeignKeyDesignStandard defines the canonical principles governing
+referential integrity, relationship modeling, and Foreign Key governance
+within the Phoenix Platform.
+
+It provides a single enterprise-wide standard for implementing business
+relationships consistently across all supported database schemas.
+
+---
+
+# 18. Appendix
+
+## 18.1 Canonical Foreign Key Example
+
+```sql
+CREATE TABLE instrument (
+
+    instrument_id BIGINT GENERATED ALWAYS AS IDENTITY,
+
+    market_id BIGINT NOT NULL,
+
+    issuer_id BIGINT NOT NULL,
+
+    instrument_type_id INTEGER NOT NULL,
+
+    created_at TIMESTAMP NOT NULL,
+
+    PRIMARY KEY (instrument_id),
+
+    CONSTRAINT fk_instrument_market
+        FOREIGN KEY (market_id)
+        REFERENCES market (market_id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_instrument_issuer
+        FOREIGN KEY (issuer_id)
+        REFERENCES issuer (issuer_id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_instrument_instrument_type
+        FOREIGN KEY (instrument_type_id)
+        REFERENCES instrument_type (instrument_type_id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
+```
+
+---
+
+## 18.2 Self-Referencing Example
+
+```sql
+CREATE TABLE organization (
+
+    organization_id BIGINT GENERATED ALWAYS AS IDENTITY,
+
+    parent_organization_id BIGINT NULL,
+
+    organization_name VARCHAR(200) NOT NULL,
+
+    PRIMARY KEY (organization_id),
+
+    CONSTRAINT fk_organization_parent
+        FOREIGN KEY (parent_organization_id)
+        REFERENCES organization (organization_id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
+```
+
+---
+
+## 18.3 Optional Relationship Example
+
+```sql
+CREATE TABLE issuer (
+
+    issuer_id BIGINT GENERATED ALWAYS AS IDENTITY,
+
+    holding_company_id BIGINT NULL,
+
+    PRIMARY KEY (issuer_id),
+
+    CONSTRAINT fk_issuer_holding_company
+        FOREIGN KEY (holding_company_id)
+        REFERENCES issuer (issuer_id)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
+```
+
+---
+
+## 18.4 Cross-Schema Example
+
+```sql
+CONSTRAINT fk_market_country
+    FOREIGN KEY (country_id)
+    REFERENCES reference.country (country_id)
+```
+
+Cross-schema Foreign Keys SHALL follow the same naming, integrity, and
+governance rules as Foreign Keys within a single schema.
+
+---
+
+## 18.5 Repository Principles
+
+Every Foreign Key implemented within the Phoenix Platform SHALL comply
+with the following principles:
+
+- Business-driven relationships
+- Referential integrity
+- Stable identifiers
+- Self-descriptive naming
+- Repository-wide consistency
+- Complete documentation
+- Architecture governance
+
+These principles constitute the canonical Foreign Key policy of the
+Phoenix Platform.
+
+---
+
+## End of Document

@@ -96,7 +96,7 @@ CREATE TABLE ref.exchange
     exchange_name                    VARCHAR(200)
                                 NOT NULL,
 
-    short_name              VARCHAR(100),
+    exchange_short_name              VARCHAR(100),
 
     exchange_local_name            VARCHAR(200),
 
@@ -109,19 +109,19 @@ CREATE TABLE ref.exchange
     timezone_id            BIGINT
                             NOT NULL,
 
-    website                 VARCHAR(300),
+    exchange_website                 VARCHAR(300),
 
-    display_order           SMALLINT
+    exchange_display_order           SMALLINT
                                 NOT NULL
                                 DEFAULT 1,
 
-    description             VARCHAR(500),
+    exchange_description             VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
+    exchange_is_active               BOOLEAN
                                 NOT NULL
                                 DEFAULT TRUE,
 
@@ -139,7 +139,7 @@ CREATE TABLE ref.exchange
                                 NOT NULL,
 
     updated_by              BIGINT,
-    version                 INTEGER
+    row_version                 INTEGER
                                 NOT NULL
                                 DEFAULT 1,
 
@@ -180,10 +180,10 @@ CREATE TABLE ref.exchange
     CONSTRAINT ck_exchange_display_order
         CHECK
         (
-            display_order > 0
+            exchange_display_order > 0
         ),
     
-);
+)
 --------------------------------------------------------------------------------
 -- Table Comment
 --------------------------------------------------------------------------------
@@ -214,7 +214,7 @@ COMMENT ON COLUMN ref.exchange.exchange_name
 IS
 'Official business name of the exchange.';
 
-COMMENT ON COLUMN ref.exchange.short_name
+COMMENT ON COLUMN ref.exchange.exchange_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -224,21 +224,29 @@ IS
 
 COMMENT ON COLUMN ref.exchange.country_id
 IS
-'ISO 3166-1 Alpha-2 country code representing the country in which the exchange operates.';
+'References the canonical country in which the exchange operates.';
 
-COMMENT ON COLUMN ref.exchange.website
+COMMENT ON COLUMN ref.exchange.currency_id
+IS
+'References the canonical currency in which the exchange operates.';
+
+COMMENT ON COLUMN ref.exchange.timezone_id
+IS
+'References the canonical time zone in which the exchange operates.';
+
+COMMENT ON COLUMN ref.exchange.exchange_website
 IS
 'Official website of the exchange.';
 
-COMMENT ON COLUMN ref.exchange.display_order
+COMMENT ON COLUMN ref.exchange.exchange_display_order
 IS
 'Display sequence used by applications when presenting exchanges to users.';
 
-COMMENT ON COLUMN ref.exchange.description
+COMMENT ON COLUMN ref.exchange.exchange_description
 IS
 'Optional business description of the exchange.';
 
-COMMENT ON COLUMN ref.exchange.is_active
+COMMENT ON COLUMN ref.exchange.exchange_is_active
 IS
 'Indicates whether the exchange is currently active and available for business operations.';
 
@@ -258,7 +266,7 @@ COMMENT ON COLUMN ref.exchange.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.exchange.version
+COMMENT ON COLUMN ref.exchange.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

@@ -292,13 +292,19 @@ The following metadata fields are mandatory.
 | Artifact ID | Unique enterprise identifier |
 | Document | Official document name |
 | Version | Current approved version |
-| Status | Draft, Review, Approved, Frozen, Deprecated |
+| Status | Status SHALL use one of the approved lifecycle states defined in Section 6.Proposal, Draft, Review, Approved, Frozen, Deprecated, Archived |
 | Classification | Architectural classification |
 | Owner | Responsible authority |
 | Governed By | Governing standard or framework |
 | Last Updated | Latest revision date |
 
 Documents missing mandatory metadata shall not be considered compliant.
+
+Last Updated SHALL use the ISO-8601 date format.
+
+Example:
+
+2026-07-28
 
 ---
 
@@ -333,6 +339,60 @@ Updates affecting:
 shall immediately update the metadata section.
 
 Metadata inconsistencies shall be reported during repository validation.
+
+---
+
+## 7.4 Canonical Metadata Template
+
+Every governed document SHALL use the canonical metadata template shown
+below.
+
+The metadata section SHALL appear immediately after the document title.
+
+| Property | Value |
+|----------|-------|
+| Project | Phoenix Platform |
+| Artifact ID | XXX-000 |
+| Document | CanonicalDocumentName |
+| Version | 2026.1 |
+| Status | Draft |
+| Classification | Enterprise Standard |
+| Owner | Enterprise Architecture Team |
+| Governed By | Governance Framework |
+| Last Updated | YYYY-MM-DD |
+
+Additional metadata fields MAY be included when required by the document
+classification.
+
+---
+
+## 7.5 Metadata Property Order
+
+Metadata properties SHALL appear in the following order.
+
+1. Project
+2. Artifact ID
+3. Document
+4. Version
+5. Status
+6. Classification
+7. Owner
+8. Governed By
+9. Last Updated
+
+Recommended properties SHALL appear after the mandatory properties.
+
+---
+
+## 7.6 Metadata Formatting
+
+Metadata SHALL be represented as a two-column Markdown table.
+
+The first column SHALL contain the property name.
+
+The second column SHALL contain the corresponding value.
+
+Alternative metadata layouts are prohibited.
 
 ---
 
@@ -542,6 +602,18 @@ EnterpriseDataDictionary.md
 
 Artifact identifiers shall remain within document metadata rather than file names.
 
+The metadata field "Document" SHALL exactly match the canonical document
+name without the file extension.
+
+Example:
+
+File:
+ColumnNamingStandard.md
+
+Metadata:
+
+Document: ColumnNamingStandard
+
 ---
 
 # 12. Artifact Identifier Rules
@@ -570,6 +642,11 @@ Examples:
 
 Artifact identifiers are immutable after approval.
 
+Artifact IDs SHALL remain immutable throughout the lifecycle of the
+document.
+
+Renaming a document SHALL NOT change its Artifact ID.
+
 ---
 
 # 13. Version Management
@@ -577,6 +654,11 @@ Artifact identifiers are immutable after approval.
 Version management provides controlled evolution of enterprise documentation.
 
 Every published revision shall increment the document version.
+
+Every version increment SHALL be accompanied by an entry in the Revision
+History section.
+
+Version numbers SHALL remain unique throughout the document lifecycle.
 
 ---
 
@@ -899,4 +981,8 @@ The following documents are directly related to this standard.
 
 ---
 
+Every governed document SHALL terminate with the marker:
+
 # End of Document
+
+This marker indicates that no governed content exists beyond this point.
