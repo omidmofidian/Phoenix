@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : TickData.sql
+ * Script           : Tick_Data.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TickData
@@ -36,7 +36,7 @@
  *     - Schema : ref
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.trading_session
  *     - ref.market_status
  *     - ref.calendar_type
@@ -75,7 +75,7 @@ CREATE TABLE market.tick_data
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id           BIGINT
+    listing_id           BIGINT
                                         NOT NULL,
 
     trading_session_id              BIGINT
@@ -139,13 +139,13 @@ CREATE TABLE market.tick_data
 
     source_reference                VARCHAR(500),
 
-    description                     VARCHAR(500),
+    tick_data_description                     VARCHAR(500),
 
         ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                        BOOLEAN
+    tick_data_is_active                        BOOLEAN
                                           NOT NULL
                                           DEFAULT TRUE,
 
@@ -164,7 +164,7 @@ CREATE TABLE market.tick_data
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                           NOT NULL
                                           DEFAULT 1,
 
@@ -178,16 +178,16 @@ CREATE TABLE market.tick_data
             tick_data_id
         ),
 
-    CONSTRAINT uq_tick_data_public_id
+    CONSTRAINT uk_tick_data_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_tick_data_business
+    CONSTRAINT uk_tick_data_business
         UNIQUE
         (
-            instrument_listing_id,
+            listing_id,
             tick_timestamp,
             execution_sequence,
             price_adjustment_status_id
@@ -196,6 +196,18 @@ CREATE TABLE market.tick_data
     ----------------------------------------------------------------------------
     -- Check Constraints
     ----------------------------------------------------------------------------
+
+    CONSTRAINT ck_tick_data_trading_date
+        CHECK
+        (
+            trading_date >= DATE '1900-01-01'
+        ),
+
+    CONSTRAINT ck_tick_data_timestamp
+        CHECK
+        (
+            tick_timestamp >= TIMESTAMPTZ '1900-01-01 00:00:00+00'
+        ),
 
     CONSTRAINT ck_tick_data_execution_price
         CHECK
@@ -240,28 +252,28 @@ CREATE TABLE market.tick_data
     CONSTRAINT ck_tick_data_description
         CHECK
         (
-            description IS NULL
-            OR LENGTH(TRIM(description)) > 0
+            tick_data_description IS NULL
+            OR LENGTH(TRIM(tick_data_description)) > 0
         ),
 
-    CONSTRAINT ck_tick_data_version
+    CONSTRAINT ck_tick_data_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
     -- Foreign Keys
     ----------------------------------------------------------------------------
 
-    CONSTRAINT fk_tick_data_instrument_listing
+    CONSTRAINT fk_tick_data_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -380,7 +392,7 @@ IS
 -- Classification References
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.tick_data.instrument_listing_id
+COMMENT ON COLUMN market.tick_data.listing_id
 IS
 'Reference to the listed financial instrument associated with the executed trade.';
 
@@ -464,7 +476,7 @@ COMMENT ON COLUMN market.tick_data.source_reference
 IS
 'Optional external identifier, file name, API transaction identifier, or message identifier associated with the imported execution record.';
 
-COMMENT ON COLUMN market.tick_data.description
+COMMENT ON COLUMN market.tick_data.tick_data_description
 IS
 'Optional business description providing additional information about the execution record.';
 
@@ -472,7 +484,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.tick_data.is_active
+COMMENT ON COLUMN market.tick_data.tick_data_is_active
 IS
 'Indicates whether the record is active and available for business operations within the Phoenix Platform.';
 
@@ -496,7 +508,7 @@ COMMENT ON COLUMN market.tick_data.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.tick_data.version
+COMMENT ON COLUMN market.tick_data.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

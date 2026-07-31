@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : PriceAdjustmentStatus.sql
+ * Script           : Price_Adjustment_Status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : PriceAdjustmentStatus
@@ -37,11 +37,9 @@
  * Referenced By
  * -------------------------------------------------------------------------------------------------
  *     - market.daily_market_data
- *     - market.intraday_bar
  *     - market.tick_data
  *     - market.order_book_snapshot
  *     - market.market_snapshot
- *     - market.instrument_price_history
  *     - Analytics Engine
  *     - Indicator Engine
  *     - Strategy Engine
@@ -81,7 +79,7 @@ CREATE TABLE ref.price_adjustment_status
     -- Primary Identifier
     ----------------------------------------------------------------------------
 
-    price_adjustment_status_id      SMALLINT
+    price_adjustment_status_id      BIGINT
                                         GENERATED ALWAYS AS IDENTITY,
 
     ----------------------------------------------------------------------------
@@ -96,20 +94,25 @@ CREATE TABLE ref.price_adjustment_status
     -- Business Identifier
     ----------------------------------------------------------------------------
 
-    adjustment_status_code                            VARCHAR(30)
+    price_adjustment_status_code                            VARCHAR(30)
                                         NOT NULL,
 
     ----------------------------------------------------------------------------
     -- Business Information
     ----------------------------------------------------------------------------
 
-    adjustment_status_name                            VARCHAR(100)
-                                        NOT NULL,
+    price_adjustment_status_name                            VARCHAR(100)
+                                                        NOT NULL,
 
-    description                     VARCHAR(500),
+    price_adjustment_status_short_name                      VARCHAR(50),
 
-    display_order                   SMALLINT
-                                        NOT NULL,
+    price_adjustment_status_local_name                      VARCHAR(100),
+
+    price_adjustment_status_description                     VARCHAR(500),
+
+    price_adjustment_status_display_order                   SMALLINT
+                                                    NOT NULL
+                                                    DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- System Attributes
@@ -119,7 +122,7 @@ CREATE TABLE ref.price_adjustment_status
                                         NOT NULL
                                         DEFAULT TRUE,
 
-    is_active                       BOOLEAN
+    price_adjustment_status_is_active                       BOOLEAN
                                         NOT NULL
                                         DEFAULT TRUE,
 
@@ -138,7 +141,7 @@ CREATE TABLE ref.price_adjustment_status
 
     updated_by                      BIGINT,
 
-    version                         INTEGER
+    row_version                         INTEGER
                                         NOT NULL
                                         DEFAULT 1,
 
@@ -161,13 +164,13 @@ CREATE TABLE ref.price_adjustment_status
     CONSTRAINT uq_price_adjustment_status_code
         UNIQUE
         (
-            adjustment_status_code
+            price_adjustment_status_code
         ),
 
     CONSTRAINT uq_price_adjustment_status_name
         UNIQUE
         (
-            adjustment_status_name
+            price_adjustment_status_name
         ),
 
     ----------------------------------------------------------------------------
@@ -177,25 +180,46 @@ CREATE TABLE ref.price_adjustment_status
     CONSTRAINT ck_price_adjustment_status_code
         CHECK
         (
-            LENGTH(TRIM(adjustment_status_code)) > 0
+            LENGTH(TRIM(price_adjustment_status_code)) > 0
         ),
 
     CONSTRAINT ck_price_adjustment_status_name
         CHECK
         (
-            LENGTH(TRIM(adjustment_status_name)) > 0
+            LENGTH(TRIM(price_adjustment_status_name)) > 0
+        ),
+
+    CONSTRAINT ck_price_adjustment_status_short_name_not_empty
+        CHECK
+        (
+            price_adjustment_status_short_name IS NULL
+            OR LENGTH(TRIM(price_adjustment_status_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_price_adjustment_status_local_name_not_empty
+        CHECK
+        (
+            price_adjustment_status_local_name IS NULL
+            OR LENGTH(TRIM(price_adjustment_status_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_price_adjustment_status_description_not_empty
+        CHECK
+        (
+            price_adjustment_status_description IS NULL
+            OR LENGTH(TRIM(price_adjustment_status_description)) > 0
         ),
 
     CONSTRAINT ck_price_adjustment_status_display_order
         CHECK
         (
-            display_order > 0
+            price_adjustment_status_display_order > 0
         ),
 
-    CONSTRAINT ck_price_adjustment_status_version
+    CONSTRAINT ck_price_adjustment_status_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -222,19 +246,27 @@ COMMENT ON COLUMN ref.price_adjustment_status.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, APIs, and distributed systems.';
 
-COMMENT ON COLUMN ref.price_adjustment_status.adjustment_status_code
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_code
 IS
 'Short unique business code identifying the price adjustment status.';
 
-COMMENT ON COLUMN ref.price_adjustment_status.adjustment_status_name
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_name
 IS
 'Unique business name of the price adjustment status.';
 
-COMMENT ON COLUMN ref.price_adjustment_status.description
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_short_name
+IS
+'Abbreviated name used by user interfaces and reports.';
+
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_local_name
+IS
+'Official local-language name of the price adjustment status.';
+
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_description
 IS
 'Optional business description explaining the purpose and usage of the price adjustment status.';
 
-COMMENT ON COLUMN ref.price_adjustment_status.display_order
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_display_order
 IS
 'Display sequence used for user interfaces, reports, and ordered business lists.';
 
@@ -242,7 +274,7 @@ COMMENT ON COLUMN ref.price_adjustment_status.is_system
 IS
 'Indicates whether the record is a protected system-defined reference value managed by the Phoenix Platform.';
 
-COMMENT ON COLUMN ref.price_adjustment_status.is_active
+COMMENT ON COLUMN ref.price_adjustment_status.price_adjustment_status_is_active
 IS
 'Indicates whether the reference value is active and available for business operations.';
 
@@ -262,7 +294,7 @@ COMMENT ON COLUMN ref.price_adjustment_status.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.price_adjustment_status.version
+COMMENT ON COLUMN ref.price_adjustment_status.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

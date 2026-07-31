@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : InstrumentStatusHistory.sql
+ * Script           : Instrument_Status_History.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentStatusHistory
@@ -37,12 +37,12 @@
  * Prerequisites
  *     - Schema : market
  *     - Schema : ref
- *     - Table  : market.instrument_listing
+ *     - Table  : market.listing
  *     - Table  : ref.market_status
  *     - Table  : ref.market_event_type
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.market_status
  *     - ref.market_event_type
  *
@@ -65,6 +65,7 @@
  * - One table per file.
  * - Architecture-driven implementation.
  * - PostgreSQL 17 compatible.
+ * - PostgreSQL Extension : btree_gist
  *
  * Author           : Phoenix Architecture Team
  * Created          : 2026-07-26
@@ -97,7 +98,7 @@ CREATE TABLE market.instrument_status_history
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id             BIGINT
+    listing_id             BIGINT
                                           NOT NULL,
 
     previous_market_status_id         BIGINT,
@@ -105,10 +106,10 @@ CREATE TABLE market.instrument_status_history
     market_status_id                  BIGINT
                                           NOT NULL,
 
-    market_event_type_id              BIGINT
+    status_event_type_id              BIGINT
                                           NOT NULL,
     
-    changed_by_event_type_id          BIGINT,
+    trigger_event_type_id          BIGINT,
 
     ----------------------------------------------------------------------------
     -- Business Attributes
@@ -127,15 +128,15 @@ CREATE TABLE market.instrument_status_history
 
     source_reference                  VARCHAR(500),
 
-    status_reason                     VARCHAR(500),
+    status_change_reason                     VARCHAR(500),
 
-    description                       VARCHAR(500),
+    status_change_description                       VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                         BOOLEAN
+    instrument_status_history_is_active                         BOOLEAN
                                           NOT NULL
                                           DEFAULT TRUE,
 
@@ -154,7 +155,7 @@ CREATE TABLE market.instrument_status_history
 
     updated_by                        BIGINT,
 
-    version                           INTEGER
+    row_version                           INTEGER
                                           NOT NULL
                                           DEFAULT 1,
 
@@ -168,10 +169,37 @@ CREATE TABLE market.instrument_status_history
             instrument_status_history_id
         ),
 
-    CONSTRAINT uq_instrument_status_history_public_id
+    CONSTRAINT uk_instrument_status_history_public_id
         UNIQUE
         (
             public_id
+        ),
+
+    CONSTRAINT uk_instrument_status_history_business
+        UNIQUE
+        (
+            listing_id,
+            market_status_id,
+            effective_from
+        ),
+
+    CONSTRAINT ex_instrument_status_history_period_overlap
+        EXCLUDE USING gist
+            (
+                listing_id WITH =,
+                tstzrange(effective_from, effective_to, '[)') WITH &&
+            ),
+
+    CONSTRAINT ck_instrument_status_history_previous_market_status
+        CHECK (
+            previous_market_status_id IS NULL
+            OR previous_market_status_id <> market_status_id
+        ),
+
+    CONSTRAINT ck_instrument_status_history_announcement
+        CHECK (
+            announced_at IS NULL
+            OR announced_at <= effective_from
         ),
 
     CONSTRAINT ck_instrument_status_history_reference_not_empty
@@ -181,7 +209,7 @@ CREATE TABLE market.instrument_status_history
             OR LENGTH(TRIM(reference_number)) > 0
         ),
 
-    CONSTRAINT ck_instrument_status_history_source_not_empty
+    CONSTRAINT ck_instrument_status_history_source_reference_not_empty
         CHECK
         (
             source_reference IS NULL
@@ -202,20 +230,20 @@ CREATE TABLE market.instrument_status_history
             OR LENGTH(TRIM(change_reason_code)) > 0
         ),
 
-    CONSTRAINT ck_instrument_status_history_version_positive
+    CONSTRAINT ck_instrument_status_history_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     CONSTRAINT fk_instrument_status_history_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -244,10 +272,10 @@ CREATE TABLE market.instrument_status_history
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
 
-    CONSTRAINT fk_instrument_status_history_changed_by_event_type
+    CONSTRAINT fk_instrument_status_history_trigger_event_type
         FOREIGN KEY
         (
-            changed_by_event_type_id
+            trigger_event_type_id
         )
         REFERENCES ref.market_event_type
         (
@@ -256,10 +284,10 @@ CREATE TABLE market.instrument_status_history
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
 
-    CONSTRAINT fk_instrument_status_history_market_event_type
+    CONSTRAINT fk_instrument_status_history_status_event_type
         FOREIGN KEY
         (
-            market_event_type_id
+            status_event_type_id
         )
         REFERENCES ref.market_event_type
         (
@@ -293,7 +321,7 @@ COMMENT ON COLUMN market.instrument_status_history.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN market.instrument_status_history.instrument_listing_id
+COMMENT ON COLUMN market.instrument_status_history.listing_id
 IS
 'Reference to the listed financial instrument whose status changed.';
 
@@ -305,11 +333,11 @@ COMMENT ON COLUMN market.instrument_status_history.market_status_id
 IS
 'Reference to the current market status assigned to the financial instrument during the effective period.';
 
-COMMENT ON COLUMN market.instrument_status_history.market_event_type_id
+COMMENT ON COLUMN market.instrument_status_history.status_event_type_id
 IS
 'Reference to the market event type responsible for the status transition.';
 
-COMMENT ON COLUMN market.instrument_status_history.changed_by_event_type_id
+COMMENT ON COLUMN market.instrument_status_history.trigger_event_type_id
 IS
 'Reference to the market event type that initiated or caused the status transition.';
 
@@ -337,15 +365,15 @@ COMMENT ON COLUMN market.instrument_status_history.source_reference
 IS
 'External reference identifying the official source of the status change, such as an exchange announcement, regulatory notice, document identifier, or URL.';
 
-COMMENT ON COLUMN market.instrument_status_history.status_reason
+COMMENT ON COLUMN market.instrument_status_history.status_change_reason
 IS
 'Business explanation describing the reason for the instrument status change.';
 
-COMMENT ON COLUMN market.instrument_status_history.description
+COMMENT ON COLUMN market.instrument_status_history.status_change_description
 IS
 'Optional business description providing additional information about the status transition.';
 
-COMMENT ON COLUMN market.instrument_status_history.is_active
+COMMENT ON COLUMN market.instrument_status_history.instrument_status_history_is_active
 IS
 'Indicates whether the status history record is currently active and valid within the Phoenix Platform.';
 
@@ -365,7 +393,7 @@ COMMENT ON COLUMN market.instrument_status_history.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.instrument_status_history.version
+COMMENT ON COLUMN market.instrument_status_history.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

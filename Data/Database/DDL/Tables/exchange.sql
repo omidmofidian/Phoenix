@@ -100,13 +100,13 @@ CREATE TABLE ref.exchange
 
     exchange_local_name            VARCHAR(200),
 
-    country_id            BIGINT
+    country_id              BIGINT
                             NOT NULL,
 
-    currency_id           BIGINT 
+    currency_id             BIGINT 
                             NOT NULL,
 
-    timezone_id            BIGINT
+    time_zone_id            BIGINT
                             NOT NULL,
 
     exchange_website                 VARCHAR(300),
@@ -139,9 +139,10 @@ CREATE TABLE ref.exchange
                                 NOT NULL,
 
     updated_by              BIGINT,
+   
     row_version                 INTEGER
-                                NOT NULL
-                                DEFAULT 1,
+                            NOT NULL
+                            DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- Constraints
@@ -177,12 +178,81 @@ CREATE TABLE ref.exchange
             LENGTH(TRIM(exchange_name)) > 0
         ),
 
+    CONSTRAINT ck_exchange_short_name_not_empty
+        CHECK 
+        (
+            exchange_short_name IS NULL
+            OR LENGTH(TRIM(exchange_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_exchange_local_name_not_empty
+        CHECK 
+        (
+            exchange_local_name IS NULL
+            OR LENGTH(TRIM(exchange_local_name)) > 0
+        ),
+
     CONSTRAINT ck_exchange_display_order
         CHECK
         (
             exchange_display_order > 0
         ),
-    
+
+    CONSTRAINT ck_exchange_website_not_empty
+        CHECK 
+        (
+            exchange_website IS NULL
+            OR LENGTH(TRIM(exchange_website)) > 0
+        ),
+
+    CONSTRAINT ck_exchange_description_not_empty
+        CHECK 
+        (
+            exchange_description IS NULL
+            OR LENGTH(TRIM(exchange_description)) > 0
+        ),
+
+    CONSTRAINT ck_country_row_version_positive
+        CHECK 
+        (
+            row_version > 0
+        ),
+        
+    CONSTRAINT fk_exchange_country
+        FOREIGN KEY 
+        (
+            country_id
+        )
+        REFERENCES ref.country 
+        (
+            country_id
+        )
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_exchange_currency
+        FOREIGN KEY 
+        (
+            currency_id
+        )
+        REFERENCES ref.currency 
+        (
+            currency_id
+        )
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_exchange_time_zone
+        FOREIGN KEY 
+        (
+            time_zone_id
+        )
+        REFERENCES ref.time_zone 
+        (
+            time_zone_id
+        )
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
 )
 --------------------------------------------------------------------------------
 -- Table Comment
@@ -230,7 +300,7 @@ COMMENT ON COLUMN ref.exchange.currency_id
 IS
 'References the canonical currency in which the exchange operates.';
 
-COMMENT ON COLUMN ref.exchange.timezone_id
+COMMENT ON COLUMN ref.exchange.time_zone_id
 IS
 'References the canonical time zone in which the exchange operates.';
 

@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : TradingCalendar.sql
+ * Script           : Trading_Calendar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingCalendar
@@ -106,7 +106,7 @@ CREATE TABLE ref.trading_calendar
                                 NOT NULL 
                                 DEFAULT TRUE,
 
-    description              VARCHAR(500),
+    trading_calendar_description              VARCHAR(500),
 
         ------------------------------------------------------------------------------
     -- Audit Columns
@@ -123,7 +123,7 @@ CREATE TABLE ref.trading_calendar
 
     updated_by              BIGINT,
 
-    version                 INTEGER 
+    row_version                 INTEGER 
                                 NOT NULL 
                                 DEFAULT 1,
 
@@ -137,13 +137,13 @@ CREATE TABLE ref.trading_calendar
             trading_calendar_id
         ),
 
-    CONSTRAINT uq_trading_calendar_PublicId
+    CONSTRAINT uk_trading_calendar_Public_id
         UNIQUE 
         (
             public_id
         ),
 
-    CONSTRAINT uq_trading_calendar_Exchange_Date
+    CONSTRAINT uk_trading_calendar_Exchange_date
         UNIQUE 
         (
             exchange_id, calendar_date
@@ -155,15 +155,26 @@ CREATE TABLE ref.trading_calendar
             LENGTH(TRIM(persian_date)) > 0
         ),
 
-
-    Constraint ck_trading_calendar_version_positive
+    CONSTRAINT ck_trading_calendar_calendar_date
         CHECK
         (
-            version > 0
+            calendar_date >= DATE '1900-01-01'
+        ),
+
+    CONSTRAINT ck_trading_calendar_weekend_logic
+        CHECK
+        (
+            NOT (is_weekend = TRUE AND is_trading_day = TRUE)
+        ),
+
+    CONSTRAINT ck_trading_calendar_row_version_positive
+        CHECK
+        (
+            row_version > 0
         ),
 
 
-    CONSTRAINT fk_trading_calendar_Exchange
+    CONSTRAINT fk_trading_calendar_exchange
         FOREIGN KEY 
         (
             exchange_id
@@ -219,7 +230,7 @@ COMMENT ON COLUMN ref.trading_calendar.is_trading_day
 IS 
 'Indicates whether trading sessions are permitted on the specified date.';
 
-COMMENT ON COLUMN ref.trading_calendar.description
+COMMENT ON COLUMN ref.trading_calendar.trading_calendar_description
 IS 
 'Additional business information describing the calendar entry.';
 
@@ -239,7 +250,10 @@ COMMENT ON COLUMN ref.trading_calendar.updated_by
 IS 
 'Identifier of the user or process that last updated the record.';
 
-COMMENT ON COLUMN ref.trading_calendar.version
+COMMENT ON COLUMN ref.trading_calendar.row_version
 IS 
 'Optimistic concurrency version number.';
 
+--------------------------------------------------------------------------------
+-- End of File
+--------------------------------------------------------------------------------

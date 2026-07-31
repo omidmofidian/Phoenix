@@ -97,7 +97,7 @@
     currency_code           VARCHAR(10)
                                 NOT NULL,
 
-    iso_numeric_code        SMALLINT,
+    iso_numeric_code        CHAR(3),
 
     currency_name           VARCHAR(200)
                                 NOT NULL,
@@ -110,20 +110,20 @@
                                 NOT NULL,
 
     decimal_digits          SMALLINT
-                                NOT NULL
-                                DEFAULT 2,
+                        NOT NULL
+                        DEFAULT 2,
 
-    display_order           SMALLINT
+    currency_display_order           SMALLINT
                                 NOT NULL
                                 DEFAULT 1,
 
-    description             VARCHAR(500),
+    currency_description             VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
+    currency_is_active               BOOLEAN
                                 NOT NULL
                                 DEFAULT TRUE,
 
@@ -142,9 +142,9 @@
 
     updated_by              BIGINT,
 
-    version                 INTEGER
-                                NOT NULL
-                                DEFAULT 1,
+    row_version                 INTEGER
+                            NOT NULL
+                            DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- Constraints
@@ -156,19 +156,19 @@
             currency_id
         ),
 
-    CONSTRAINT uq_currency_public_id
+    CONSTRAINT uk_currency_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_currency_code
+    CONSTRAINT uk_currency_code
         UNIQUE
         (
             currency_code
         ),
 
-    CONSTRAINT uq_currency_iso_numeric_code
+    CONSTRAINT uk_currency_iso_numeric_code
         UNIQUE
         (
             iso_numeric_code
@@ -180,23 +180,45 @@
             LENGTH(TRIM(currency_code)) > 0
         ),
 
+    CONSTRAINT ck_currency_code_length
+        CHECK 
+        (
+            LENGTH(TRIM(currency_code)) BETWEEN 2 AND 10
+        ),
+
+    CONSTRAINT ck_currency_iso_numeric_length
+    CHECK 
+    (
+        iso_numeric_code IS NULL
+        OR LENGTH(TRIM(iso_numeric_code)) = 3
+    ),
+
     CONSTRAINT ck_currency_name_not_empty
         CHECK
         (
             LENGTH(TRIM(currency_name)) > 0
         ),
 
-    CONSTRAINT ck_currency_version_positive
-        CHECK
+    CONSTRAINT ck_currency_local_name_not_empty
+        CHECK 
         (
-            version > 0
-        )
+            currency_local_name IS NULL
+            OR LENGTH(TRIM(currency_local_name)) > 0
+        ),
 
-    CONSTRAINT ck_currency_display_order
-        CHECK
+    CONSTRAINT ck_currency_symbol_not_empty
+        CHECK 
         (
-            display_order > 0
-        )
+            symbol IS NULL
+            OR LENGTH(TRIM(symbol)) > 0
+        ),
+
+    CONSTRAINT ck_currency_description_not_empty
+        CHECK 
+        (
+            currency_description IS NULL
+            OR LENGTH(TRIM(currency_description)) > 0
+        ),
 
     CONSTRAINT ck_currency_category
         CHECK
@@ -219,13 +241,14 @@
     CONSTRAINT ck_currency_display_order
         CHECK
         (
-            display_order > 0
+            currency_display_order > 0
         ),
 
-    CONSTRAINT ck_currency_version_positive
+    
+    CONSTRAINT ck_currency_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -281,15 +304,15 @@ COMMENT ON COLUMN ref.currency.decimal_digits
 IS
 'Number of fractional decimal digits supported by the currency.';
 
-COMMENT ON COLUMN ref.currency.display_order
+COMMENT ON COLUMN ref.currency.currency_display_order
 IS
 'Display sequence used by applications when presenting currencies to users.';
 
-COMMENT ON COLUMN ref.currency.description
+COMMENT ON COLUMN ref.currency.currency_description
 IS
 'Optional business description of the currency.';
 
-COMMENT ON COLUMN ref.currency.is_active
+COMMENT ON COLUMN ref.currency.currency_is_active
 IS
 'Indicates whether the currency is currently active and available for use throughout the Phoenix Platform.';
 
@@ -309,6 +332,6 @@ COMMENT ON COLUMN ref.currency.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.currency.version
+COMMENT ON COLUMN ref.currency.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';

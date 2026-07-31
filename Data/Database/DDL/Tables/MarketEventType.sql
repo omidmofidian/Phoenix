@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : MarketEventType.sql
+ * Script           : Market_Event_Type.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : MarketEventType
@@ -92,25 +92,25 @@ CREATE TABLE ref.market_event_type
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    event_code                       VARCHAR(50)
+    market_event_type_code                       VARCHAR(50)
                                          NOT NULL,
 
-    event_name                       VARCHAR(100)
+    market_event_type_name                       VARCHAR(100)
                                          NOT NULL,
 
-    short_name                       VARCHAR(50),
+    market_event_type_short_name                       VARCHAR(50),
 
-    display_order                    SMALLINT
+    market_event_type_display_order                    SMALLINT
                                          NOT NULL
                                          DEFAULT 1,
 
-    description                      VARCHAR(500),
+    market_event_type_description                      VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                        BOOLEAN
+    market_event_type_is_active                        BOOLEAN
                                          NOT NULL
                                          DEFAULT TRUE,
 
@@ -129,7 +129,7 @@ CREATE TABLE ref.market_event_type
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                          NOT NULL
                                          DEFAULT 1,
 
@@ -152,37 +152,37 @@ CREATE TABLE ref.market_event_type
     CONSTRAINT uq_market_event_type_code
         UNIQUE
         (
-            event_code
+            market_event_type_code
         ),
 
     CONSTRAINT uq_market_event_type_name
         UNIQUE
         (
-            event_name
+            market_event_type_name
         ),
 
     CONSTRAINT ck_market_event_type_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(event_code)) > 0
+            LENGTH(TRIM(market_event_type_code)) > 0
         ),
 
     CONSTRAINT ck_market_event_type_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(event_name)) > 0
+            LENGTH(TRIM(market_event_type_name)) > 0
         ),
 
     CONSTRAINT ck_market_event_type_display_order_positive
         CHECK
         (
-            display_order > 0
+            market_event_type_display_order > 0
         ),
 
-    CONSTRAINT ck_market_event_type_version_positive
+    CONSTRAINT ck_market_event_type_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -209,27 +209,27 @@ COMMENT ON COLUMN ref.market_event_type.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.market_event_type.event_code
+COMMENT ON COLUMN ref.market_event_type.market_event_type_code
 IS
 'Unique business code identifying the market event type.';
 
-COMMENT ON COLUMN ref.market_event_type.event_name
+COMMENT ON COLUMN ref.market_event_type.market_event_type_name
 IS
 'Official business name of the market event type.';
 
-COMMENT ON COLUMN ref.market_event_type.short_name
+COMMENT ON COLUMN ref.market_event_type.market_event_type_short_name
 IS
 'Abbreviated business name used by applications, dashboards, reports, and user interfaces.';
 
-COMMENT ON COLUMN ref.market_event_type.display_order
+COMMENT ON COLUMN ref.market_event_type.market_event_type_display_order
 IS
 'Display sequence used when presenting market event types within user interfaces and reports.';
 
-COMMENT ON COLUMN ref.market_event_type.description
+COMMENT ON COLUMN ref.market_event_type.market_event_type_description
 IS
 'Optional business description providing additional information about the market event type.';
 
-COMMENT ON COLUMN ref.market_event_type.is_active
+COMMENT ON COLUMN ref.market_event_type.market_event_type_is_active
 IS
 'Indicates whether the market event type is currently active and available for business operations within the Phoenix Platform.';
 
@@ -249,7 +249,7 @@ COMMENT ON COLUMN ref.market_event_type.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.market_event_type.version
+COMMENT ON COLUMN ref.market_event_type.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

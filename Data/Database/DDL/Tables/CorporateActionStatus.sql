@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : CorporateActionStatus.sql
+ * Script           : Corporate_Action_Status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CorporateActionStatus
@@ -94,21 +94,21 @@ CREATE TABLE ref.corporate_action_status
     corporate_action_status_name     VARCHAR(100)
                                         NOT NULL,
 
-    short_name                       VARCHAR(50),
+    corporate_action_status_short_name                       VARCHAR(50),
 
     corporate_action_status_local_name                       VARCHAR(100),
 
-    display_order                    SMALLINT
+    corporate_action_status_display_order                    SMALLINT
                                         NOT NULL
                                         DEFAULT 1,
 
-    description                      VARCHAR(500),
+    corporate_action_status_description                      VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                        BOOLEAN
+    corporate_action_status_is_active                        BOOLEAN
                                         NOT NULL
                                         DEFAULT TRUE,
 
@@ -127,7 +127,7 @@ CREATE TABLE ref.corporate_action_status
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                         NOT NULL
                                         DEFAULT 1,
 
@@ -153,6 +153,18 @@ CREATE TABLE ref.corporate_action_status
             corporate_action_status_code
         ),
 
+    CONSTRAINT ck_corporate_action_status_code_uppercase
+        CHECK
+        (
+            corporate_action_status_code = UPPER(corporate_action_status_code)
+        ),
+
+    CONSTRAINT ck_corporate_action_status_code_length
+        CHECK
+        (
+            LENGTH(TRIM(corporate_action_status_code)) BETWEEN 2 AND 30
+        ),
+
     CONSTRAINT ck_corporate_action_status_code_not_empty
         CHECK
         (
@@ -164,17 +176,37 @@ CREATE TABLE ref.corporate_action_status
         (
             LENGTH(TRIM(corporate_action_status_name)) > 0
         ),
+    CONSTRAINT ck_corporate_action_status_short_name_not_empty
+        CHECK
+        (
+            corporate_action_status_short_name IS NULL
+            OR LENGTH(TRIM(corporate_action_status_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_corporate_action_status_local_name_not_empty
+        CHECK
+        (
+            corporate_action_status_local_name IS NULL
+            OR LENGTH(TRIM(corporate_action_status_local_name)) > 0
+        ),
 
     CONSTRAINT ck_corporate_action_status_display_order
         CHECK
         (
-            display_order > 0
+            corporate_action_status_display_order > 0
         ),
 
-    CONSTRAINT ck_corporate_action_status_version_positive
+    CONSTRAINT ck_corporate_action_status_description_not_empty
         CHECK
         (
-            version > 0
+            corporate_action_status_description IS NULL
+            OR LENGTH(TRIM(corporate_action_status_description)) > 0
+        ),
+
+    CONSTRAINT ck_corporate_action_status_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -209,7 +241,7 @@ COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_name
 IS
 'Official business name of the corporate action status.';
 
-COMMENT ON COLUMN ref.corporate_action_status.short_name
+COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -217,15 +249,15 @@ COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_local_name
 IS
 'Official local-language name of the corporate action status.';
 
-COMMENT ON COLUMN ref.corporate_action_status.display_order
+COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_display_order
 IS
 'Display sequence used by applications when presenting corporate action statuses to users.';
 
-COMMENT ON COLUMN ref.corporate_action_status.description
+COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_description
 IS
 'Optional business description of the corporate action status.';
 
-COMMENT ON COLUMN ref.corporate_action_status.is_active
+COMMENT ON COLUMN ref.corporate_action_status.corporate_action_status_is_active
 IS
 'Indicates whether the corporate action status is currently active and available for use throughout the Phoenix Platform.';
 
@@ -245,7 +277,7 @@ COMMENT ON COLUMN ref.corporate_action_status.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.corporate_action_status.version
+COMMENT ON COLUMN ref.corporate_action_status.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

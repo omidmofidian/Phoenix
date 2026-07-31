@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : TimeZone.sql
+ * Script           : Time_Zone.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TimeZone
@@ -38,7 +38,7 @@
  *
  * Referenced By
  *     - ref.exchange
- *     - market.trading_session
+ *     - market.market_session
  *     - scheduling services
  *     - Additional business entities
  *
@@ -100,21 +100,21 @@ CREATE TABLE ref.time_zone
     utc_offset               VARCHAR(10)
                                  NOT NULL,
 
-    short_name               VARCHAR(20),
+    time_zone_short_name               VARCHAR(20),
 
     time_zone_local_name               VARCHAR(200),
 
-    display_order            SMALLINT
+    time_zone_display_order            SMALLINT
                                  NOT NULL
                                  DEFAULT 1,
 
-    description              VARCHAR(500),
+    time_zone_description              VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                BOOLEAN
+    time_zone_is_active                BOOLEAN
                                  NOT NULL
                                  DEFAULT TRUE,
 
@@ -133,7 +133,7 @@ CREATE TABLE ref.time_zone
 
     updated_by               BIGINT,
 
-    version                  INTEGER
+    row_version                  INTEGER
                                  NOT NULL
                                  DEFAULT 1,
 
@@ -147,13 +147,13 @@ CREATE TABLE ref.time_zone
             time_zone_id
         ),
 
-    CONSTRAINT uq_time_zone_public_id
+    CONSTRAINT uk_time_zone_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_time_zone_code
+    CONSTRAINT uk_time_zone_code
         UNIQUE
         (
             time_zone_code
@@ -177,16 +177,37 @@ CREATE TABLE ref.time_zone
             LENGTH(TRIM(utc_offset)) > 0
         ),
 
+    CONSTRAINT ck_time_zone_short_name_not_empty
+        CHECK 
+        (
+            time_zone_short_name IS NULL
+            OR LENGTH(TRIM(time_zone_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_time_zone_local_name_not_empty
+        CHECK 
+        (
+            time_zone_local_name IS NULL
+            OR LENGTH(TRIM(time_zone_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_time_zone_description_not_empty
+        CHECK 
+        (
+            time_zone_description IS NULL
+            OR LENGTH(TRIM(time_zone_description)) > 0
+        ),
+
     CONSTRAINT ck_time_zone_display_order
         CHECK
         (
-            display_order > 0
+            time_zone_display_order > 0
         ),
 
-    CONSTRAINT ck_time_zone_version_positive
+    CONSTRAINT ck_time_zone_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -223,9 +244,11 @@ IS
 
 COMMENT ON COLUMN ref.time_zone.utc_offset
 IS
-'Standard UTC offset associated with the time zone (for example, UTC+03:30).';
+'Default display UTC offset associated with the time zone. Time calculations
+must use the IANA time_zone_code, which remains authoritative for daylight
+saving and historical offset changes.';
 
-COMMENT ON COLUMN ref.time_zone.short_name
+COMMENT ON COLUMN ref.time_zone.time_zone_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -233,15 +256,15 @@ COMMENT ON COLUMN ref.time_zone.time_zone_local_name
 IS
 'Official local-language name of the time zone.';
 
-COMMENT ON COLUMN ref.time_zone.display_order
+COMMENT ON COLUMN ref.time_zone.time_zone_display_order
 IS
 'Display sequence used by applications when presenting time zones to users.';
 
-COMMENT ON COLUMN ref.time_zone.description
+COMMENT ON COLUMN ref.time_zone.time_zone_description
 IS
 'Optional business description of the time zone.';
 
-COMMENT ON COLUMN ref.time_zone.is_active
+COMMENT ON COLUMN ref.time_zone.time_zone_is_active
 IS
 'Indicates whether the time zone is currently active and available for use throughout the Phoenix Platform.';
 
@@ -261,7 +284,7 @@ COMMENT ON COLUMN ref.time_zone.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.time_zone.version
+COMMENT ON COLUMN ref.time_zone.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

@@ -99,21 +99,21 @@ CREATE TABLE market.trading_board
     trading_board_name                    VARCHAR(200)
                                 NOT NULL,
 
-    short_name              VARCHAR(100),
+    trading_board_short_name              VARCHAR(100),
 
     trading_board_local_name              VARCHAR(200),
 
-    display_order           SMALLINT
+    trading_board_display_order           SMALLINT
                                 NOT NULL
                                 DEFAULT 1,
 
-    description             VARCHAR(500),
+    trading_board_description             VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
+    trading_board_is_active               BOOLEAN
                                 NOT NULL
                                 DEFAULT TRUE,
 
@@ -132,7 +132,7 @@ CREATE TABLE market.trading_board
  
     updated_by              BIGINT,
 
-    version                 INTEGER
+    row_version                 INTEGER
                                 NOT NULL
                                 DEFAULT 1,
 
@@ -159,6 +159,13 @@ CREATE TABLE market.trading_board
             trading_board_code
         ),
 
+    CONSTRAINT uk_trading_board_market_board
+        UNIQUE
+        (
+            market_id,
+            trading_board_id
+        ),
+
     CONSTRAINT ck_trading_board_code_not_empty
         CHECK
         (
@@ -171,14 +178,40 @@ CREATE TABLE market.trading_board
             LENGTH(TRIM(trading_board_name)) > 0
         ),
 
+    CONSTRAINT ck_trading_board_short_name_not_empty
+    CHECK 
+    (
+        trading_board_short_name IS NULL
+        OR LENGTH(TRIM(trading_board_short_name)) > 0
+    ),
+
+    CONSTRAINT ck_trading_board_local_name_not_empty
+    CHECK 
+    (
+        trading_board_local_name IS NULL
+        OR LENGTH(TRIM(trading_board_local_name)) > 0
+    ),
+
+    CONSTRAINT ck_trading_board_description_not_empty
+    CHECK 
+    (
+        trading_board_description IS NULL
+        OR LENGTH(TRIM(trading_board_description)) > 0
+    )
     CONSTRAINT ck_trading_board_display_order
         CHECK
         (
-            display_order > 0
+            trading_board_display_order > 0
+        ),
+
+    CONSTRAINT ck_country_row_version_positive
+        CHECK 
+        (
+            row_version > 0
         ),
 
     CONSTRAINT fk_trading_board_market
-        FOREIGN KEY
+        FOREIGN KEY 
         (
             market_id
         )
@@ -224,7 +257,7 @@ COMMENT ON COLUMN market.trading_board.trading_board_name
 IS
 'Official business name of the trading board.';
 
-COMMENT ON COLUMN market.trading_board.short_name
+COMMENT ON COLUMN market.trading_board.trading_board_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -232,15 +265,15 @@ COMMENT ON COLUMN market.trading_board.trading_board_local_name
 IS
 'Official local-language name of the trading board.';
 
-COMMENT ON COLUMN market.trading_board.display_order
+COMMENT ON COLUMN market.trading_board.trading_board_display_order
 IS
 'Display sequence used by applications when presenting trading boards to users.';
 
-COMMENT ON COLUMN market.trading_board.description
+COMMENT ON COLUMN market.trading_board.trading_board_description
 IS
 'Optional business description of the trading board.';
 
-COMMENT ON COLUMN market.trading_board.is_active
+COMMENT ON COLUMN market.trading_board.trading_board_is_active
 IS
 'Indicates whether the trading board is currently active and available for business operations.';
 
@@ -260,7 +293,7 @@ COMMENT ON COLUMN market.trading_board.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.trading_board.version
+COMMENT ON COLUMN market.trading_board.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

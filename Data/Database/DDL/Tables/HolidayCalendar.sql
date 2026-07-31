@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : HolidayCalendar.sql
+ * Script           : Holiday_Calendar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : HolidayCalendar
@@ -107,7 +107,7 @@ CREATE TABLE ref.holiday_calendar
     holiday_type             VARCHAR(50) 
                                 NOT NULL,
 
-    description              VARCHAR(500),
+    holiday_description              VARCHAR(500),
 
         ------------------------------------------------------------------------------
     -- Audit Columns
@@ -124,7 +124,7 @@ CREATE TABLE ref.holiday_calendar
 
     updated_by               BIGINT,
 
-    version                  INTEGER 
+    row_version                  INTEGER 
                                 NOT NULL 
                                 DEFAULT 1,
 
@@ -138,13 +138,13 @@ CREATE TABLE ref.holiday_calendar
             holiday_calendar_id
         ),
 
-    CONSTRAINT uq_holiday_calendar_public-id
+    CONSTRAINT uk_holiday_calendar_public_id
         UNIQUE 
         (
             public_id
         ),
 
-    CONSTRAINT uq_holiday_calendar_exchange_date
+    CONSTRAINT uk_holiday_calendar_exchange_date
         UNIQUE 
         (
             exchange_id, holiday_date
@@ -168,10 +168,17 @@ CREATE TABLE ref.holiday_calendar
            LENGTH(TRIM(holiday_type)) > 0
         ),
 
-    CONSTRAINT ck_holiday_calendar_version_positive
+CONSTRAINT ck_holiday_description_not_empty
+        CHECK 
+        (
+            holiday_description IS NULL
+            OR LENGTH(TRIM(holiday_description)) > 0
+        ),
+
+    CONSTRAINT ck_holiday_calendar_row_version_positive
         CHECK
         (
-           version > 0
+           row_version > 0
         ),
 
     CONSTRAINT fk_holiday_calendar_exchange
@@ -231,7 +238,7 @@ COMMENT ON COLUMN ref.holiday_calendar.holiday_type
 IS 
 'Classification of the holiday, such as National, Religious, Exchange, Regulatory or Extraordinary.';
 
-COMMENT ON COLUMN ref.holiday_calendar.description
+COMMENT ON COLUMN ref.holiday_calendar.holiday_description
 IS 
 'Additional business information describing the holiday.';
 
@@ -251,7 +258,7 @@ COMMENT ON COLUMN ref.holiday_calendar.updated_by
 IS 
 'Identifier of the user or process that last updated the record.';
 
-COMMENT ON COLUMN ref.holiday_calendar.version
+COMMENT ON COLUMN ref.holiday_calendar.row_version
 IS 
 'Optimistic concurrency version number.';
 

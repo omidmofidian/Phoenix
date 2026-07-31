@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : SymbolAlias.sql
+ * Script           : Symbol_Alias.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : SymbolAlias
@@ -41,7 +41,7 @@
  *     - Table  : ref.market_event_type
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.market_event_type
  *
  * Referenced By
@@ -97,11 +97,11 @@ CREATE TABLE market.symbol_alias
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id           BIGINT
+    listing_id                      BIGINT
                                         NOT NULL,
 
     symbol_source_id                BIGINT 
-                                        NOT NULL
+                                        NOT NULL,
 
     market_event_type_id            BIGINT,
 
@@ -119,13 +119,13 @@ CREATE TABLE market.symbol_alias
 
     effective_to                    DATE,
 
-    description                     VARCHAR(500),
+    symbol_alias_description                     VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                       BOOLEAN
+    symbol_alias_is_active                       BOOLEAN
                                         NOT NULL
                                         DEFAULT TRUE,
 
@@ -144,7 +144,7 @@ CREATE TABLE market.symbol_alias
 
     updated_by                      BIGINT,
 
-    version                         INTEGER
+    row_version                         INTEGER
                                         NOT NULL
                                         DEFAULT 1,
 
@@ -158,24 +158,39 @@ CREATE TABLE market.symbol_alias
             symbol_alias_id
         ),
 
-    CONSTRAINT uq_symbol_alias_public_id
+    CONSTRAINT uk_symbol_alias_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_symbol_alias
+    CONSTRAINT uk_symbol_alias_business
         UNIQUE
         (
-            instrument_listing_id,
+            listing_id,
+            symbol_source_id,
             alias_symbol,
             effective_from
+        ),
+
+    CONSTRAINT ex_symbol_alias_period_overlap
+        EXCLUDE USING gist
+        (
+            listing_id WITH =,
+            symbol_source_id WITH =,
+            daterange(effective_from, effective_to, '[)') WITH &&
         ),
 
     CONSTRAINT ck_symbol_alias_not_empty
         CHECK
         (
             LENGTH(TRIM(alias_symbol)) > 0
+        ),
+
+    CONSTRAINT ck_symbol_alias_uppercase
+        CHECK
+        (
+            alias_symbol = UPPER(alias_symbol)
         ),
 
     CONSTRAINT ck_symbol_alias_name_not_empty
@@ -185,13 +200,6 @@ CREATE TABLE market.symbol_alias
             OR LENGTH(TRIM(alias_name)) > 0
         ),
 
-    CONSTRAINT ck_symbol_alias_source_not_empty
-        CHECK
-        (
-            source_system IS NULL
-            OR LENGTH(TRIM(source_system)) > 0
-        ),
-
     CONSTRAINT ck_symbol_alias_period
         CHECK
         (
@@ -199,20 +207,20 @@ CREATE TABLE market.symbol_alias
             OR effective_to >= effective_from
         ),
 
-    CONSTRAINT ck_symbol_alias_version_positive
+    CONSTRAINT ck_symbol_alias_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     CONSTRAINT fk_symbol_alias_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -266,7 +274,7 @@ COMMENT ON COLUMN market.symbol_alias.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN market.symbol_alias.instrument_listing_id
+COMMENT ON COLUMN market.symbol_alias.listing_id
 IS
 'Reference to the listed financial instrument associated with this symbol alias.';
 
@@ -286,10 +294,6 @@ COMMENT ON COLUMN market.symbol_alias.alias_name
 IS
 'Alternative business name associated with the financial instrument while this symbol alias was in use.';
 
-COMMENT ON COLUMN market.symbol_alias.source_system
-IS
-'Name of the external exchange, market data provider, trading platform, or internal system from which the symbol alias originated.';
-
 COMMENT ON COLUMN market.symbol_alias.effective_from
 IS
 'Date on which the symbol alias became effective.';
@@ -298,11 +302,11 @@ COMMENT ON COLUMN market.symbol_alias.effective_to
 IS
 'Date on which the symbol alias ceased to be effective. NULL indicates that the alias is currently active.';
 
-COMMENT ON COLUMN market.symbol_alias.description
+COMMENT ON COLUMN market.symbol_alias.symbol_alias_description
 IS
 'Optional business description providing additional information about the symbol alias.';
 
-COMMENT ON COLUMN market.symbol_alias.is_active
+COMMENT ON COLUMN market.symbol_alias.symbol_alias_is_active
 IS
 'Indicates whether the symbol alias is currently active and available for business operations within the Phoenix Platform.';
 
@@ -322,7 +326,7 @@ COMMENT ON COLUMN market.symbol_alias.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.symbol_alias.version
+COMMENT ON COLUMN market.symbol_alias.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

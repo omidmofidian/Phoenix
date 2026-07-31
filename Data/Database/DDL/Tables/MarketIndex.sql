@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : MarketIndex.sql
+ * Script           : Market_Index.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : MarketIndex
@@ -38,8 +38,7 @@
  *
  * Referenced Objects
  *     - ref.exchange
- *     - ref.market
- *     - ref.board
+ *     - market.market
  *     - ref.currency
  *     - ref.index_calculation_method
  *
@@ -95,30 +94,30 @@ CREATE TABLE market.market_index
     -- Business Identification
     ----------------------------------------------------------------------------
 
-    index_code                     VARCHAR(50)
+    market_index_code                     VARCHAR(50)
                                        NOT NULL,
 
-    index_symbol                   VARCHAR(50)
+    market_index_symbol                   VARCHAR(50)
                                        NOT NULL,
 
-    index_name                     VARCHAR(200)
+    market_index_name                     VARCHAR(200)
                                        NOT NULL,
 
-    local_name                   VARCHAR(200),
+    market_index_local_name                   VARCHAR(200),
 
-    short_name                     VARCHAR(100),
+    market_index_short_name                     VARCHAR(100),
 
     ----------------------------------------------------------------------------
     -- Description
     ----------------------------------------------------------------------------
 
-    description                    TEXT,
+    market_index_description                    TEXT,
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                      BOOLEAN
+    market_index_is_active                      BOOLEAN
                                        NOT NULL
                                        DEFAULT TRUE,
 
@@ -137,7 +136,7 @@ CREATE TABLE market.market_index
 
     updated_by                     BIGINT,
 
-    version                        INTEGER
+    row_version                        INTEGER
                                        NOT NULL
                                        DEFAULT 1,
 
@@ -151,34 +150,73 @@ CREATE TABLE market.market_index
             market_index_id
         ),
 
-    CONSTRAINT uq_market_index_public_id
+    CONSTRAINT uk_market_index_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_market_index_code
+    CONSTRAINT uk_market_index_code
         UNIQUE
         (
             exchange_id,
-            index_code
+            market_index_code
         ),
 
-    CONSTRAINT uq_market_index_symbol
+    CONSTRAINT uk_market_index_symbol
         UNIQUE
         (
             exchange_id,
-            index_symbol
+            market_index_symbol
         ),
 
     ----------------------------------------------------------------------------
     -- Check Constraints
     ----------------------------------------------------------------------------
+    
+    CONSTRAINT ck_market_index_code_not_empty
+        CHECK 
+        (
+            LENGTH(TRIM(market_index_code)) > 0
+        ),
 
-    CONSTRAINT ck_market_index_version
+    CONSTRAINT ck_market_index_symbol_not_empty
+        CHECK 
+        (
+            LENGTH(TRIM(market_index_symbol)) > 0
+        ),
+
+    CONSTRAINT ck_market_index_name_not_empty
+        CHECK 
+        (
+            LENGTH(TRIM(market_index_name)) > 0
+        ),
+
+    CONSTRAINT ck_market_index_local_name_not_empty
         CHECK
         (
-            version > 0
+            market_index_local_name IS NULL
+            OR LENGTH(TRIM(market_index_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_market_index_short_name_not_empty
+        CHECK
+        (
+            market_index_short_name IS NULL
+            OR LENGTH(TRIM(market_index_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_market_index_description_not_empty
+        CHECK
+        (
+            market_index_description IS NULL
+            OR LENGTH(TRIM(market_index_description)) > 0
+        ),
+
+    CONSTRAINT ck_market_index_row_version_positive
+        CHECK
+        (
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
@@ -205,6 +243,18 @@ CREATE TABLE market.market_index
         REFERENCES ref.market
         (
             market_id
+        )
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_market_index_calculation_method
+        FOREIGN KEY 
+        (
+            index_calculation_method_id
+        )
+        REFERENCES ref.index_calculation_method
+        (
+            index_calculation_method_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -265,23 +315,23 @@ IS
 -- Business Identification
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.market_index.index_code
+COMMENT ON COLUMN market.market_index.market_index_code
 IS
 'Unique business code identifying the market index within an exchange.';
 
-COMMENT ON COLUMN market.market_index.index_symbol
+COMMENT ON COLUMN market.market_index.market_index_symbol
 IS
 'Official trading or reporting symbol representing the market index.';
 
-COMMENT ON COLUMN market.market_index.index_name
+COMMENT ON COLUMN market.market_index.market_index_name
 IS
 'Official business name of the market index.';
 
-COMMENT ON COLUMN market.market_index.english_name
+COMMENT ON COLUMN market.market_index.market_index_local_name
 IS
-'Official English name of the market index, when available.';
+'Official local-language name of the market index.';
 
-COMMENT ON COLUMN market.market_index.short_name
+COMMENT ON COLUMN market.market_index.market_index_short_name
 IS
 'Short display name used in user interfaces and reports.';
 
@@ -289,7 +339,7 @@ IS
 -- Description
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.market_index.description
+COMMENT ON COLUMN market.market_index.market_index_description
 IS
 'Optional business description of the market index.';
 
@@ -297,7 +347,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.market_index.is_active
+COMMENT ON COLUMN market.market_index.market_index_is_active
 IS
 'Indicates whether the market index is active within the Phoenix Platform.';
 
@@ -321,7 +371,7 @@ COMMENT ON COLUMN market.market_index.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.market_index.version
+COMMENT ON COLUMN market.market_index.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

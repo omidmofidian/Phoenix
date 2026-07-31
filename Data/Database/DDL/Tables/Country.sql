@@ -98,7 +98,7 @@ CREATE TABLE ref.country
     iso_alpha3_code         VARCHAR(3)
                                 NOT NULL,
 
-    iso_numeric_code        char(3)
+    iso_numeric_code        CHAR(3)
                                 NOT NULL,
 
     country_name            VARCHAR(200)
@@ -108,17 +108,17 @@ CREATE TABLE ref.country
 
     nationality             VARCHAR(100),
 
-    display_order           SMALLINT
+    country_display_order           SMALLINT
                                 NOT NULL
                                 DEFAULT 1,
 
-    description             VARCHAR(500),
+    country_description             VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
+    country_is_active               BOOLEAN
                                 NOT NULL
                                 DEFAULT TRUE,
 
@@ -137,9 +137,9 @@ CREATE TABLE ref.country
 
     updated_by              BIGINT,
 
-    version                 INTEGER
-                                NOT NULL
-                                DEFAULT 1,
+    row_version                 INTEGER
+                            NOT NULL
+                            DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- Constraints
@@ -151,25 +151,25 @@ CREATE TABLE ref.country
             country_id
         ),
 
-    CONSTRAINT uq_country_public_id
+    CONSTRAINT uk_country_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_country_iso_alpha2
+    CONSTRAINT uk_country_iso_alpha2
         UNIQUE
         (
             iso_alpha2_code
         ),
 
-    CONSTRAINT uq_country_iso_alpha3
+    CONSTRAINT uk_country_iso_alpha3
         UNIQUE
         (
             iso_alpha3_code
         ),
 
-    CONSTRAINT uq_country_iso_numeric
+    CONSTRAINT uk_country_iso_numeric
         UNIQUE
         (
             iso_numeric_code
@@ -193,12 +193,6 @@ CREATE TABLE ref.country
             LENGTH(TRIM(country_name)) > 0
         ),
 
-    CONSTRAINT ck_country_display_order
-        CHECK
-        (
-            display_order > 0
-        ),
-
     CONSTRAINT ck_country_iso_alpha2_length
         CHECK
         (
@@ -217,10 +211,37 @@ CREATE TABLE ref.country
             LENGTH(TRIM(iso_numeric_code)) = 3
         ),
 
-    CONSTRAINT ck_country_version_positive
+    CONSTRAINT ck_country_local_name_not_empty
+        CHECK 
+        (
+            country_local_name IS NULL
+            OR LENGTH(TRIM(country_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_country_nationality_not_empty
+        CHECK 
+        (
+            nationality IS NULL
+            OR LENGTH(TRIM(nationality)) > 0
+        ),
+
+    CONSTRAINT ck_country_description_not_empty
+        CHECK 
+        (
+            country_description IS NULL
+            OR LENGTH(TRIM(country_description)) > 0
+        ),
+
+    CONSTRAINT ck_country_display_order
         CHECK
         (
-            version > 0
+            country_display_order > 0
+        ),
+
+    CONSTRAINT ck_country_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -271,15 +292,15 @@ COMMENT ON COLUMN ref.country.nationality
 IS
 'Official nationality or demonym associated with the country.';
 
-COMMENT ON COLUMN ref.country.display_order
+COMMENT ON COLUMN ref.country.country_display_order
 IS
 'Display sequence used by applications when presenting countries to users.';
 
-COMMENT ON COLUMN ref.country.description
+COMMENT ON COLUMN ref.country.country_description
 IS
 'Optional business description of the country.';
 
-COMMENT ON COLUMN ref.country.is_active
+COMMENT ON COLUMN ref.country.country_is_active
 IS
 'Indicates whether the country is currently active and available for use throughout the Phoenix Platform.';
 
@@ -299,7 +320,7 @@ COMMENT ON COLUMN ref.country.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.country.version
+COMMENT ON COLUMN ref.country.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

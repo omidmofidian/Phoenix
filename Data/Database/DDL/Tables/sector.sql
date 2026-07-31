@@ -99,21 +99,21 @@ CREATE TABLE ref.sector
     sector_name                    VARCHAR(200)
                                 NOT NULL,
 
-    short_name              VARCHAR(100),
+    sector_short_name              VARCHAR(100),
 
     sector_local_name              VARCHAR(200),
 
-    display_order           SMALLINT
+    sector_display_order           SMALLINT
                                 NOT NULL
                                 DEFAULT 1,
 
-    description             VARCHAR(500),
+    sector_description             VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
+    sector_is_active               BOOLEAN
                                 NOT NULL
                                 DEFAULT TRUE,
 
@@ -132,7 +132,7 @@ CREATE TABLE ref.sector
 
     updated_by              BIGINT,
 
-    version                 INTEGER
+    row_version                 INTEGER
                                 NOT NULL
                                 DEFAULT 1,
 
@@ -165,16 +165,45 @@ CREATE TABLE ref.sector
             LENGTH(TRIM(sector_code)) > 0
         ),
 
+    CONSTRAINT ck_sector_code_uppercase
+        CHECK
+        (
+            sector_code = UPPER(sector_code)
+        ),
+
     CONSTRAINT ck_sector_name_not_empty
         CHECK
         (
             LENGTH(TRIM(sector_name)) > 0
         ),
 
+    CONSTRAINT ck_sector_short_name_not_empty
+        CHECK (
+            sector_short_name IS NULL
+            OR LENGTH(TRIM(sector_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_sector_local_name_not_empty
+        CHECK (
+            sector_local_name IS NULL
+            OR LENGTH(TRIM(sector_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_sector_description_not_empty
+        CHECK (
+            sector_description IS NULL
+            OR LENGTH(TRIM(sector_description)) > 0
+        ),
+
     CONSTRAINT ck_sector_display_order
         CHECK
         (
-            display_order > 0
+            sector_display_order > 0
+        ),
+
+    CONSTRAINT ck_sector_row_version_positive
+        CHECK (
+            row_version > 0
         ),
 
     CONSTRAINT fk_sector_industry
@@ -225,7 +254,7 @@ COMMENT ON COLUMN ref.sector.sector_name
 IS
 'Official business name of the sector.';
 
-COMMENT ON COLUMN ref.sector.short_name
+COMMENT ON COLUMN ref.sector.sector_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -233,15 +262,15 @@ COMMENT ON COLUMN ref.sector.sector_local_name
 IS
 'Official local-language name of the sector.';
 
-COMMENT ON COLUMN ref.sector.display_order
+COMMENT ON COLUMN ref.sector.sector_display_order
 IS
 'Display sequence used by applications when presenting sectors to users.';
 
-COMMENT ON COLUMN ref.sector.description
+COMMENT ON COLUMN ref.sector.sector_description
 IS
 'Optional business description of the sector.';
 
-COMMENT ON COLUMN ref.sector.is_active
+COMMENT ON COLUMN ref.sector.sector_is_active
 IS
 'Indicates whether the sector is currently active and available for business classification.';
 
@@ -261,7 +290,7 @@ COMMENT ON COLUMN ref.sector.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.sector.version
+COMMENT ON COLUMN ref.sector.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

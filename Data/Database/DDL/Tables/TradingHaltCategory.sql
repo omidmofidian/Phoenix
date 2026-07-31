@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : TradingHaltCategory.sql
+ * Script           : Trading_Halt_Category.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingHaltCategory
@@ -91,25 +91,23 @@ CREATE TABLE ref.trading_halt_category
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    category_code                    VARCHAR(50)
+    trading_halt_category_code                    VARCHAR(50)
                                          NOT NULL,
 
-    category_name                    VARCHAR(100)
+    trading_halt_category_name                    VARCHAR(100)
                                          NOT NULL,
 
-    short_name                       VARCHAR(50),
-
-    display_order                    SMALLINT
+    trading_halt_category_display_order                    SMALLINT
                                          NOT NULL
                                          DEFAULT 1,
 
-    description                      VARCHAR(500),
+    trading_halt_category_description                      VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                        BOOLEAN
+    trading_halt_category_is_active                        BOOLEAN
                                          NOT NULL
                                          DEFAULT TRUE,
 
@@ -128,7 +126,7 @@ CREATE TABLE ref.trading_halt_category
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                          NOT NULL
                                          DEFAULT 1,
 
@@ -142,46 +140,57 @@ CREATE TABLE ref.trading_halt_category
             trading_halt_category_id
         ),
 
-    CONSTRAINT uq_trading_halt_category_public_id
+    CONSTRAINT uk_trading_halt_category_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_trading_halt_category_code
+    CONSTRAINT uk_trading_halt_category_code
         UNIQUE
         (
-            category_code
+            trading_halt_category_code
         ),
 
-    CONSTRAINT uq_trading_halt_category_name
+    CONSTRAINT uk_trading_halt_category_name
         UNIQUE
         (
-            category_name
+            trading_halt_category_name
         ),
 
     CONSTRAINT ck_trading_halt_category_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(category_code)) > 0
+            LENGTH(TRIM(trading_halt_category_code)) > 0
+        ),
+
+    CONSTRAINT ck_trading_halt_category_code_uppercase
+        CHECK (
+            trading_halt_category_code = UPPER(trading_halt_category_code)
         ),
 
     CONSTRAINT ck_trading_halt_category_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(category_name)) > 0
+            LENGTH(TRIM(trading_halt_category_name)) > 0
         ),
 
     CONSTRAINT ck_trading_halt_category_display_order_positive
         CHECK
         (
-            display_order > 0
+            trading_halt_category_display_order > 0
         ),
 
-    CONSTRAINT ck_trading_halt_category_version_positive
+    CONSTRAINT ck_trading_halt_category_description_not_empty
+        CHECK (
+            trading_halt_category_description IS NULL
+            OR LENGTH(TRIM(trading_halt_category_description)) > 0
+        ),
+
+    CONSTRAINT ck_trading_halt_category_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -208,27 +217,23 @@ COMMENT ON COLUMN ref.trading_halt_category.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.trading_halt_category.category_code
+COMMENT ON COLUMN ref.trading_halt_category.trading_halt_category_code
 IS
 'Unique business code identifying the trading halt category.';
 
-COMMENT ON COLUMN ref.trading_halt_category.category_name
+COMMENT ON COLUMN ref.trading_halt_category.trading_halt_category_name
 IS
 'Official business name of the trading halt category.';
 
-COMMENT ON COLUMN ref.trading_halt_category.short_name
-IS
-'Abbreviated name used by user interfaces and reports.';
-
-COMMENT ON COLUMN ref.trading_halt_category.display_order
+COMMENT ON COLUMN ref.trading_halt_category.trading_halt_category_display_order
 IS
 'Display sequence used by applications when presenting trading halt categories to users.';
 
-COMMENT ON COLUMN ref.trading_halt_category.description
+COMMENT ON COLUMN ref.trading_halt_category.trading_halt_category_description
 IS
 'Optional business description providing additional information about the trading halt category.';
 
-COMMENT ON COLUMN ref.trading_halt_category.is_active
+COMMENT ON COLUMN ref.trading_halt_category.trading_halt_category_is_active
 IS
 'Indicates whether the trading halt category is currently active and available for use throughout the Phoenix Platform.';
 
@@ -248,7 +253,7 @@ COMMENT ON COLUMN ref.trading_halt_category.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.trading_halt_category.version
+COMMENT ON COLUMN ref.trading_halt_category.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

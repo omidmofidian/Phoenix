@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : IntradayBar.sql
+ * Script           : Intraday_Bar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : IntradayBar
@@ -36,7 +36,7 @@
  *     - Schema : ref
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.time_frame
  *     - ref.trading_session
  *     - ref.market_status
@@ -75,7 +75,7 @@ CREATE TABLE market.intraday_bar
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id         BIGINT
+    listing_id         BIGINT
                                       NOT NULL,
 
     time_frame_id                 BIGINT
@@ -113,9 +113,6 @@ CREATE TABLE market.intraday_bar
                                       NOT NULL,
 
     bar_end_timestamp             TIMESTAMPTZ
-                                      NOT NULL,
-
-    bar_timestamp                 TIMESTAMPTZ
                                       NOT NULL,
 
     ----------------------------------------------------------------------------
@@ -156,13 +153,13 @@ CREATE TABLE market.intraday_bar
 
     source_reference              VARCHAR(500),
 
-    description                   VARCHAR(500),
+    intraday_bar_description                   VARCHAR(500),
 
         ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                     BOOLEAN
+    intraday_bar_is_active                     BOOLEAN
                                       NOT NULL
                                       DEFAULT TRUE,
 
@@ -181,7 +178,7 @@ CREATE TABLE market.intraday_bar
 
     updated_by                    BIGINT,
 
-    version                       INTEGER
+    row_version                       INTEGER
                                       NOT NULL
                                       DEFAULT 1,
 
@@ -195,16 +192,16 @@ CREATE TABLE market.intraday_bar
             intraday_bar_id
         ),
 
-    CONSTRAINT uq_intraday_bar_public_id
+    CONSTRAINT uk_intraday_bar_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_intraday_bar_business
+    CONSTRAINT uk_intraday_bar_business
         UNIQUE
         (
-            instrument_listing_id,
+            listing_id,
             time_frame_id,
             bar_start_timestamp,
             price_adjustment_status_id
@@ -220,14 +217,6 @@ CREATE TABLE market.intraday_bar
             bar_start_timestamp
             <
             bar_end_timestamp
-        ),
-
-    CONSTRAINT ck_intraday_bar_bar_timestamp
-        CHECK
-        (
-            bar_timestamp >= bar_start_timestamp
-            AND
-            bar_timestamp <= bar_end_timestamp
         ),
 
     CONSTRAINT ck_intraday_bar_prices
@@ -281,14 +270,14 @@ CREATE TABLE market.intraday_bar
     CONSTRAINT ck_intraday_bar_description
         CHECK
         (
-            description IS NULL
-            OR LENGTH(TRIM(description)) > 0
+            intraday_bar_description IS NULL
+            OR LENGTH(TRIM(intraday_bar_description)) > 0
         ),
 
     CONSTRAINT ck_intraday_bar_version
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
@@ -296,8 +285,8 @@ CREATE TABLE market.intraday_bar
     ----------------------------------------------------------------------------
 
     CONSTRAINT fk_intraday_bar_instrument_listing
-        FOREIGN KEY (instrument_listing_id)
-        REFERENCES market.instrument_listing (instrument_listing_id)
+        FOREIGN KEY (listing_id)
+        REFERENCES market.listing (listing_id)
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
 
@@ -380,7 +369,7 @@ APIs, and distributed systems.';
 -- Classification References
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.intraday_bar.instrument_listing_id
+COMMENT ON COLUMN market.intraday_bar.listing_id
 IS
 'Reference to the listed financial instrument represented by this intraday bar.';
 
@@ -422,7 +411,9 @@ IS
 
 COMMENT ON COLUMN market.intraday_bar.trading_date
 IS
-'Official trading date associated with the aggregation period.';
+'Official exchange trading date assigned by the trading calendar, 
+which may differ from the calendar date derived from bar_start_timestamp in markets 
+with overnight or cross-midnight sessions.';
 
 COMMENT ON COLUMN market.intraday_bar.bar_start_timestamp
 IS
@@ -480,7 +471,7 @@ COMMENT ON COLUMN market.intraday_bar.source_reference
 IS
 'Optional external identifier, file name, API transaction identifier, batch identifier, or message identifier associated with the source data used to generate the bar.';
 
-COMMENT ON COLUMN market.intraday_bar.description
+COMMENT ON COLUMN market.intraday_bar.intraday_bar_description
 IS
 'Optional business description providing additional information about the aggregated bar.';
 
@@ -488,7 +479,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.intraday_bar.is_active
+COMMENT ON COLUMN market.intraday_bar.intraday_bar_is_active
 IS
 'Indicates whether the record is active and available for business operations within the Phoenix Platform.';
 
@@ -512,7 +503,7 @@ COMMENT ON COLUMN market.intraday_bar.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.intraday_bar.version
+COMMENT ON COLUMN market.intraday_bar.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

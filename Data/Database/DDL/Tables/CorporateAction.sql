@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : CorporateAction.sql
+ * Script           : Corporate_Action.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CorporateAction
@@ -12,10 +12,10 @@
  * -------------------------------------------------------------------------------------------------
  * Creates the canonical CorporateAction table.
  *
- * The CorporateAction table stores corporate events announced by listed
- * companies that affect financial instruments, shareholders, market prices,
- * or capital structure. Each corporate action is associated with exactly one
- * financial instrument and is classified by both action type and action status.
+ * The CorporateAction table stores corporate events announced for listed financial
+ * instruments that affect market listings, shareholders, market prices, or capital
+ * structure. Each corporate action is associated with exactly one market listing
+ * and is classified by both action type and action status.
  *
  * Architectural Source
  * -------------------------------------------------------------------------------------------------
@@ -33,13 +33,13 @@
  * Prerequisites
  *     - Schema : market
  *     - Schema : ref
- *     - Table  : ref.instrument
+ *     - Table  : market.listing
  *     - Table  : ref.corporate_action_type
  *     - Table  : ref.corporate_action_status
  *     - Table  : ref.currency
  *
  * Referenced Objects
- *     - ref.instrument
+ *     - market.listing
  *     - ref.corporate_action_type
  *     - ref.corporate_action_status
  *     - ref.currency
@@ -65,6 +65,7 @@
  * - One table per file.
  * - Architecture-driven implementation.
  * - PostgreSQL 17 compatible.
+ * - One record represents one Listing and one Corporate Action event.
  *
  * Author           : Phoenix Architecture Team
  * Created          : 2026-07-26
@@ -97,7 +98,7 @@ CREATE TABLE market.corporate_action
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_id                BIGINT
+    listing_id                BIGINT
                                     NOT NULL,
 
     corporate_action_type_id     BIGINT
@@ -122,7 +123,8 @@ CREATE TABLE market.corporate_action
 
     payment_date                 DATE,
 
-    reference_number             VARCHAR(100),
+    reference_number             VARCHAR(100)
+                                    NOT NULL,
 
     title                        VARCHAR(300)
                                     NOT NULL,
@@ -135,15 +137,7 @@ CREATE TABLE market.corporate_action
 
     new_value                     NUMERIC(18,4),
 
-    description                  VARCHAR(1000),
-
-    ----------------------------------------------------------------------------
-    -- Business Status
-    ----------------------------------------------------------------------------
-
-    is_active                    BOOLEAN
-                                    NOT NULL
-                                    DEFAULT TRUE,
+    corporate_action_description                  VARCHAR(1000),
 
     ----------------------------------------------------------------------------
     -- Audit Columns
@@ -160,7 +154,7 @@ CREATE TABLE market.corporate_action
 
     updated_by                   BIGINT,
 
-    version                      INTEGER
+    row_version                      INTEGER
                                     NOT NULL
                                     DEFAULT 1,
 
@@ -183,9 +177,10 @@ CREATE TABLE market.corporate_action
     CONSTRAINT uk_corporate_action_business
         UNIQUE
         (
-            instrument_id,
+            listing_id,
             corporate_action_type_id,
-            effective_date
+            effective_date,
+            reference_number
         ),
 
     CONSTRAINT ck_corporate_action_title_not_empty
@@ -197,8 +192,7 @@ CREATE TABLE market.corporate_action
     CONSTRAINT ck_corporate_action_reference_number_not_empty
         CHECK
         (
-            reference_number IS NULL
-            OR LENGTH(TRIM(reference_number)) > 0
+            LENGTH(TRIM(reference_number)) > 0
         ),
 
     CONSTRAINT ck_corporate_action_ratio_positive
@@ -229,41 +223,43 @@ CREATE TABLE market.corporate_action
             OR new_value >= 0
         ),
 
-    CONSTRAINT ck_corporate_action_version_positive
-        CHECK
+    CONSTRAINT ck_corporate_action_description_not_empty
+        CHECK 
         (
-            version > 0
+            corporate_action_description IS NULL
+            OR LENGTH(TRIM(corporate_action_description)) > 0
         ),
 
-    CONSTRAINT ck_corporate_action_effective_date
+    CONSTRAINT ck_corporate_action_row_version_positive
         CHECK
+        (
+            row_version > 0
+        ),
+
+    CONSTRAINT ck_corporate_action_dates
+        CHECK 
         (
             effective_date >= announcement_date
+            AND
+            (
+                record_date IS NULL 
+                OR record_date >= announcement_date
+            )
+            AND
+            (
+                payment_date IS NULL 
+                OR payment_date >= effective_date
+            )
         ),
 
-    CONSTRAINT ck_corporate_action_record_date
-        CHECK
-        (
-            record_date IS NULL
-            OR record_date >= announcement_date
-        ),
-
-    CONSTRAINT ck_corporate_action_payment_date
-        CHECK
-        (
-            payment_date IS NULL
-            OR record_date IS NULL
-            OR payment_date >= record_date
-        ),
-
-    CONSTRAINT fk_corporate_action_instrument
+    CONSTRAINT fk_corporate_action_listing
         FOREIGN KEY
         (
-            instrument_id
+            listing_id
         )
-        REFERENCES ref.instrument
+        REFERENCES market.listing
         (
-            instrument_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -311,10 +307,11 @@ CREATE TABLE market.corporate_action
 
 COMMENT ON TABLE market.corporate_action
 IS
-'Stores corporate actions announced by listed companies. Each record represents
-a business event affecting a financial instrument, including dividends, capital
-increases, stock splits, rights issues, mergers, acquisitions, delistings, and
-other corporate events supported by the Phoenix Platform.';
+'Stores corporate actions announced for market listings within the Phoenix
+Platform. Each record represents a business event affecting a listed financial
+instrument, including dividends, capital increases, stock splits, rights
+issues, mergers, acquisitions, delistings, and other corporate events
+supported by the platform.';
 
 --------------------------------------------------------------------------------
 -- Column Comments
@@ -328,9 +325,9 @@ COMMENT ON COLUMN market.corporate_action.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN market.corporate_action.instrument_id
+COMMENT ON COLUMN market.corporate_action.listing_id
 IS
-'Reference to the financial instrument affected by the corporate action.';
+'Reference to the market listing affected by the corporate action.';
 
 COMMENT ON COLUMN market.corporate_action.corporate_action_type_id
 IS
@@ -384,13 +381,9 @@ COMMENT ON COLUMN market.corporate_action.new_value
 IS
 'Resulting value after the corporate action when value comparison is required.';
 
-COMMENT ON COLUMN market.corporate_action.description
+COMMENT ON COLUMN market.corporate_action.corporate_action_description
 IS
 'Optional business description providing additional details about the corporate action.';
-
-COMMENT ON COLUMN market.corporate_action.is_active
-IS
-'Indicates whether the corporate action record is currently active and available for business processing.';
 
 COMMENT ON COLUMN market.corporate_action.created_at
 IS
@@ -408,7 +401,7 @@ COMMENT ON COLUMN market.corporate_action.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.corporate_action.version
+COMMENT ON COLUMN market.corporate_action.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

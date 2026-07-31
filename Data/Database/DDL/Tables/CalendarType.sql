@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : CalendarType.sql
+ * Script           : Calendar_Type.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CalendarType
@@ -37,6 +37,8 @@
  *     None
  *
  * Referenced By
+ *     - market.market_session
+ *     - market.daily_market_data
  *     - ref.country
  *     - ref.trading_calendar
  *     - ref.holiday_calendar
@@ -97,21 +99,21 @@ CREATE TABLE ref.calendar_type
     calendar_type_name       VARCHAR(100)
                                  NOT NULL,
 
-    short_name               VARCHAR(50),
+    calendar_type_short_name               VARCHAR(50),
 
     calendar_type_local_name               VARCHAR(100),
 
-    display_order            SMALLINT
+    calendar_type_display_order            SMALLINT
                                  NOT NULL
                                  DEFAULT 1,
 
-    description              VARCHAR(500),
+    calendar_type_description              VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                BOOLEAN
+    calendar_type_is_active                BOOLEAN
                                  NOT NULL
                                  DEFAULT TRUE,
 
@@ -130,7 +132,7 @@ CREATE TABLE ref.calendar_type
 
     updated_by               BIGINT,
 
-    version                  INTEGER
+    row_version                  INTEGER
                                  NOT NULL
                                  DEFAULT 1,
 
@@ -144,13 +146,13 @@ CREATE TABLE ref.calendar_type
             calendar_type_id
         ),
 
-    CONSTRAINT uq_calendar_type_public_id
+    CONSTRAINT uk_calendar_type_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_calendar_type_code
+    CONSTRAINT uk_calendar_type_code
         UNIQUE
         (
             calendar_type_code
@@ -162,22 +164,49 @@ CREATE TABLE ref.calendar_type
             LENGTH(TRIM(calendar_type_code)) > 0
         ),
 
+    CONSTRAINT ck_calendar_type_code_length
+        CHECK 
+        (
+            LENGTH(TRIM(calendar_type_code)) BETWEEN 2 AND 30
+        ),
+
     CONSTRAINT ck_calendar_type_name_not_empty
         CHECK
         (
             LENGTH(TRIM(calendar_type_name)) > 0
         ),
 
+    CONSTRAINT ck_calendar_type_short_name_not_empty
+        CHECK
+        (
+            calendar_type_short_name IS NULL
+            OR LENGTH(TRIM(calendar_type_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_calendar_type_local_name_not_empty
+        CHECK
+        (
+            calendar_type_local_name IS NULL
+            OR LENGTH(TRIM(calendar_type_local_name)) > 0
+        ),
+
     CONSTRAINT ck_calendar_type_display_order
         CHECK
         (
-            display_order > 0
+            calendar_type_display_order > 0
         ),
 
-    CONSTRAINT ck_calendar_type_version_positive
+    CONSTRAINT ck_calendar_type_description_not_empty
         CHECK
         (
-            version > 0
+            calendar_type_description IS NULL
+            OR LENGTH(TRIM(calendar_type_description)) > 0
+        ),
+
+    CONSTRAINT ck_calendar_type_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -187,9 +216,9 @@ CREATE TABLE ref.calendar_type
 
 COMMENT ON TABLE ref.calendar_type
 IS
-'Reference table containing the standardized calendar systems supported by the
-Phoenix Platform. Each record represents an authoritative calendar system used
-for date processing, localization, scheduling, reporting, and business
+'Reference table containing the standardized calendar types supported by the
+Phoenix Platform. Each record represents an authoritative calendar system type
+used for date processing, localization, scheduling, reporting, and business
 operations across multiple countries and financial markets.';
 
 --------------------------------------------------------------------------------
@@ -212,7 +241,7 @@ COMMENT ON COLUMN ref.calendar_type.calendar_type_name
 IS
 'Official business name of the calendar system.';
 
-COMMENT ON COLUMN ref.calendar_type.short_name
+COMMENT ON COLUMN ref.calendar_type.calendar_type_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -220,15 +249,15 @@ COMMENT ON COLUMN ref.calendar_type.calendar_type_local_name
 IS
 'Official local-language name of the calendar system.';
 
-COMMENT ON COLUMN ref.calendar_type.display_order
+COMMENT ON COLUMN ref.calendar_type.calendar_type_display_order
 IS
 'Display sequence used by applications when presenting calendar types to users.';
 
-COMMENT ON COLUMN ref.calendar_type.description
+COMMENT ON COLUMN ref.calendar_type.calendar_type_description
 IS
 'Optional business description of the calendar system.';
 
-COMMENT ON COLUMN ref.calendar_type.is_active
+COMMENT ON COLUMN ref.calendar_type.calendar_type_is_active
 IS
 'Indicates whether the calendar type is currently active and available for use throughout the Phoenix Platform.';
 
@@ -248,7 +277,7 @@ COMMENT ON COLUMN ref.calendar_type.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.calendar_type.version
+COMMENT ON COLUMN ref.calendar_type.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : DailyMarketData.sql
+ * Script           : Daily_Market_Data.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : DailyMarketData
@@ -15,7 +15,7 @@
  * The DailyMarketData table stores the official end-of-day (EOD) market facts
  * for listed financial instruments supported by the Phoenix Platform.
  *
- * Each record represents one trading day for one instrument listing and serves
+ * Each record represents one trading day for one listing and serves
  * as the authoritative source for technical analysis, screening, portfolio
  * valuation, quantitative research, backtesting, reporting, and machine
  * learning workloads.
@@ -44,7 +44,7 @@
  *     - Schema : ref
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.trading_session
  *     - ref.market_status
  *     - ref.calendar_type
@@ -75,7 +75,7 @@
  * Notes
  * -------------------------------------------------------------------------------------------------
  * - Canonical Fact Table.
- * - One record represents one Instrument Listing, one Trading Session,
+ * - One record represents one Listing, one Trading Session,
  *   one Trading Date and one Price Adjustment Status.
  * - Designed for PostgreSQL 17.
  * - Optimized for analytical workloads.
@@ -113,7 +113,7 @@ CREATE TABLE market.daily_market_data
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id            BIGINT
+    listing_id            BIGINT
                                          NOT NULL,
 
     trading_session_id               BIGINT
@@ -197,16 +197,9 @@ CREATE TABLE market.daily_market_data
 
     source_reference                VARCHAR(500),
 
-    description                     VARCHAR(500),
+    daily_market_data_description                     VARCHAR(500),
 
-        ----------------------------------------------------------------------------
-    -- Business Status
-    ----------------------------------------------------------------------------
-
-    is_active                        BOOLEAN
-                                          NOT NULL
-                                          DEFAULT TRUE,
-
+   
     ----------------------------------------------------------------------------
     -- Audit Columns
     ----------------------------------------------------------------------------
@@ -222,7 +215,7 @@ CREATE TABLE market.daily_market_data
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                           NOT NULL
                                           DEFAULT 1,
 
@@ -236,16 +229,16 @@ CREATE TABLE market.daily_market_data
             daily_market_data_id
         ),
 
-    CONSTRAINT uq_daily_market_data_public_id
+    CONSTRAINT uk_daily_market_data_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_daily_market_data_business
+    CONSTRAINT uk_daily_market_data_business
         UNIQUE
         (
-            instrument_listing_id,
+            listing_id,
             trading_session_id,
             trading_date,
             price_adjustment_status_id
@@ -369,38 +362,89 @@ CREATE TABLE market.daily_market_data
             OR price_change_percent BETWEEN -100.0000 AND 100000.0000
         ),
 
-    CONSTRAINT ck_daily_market_data_source_reference
+    CONSTRAINT ck_daily_market_data_open_price_positive
+        CHECK 
+        (
+            open_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_high_price_positive
+        CHECK 
+        (
+            high_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_low_price_positive
+        CHECK 
+        (
+            low_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_last_price_positive
+        CHECK 
+        (
+            last_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_closing_price_positive
+        CHECK 
+        (
+            closing_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_source_reference_not_empty
         CHECK
         (
             source_reference IS NULL
             OR LENGTH(TRIM(source_reference)) > 0
         ),
 
-    CONSTRAINT ck_daily_market_data_description
+    CONSTRAINT ck_daily_market_data_previous_close_positive
         CHECK
         (
-            description IS NULL
-            OR LENGTH(TRIM(description)) > 0
+            previous_close_price IS NULL
+            OR previous_close_price > 0
         ),
 
-    CONSTRAINT ck_daily_market_data_version
+    CONSTRAINT ck_daily_market_data_average_price_positive
         CHECK
         (
-            version > 0
+            average_price IS NULL
+            OR average_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_vwap_price_positive
+        CHECK
+        (
+            vwap_price IS NULL
+            OR vwap_price > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_description_not_empty
+        CHECK
+        (
+            daily_market_data_description IS NULL
+            OR LENGTH(TRIM(daily_market_data_description)) > 0
+        ),
+
+    CONSTRAINT ck_daily_market_data_row_version_positive
+        CHECK
+        (
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
     -- Foreign Keys
     ----------------------------------------------------------------------------
 
-    CONSTRAINT fk_daily_market_data_instrument_listing
+    CONSTRAINT fk_daily_market_data_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -496,9 +540,9 @@ CREATE TABLE market.daily_market_data
 
 COMMENT ON TABLE market.daily_market_data
 IS
-'Stores the canonical daily end-of-day (EOD) market facts for listed financial
-instruments within the Phoenix Platform. Each record represents one trading
-session for one instrument listing on one trading date and serves as the
+'Stores the canonical daily end-of-day (EOD) market facts for market listings
+within the Phoenix Platform. Each record represents one listing, one trading
+session, one trading date, and one price adjustment status, and serves as the
 authoritative source for analytics, technical analysis, screening,
 backtesting, reporting, portfolio valuation, and machine learning. The table
 contains only observable market facts and excludes business metadata,
@@ -520,9 +564,9 @@ IS
 -- Classification References
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.daily_market_data.instrument_listing_id
+COMMENT ON COLUMN market.daily_market_data.listing_id
 IS
-'Reference to the listed financial instrument for which the daily market data was recorded.';
+'Reference to the market listing for which the daily market data was recorded.';
 
 COMMENT ON COLUMN market.daily_market_data.trading_session_id
 IS
@@ -652,17 +696,9 @@ COMMENT ON COLUMN market.daily_market_data.source_reference
 IS
 'External reference, source identifier, file name, message identifier, or API transaction identifier associated with the imported market data.';
 
-COMMENT ON COLUMN market.daily_market_data.description
+COMMENT ON COLUMN market.daily_market_data.daily_market_data_description
 IS
 'Optional business description providing additional information about the daily market data record.';
-
---------------------------------------------------------------------------------
--- Business Status
---------------------------------------------------------------------------------
-
-COMMENT ON COLUMN market.daily_market_data.is_active
-IS
-'Indicates whether the record is active and available for business operations within the Phoenix Platform.';
 
 --------------------------------------------------------------------------------
 -- Audit Columns
@@ -684,7 +720,7 @@ COMMENT ON COLUMN market.daily_market_data.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.daily_market_data.version
+COMMENT ON COLUMN market.daily_market_data.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

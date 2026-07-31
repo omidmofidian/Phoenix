@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : InstrumentSuspensionReason.sql
+ * Script           : Instrument_Suspension_Reason.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentSuspensionReason
@@ -90,25 +90,27 @@ CREATE TABLE ref.instrument_suspension_reason
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    reason_code                          VARCHAR(50)
+    instrument_suspension_reason_code                          VARCHAR(30)
                                              NOT NULL,
 
-    reason_name                          VARCHAR(100)
+    instrument_suspension_reason_name                          VARCHAR(100)
                                              NOT NULL,
 
-    short_name                           VARCHAR(50),
+    instrument_suspension_reason_short_name                    VARCHAR(50),
 
-    display_order                        SMALLINT
+    instrument_suspension_reason_local_name                    VARCHAR(100),
+
+    instrument_suspension_reason_display_order                 SMALLINT
                                              NOT NULL
                                              DEFAULT 1,
 
-    description                          VARCHAR(500),
+    instrument_suspension_reason_description                   VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                            BOOLEAN
+    instrument_suspension_reason_is_active                     BOOLEAN
                                              NOT NULL
                                              DEFAULT TRUE,
 
@@ -127,7 +129,7 @@ CREATE TABLE ref.instrument_suspension_reason
 
     updated_by                           BIGINT,
 
-    version                              INTEGER
+    row_version                              INTEGER
                                              NOT NULL
                                              DEFAULT 1,
 
@@ -150,37 +152,64 @@ CREATE TABLE ref.instrument_suspension_reason
     CONSTRAINT uq_instrument_suspension_reason_code
         UNIQUE
         (
-            reason_code
+            instrument_suspension_reason_code
         ),
 
     CONSTRAINT uq_instrument_suspension_reason_name
         UNIQUE
         (
-            reason_name
+            instrument_suspension_reason_name
         ),
 
     CONSTRAINT ck_instrument_suspension_reason_code_not_empty
         CHECK
         (
-            LENGTH(TRIM(reason_code)) > 0
+            LENGTH(TRIM(instrument_suspension_reason_code)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_suspension_reason_code_uppercase
+        CHECK
+        (
+            instrument_suspension_reason_code = UPPER(instrument_suspension_reason_code)
         ),
 
     CONSTRAINT ck_instrument_suspension_reason_name_not_empty
         CHECK
         (
-            LENGTH(TRIM(reason_name)) > 0
+            LENGTH(TRIM(instrument_suspension_reason_name)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_suspension_reason_short_name_not_empty
+        CHECK
+        (
+            instrument_suspension_reason_short_name IS NULL
+            OR LENGTH(TRIM(instrument_suspension_reason_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_suspension_reason_local_name_not_empty
+        CHECK
+        (
+            instrument_suspension_reason_local_name IS NULL
+            OR LENGTH(TRIM(instrument_suspension_reason_local_name)) > 0
         ),
 
     CONSTRAINT ck_instrument_suspension_reason_display_order_positive
         CHECK
         (
-            display_order > 0
+            instrument_suspension_reason_display_order > 0
         ),
 
-    CONSTRAINT ck_instrument_suspension_reason_version_positive
+    CONSTRAINT ck_instrument_suspension_reason_description_not_empty
         CHECK
         (
-            version > 0
+            instrument_suspension_reason_description IS NULL
+            OR LENGTH(TRIM(instrument_suspension_reason_description)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_suspension_reason_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -204,27 +233,31 @@ COMMENT ON COLUMN ref.instrument_suspension_reason.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.reason_code
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_code
 IS
 'Unique business code identifying the instrument suspension reason.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.reason_name
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_name
 IS
 'Official business name of the instrument suspension reason.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.short_name
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_short_name
 IS
 'Abbreviated name used by applications, reports, and user interfaces.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.display_order
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_local_name
+IS
+'Official local-language name of the instrument suspension reason.';
+
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_display_order
 IS
 'Display sequence used when presenting suspension reasons within user interfaces and reports.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.description
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_description
 IS
 'Optional business description providing additional information about the suspension reason.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.is_active
+COMMENT ON COLUMN ref.instrument_suspension_reason.instrument_suspension_reason_is_active
 IS
 'Indicates whether the suspension reason is currently active and available for business operations within the Phoenix Platform.';
 
@@ -244,7 +277,7 @@ COMMENT ON COLUMN ref.instrument_suspension_reason.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.instrument_suspension_reason.version
+COMMENT ON COLUMN ref.instrument_suspension_reason.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

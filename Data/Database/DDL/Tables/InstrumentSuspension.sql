@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : InstrumentSuspension.sql
+ * Script           : Instrument_Suspension.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentSuspension
@@ -37,13 +37,13 @@
  * Prerequisites
  *     - Schema : market
  *     - Schema : ref
- *     - Table  : market.instrument_listing
+ *     - Table  : market.listing
  *     - Table  : ref.market_status
  *     - Table  : ref.instrument_suspension_reason
  *     - Table  : ref.market_event_type
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.market_status
  *     - ref.instrument_suspension_reason
  *     - ref.market_event_type
@@ -92,7 +92,7 @@ CREATE TABLE market.instrument_suspension
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id            BIGINT
+    listing_id            BIGINT
                                          NOT NULL,
 
     market_status_id                 BIGINT
@@ -124,16 +124,13 @@ CREATE TABLE market.instrument_suspension
 
     source_reference                 VARCHAR(500),
 
-    suspension_reason                VARCHAR(500)
-                                         NOT NULL,
-
-    description                      VARCHAR(500),
+    instrument_suspension_description                      VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                        BOOLEAN
+    instrument_suspension_is_active                        BOOLEAN
                                          NOT NULL
                                          DEFAULT TRUE,
 
@@ -152,7 +149,7 @@ CREATE TABLE market.instrument_suspension
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                          NOT NULL
                                          DEFAULT 1,
 
@@ -178,11 +175,19 @@ CREATE TABLE market.instrument_suspension
             suspension_code
         ),
 
+    CONSTRAINT ex_instrument_suspension_period_overlap
+        EXCLUDE USING gist
+        (
+            listing_id WITH =,
+            tstzrange(
+                suspended_at,
+                COALESCE(reactivated_at, 'infinity'::timestamptz),
+                '[)'
+            ) WITH &&
+        ),
+
     CONSTRAINT ck_instrument_suspension_code_not_empty
         CHECK (LENGTH(TRIM(suspension_code)) > 0),
-
-    CONSTRAINT ck_instrument_suspension_reason_not_empty
-        CHECK (LENGTH(TRIM(suspension_reason)) > 0),
 
     CONSTRAINT ck_instrument_suspension_reference_not_empty
         CHECK
@@ -212,17 +217,23 @@ CREATE TABLE market.instrument_suspension
             OR reactivated_at >= suspended_at
         ),
 
-    CONSTRAINT ck_instrument_suspension_version_positive
+    CONSTRAINT ck_instrument_suspension_announced
+        CHECK (
+            announced_at IS NULL
+            OR announced_at <= suspended_at
+        ),
+
+    CONSTRAINT ck_instrument_suspension_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     CONSTRAINT fk_instrument_suspension_listing
-        FOREIGN KEY (instrument_listing_id)
-        REFERENCES market.instrument_listing
+        FOREIGN KEY (listing_id)
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -278,7 +289,7 @@ COMMENT ON COLUMN market.instrument_suspension.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN market.instrument_suspension.instrument_listing_id
+COMMENT ON COLUMN market.instrument_suspension.listing_id
 IS
 'Reference to the listed financial instrument affected by the suspension.';
 
@@ -322,15 +333,11 @@ COMMENT ON COLUMN market.instrument_suspension.source_reference
 IS
 'External reference identifying the official source of the suspension information, such as an exchange announcement, regulatory notice, document identifier, or URL.';
 
-COMMENT ON COLUMN market.instrument_suspension.suspension_reason
-IS
-'Business explanation describing the specific reason for the instrument suspension.';
-
-COMMENT ON COLUMN market.instrument_suspension.description
+COMMENT ON COLUMN market.instrument_suspension.instrument_suspension_description
 IS
 'Optional business description providing additional information about the suspension event.';
 
-COMMENT ON COLUMN market.instrument_suspension.is_active
+COMMENT ON COLUMN market.instrument_suspension.instrument_suspension_is_active
 IS
 'Indicates whether the suspension record is currently active and valid within the Phoenix Platform.';
 
@@ -350,7 +357,7 @@ COMMENT ON COLUMN market.instrument_suspension.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.instrument_suspension.version
+COMMENT ON COLUMN market.instrument_suspension.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

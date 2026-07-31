@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : InstrumentPriceAdjustment.sql
+ * Script           : Instrument_Price_Adjustment.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentPriceAdjustment
@@ -35,7 +35,7 @@
  *     - Schema : ref
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - market.corporate_action_item
  *     - ref.price_adjustment_status
  *     - ref.data_quality_status
@@ -79,7 +79,7 @@ CREATE TABLE market.instrument_price_adjustment
     -- Business References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id               BIGINT
+    listing_id               BIGINT
                                             NOT NULL,
 
     corporate_action_item_id            BIGINT
@@ -109,7 +109,7 @@ CREATE TABLE market.instrument_price_adjustment
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                           BOOLEAN
+    instrument_price_adjustment_is_active                           BOOLEAN
                                             NOT NULL
                                             DEFAULT TRUE,
 
@@ -128,7 +128,7 @@ CREATE TABLE market.instrument_price_adjustment
 
     updated_by                          BIGINT,
 
-    version                             INTEGER
+    row_version                             INTEGER
                                             NOT NULL
                                             DEFAULT 1,
 
@@ -142,16 +142,16 @@ CREATE TABLE market.instrument_price_adjustment
             instrument_price_adjustment_id
         ),
 
-    CONSTRAINT uq_instrument_price_adjustment_public_id
+    CONSTRAINT uk_instrument_price_adjustment_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_instrument_price_adjustment_business
+    CONSTRAINT uk_instrument_price_adjustment_business
         UNIQUE
         (
-            instrument_listing_id,
+            listing_id,
             corporate_action_item_id
         ),
 
@@ -165,10 +165,10 @@ CREATE TABLE market.instrument_price_adjustment
             adjustment_factor > 0
         ),
 
-    CONSTRAINT ck_instrument_price_adjustment_version
+    CONSTRAINT ck_instrument_price_adjustment_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
@@ -178,11 +178,11 @@ CREATE TABLE market.instrument_price_adjustment
     CONSTRAINT fk_instrument_price_adjustment_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -265,7 +265,7 @@ APIs, and distributed systems.';
 -- Business References
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.instrument_price_adjustment.instrument_listing_id
+COMMENT ON COLUMN market.instrument_price_adjustment.listing_id
 IS
 'Reference to the listed financial instrument affected by the price adjustment.';
 
@@ -301,7 +301,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.instrument_price_adjustment.is_active
+COMMENT ON COLUMN market.instrument_price_adjustment.instrument_price_adjustment_is_active
 IS
 'Indicates whether the adjustment record is active and available for business operations within the Phoenix Platform.';
 
@@ -325,7 +325,7 @@ COMMENT ON COLUMN market.instrument_price_adjustment.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.instrument_price_adjustment.version
+COMMENT ON COLUMN market.instrument_price_adjustment.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

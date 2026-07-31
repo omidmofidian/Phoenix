@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : OrderBookLevel.sql
+ * Script           : Order_Book_Level.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : OrderBookLevel
@@ -98,7 +98,7 @@ CREATE TABLE market.order_book_level
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                      BOOLEAN
+    order_book_level_is_active                      BOOLEAN
                                        NOT NULL
                                        DEFAULT TRUE,
 
@@ -117,7 +117,7 @@ CREATE TABLE market.order_book_level
 
     updated_by                     BIGINT,
 
-    version                        INTEGER
+    row_version                        INTEGER
                                        NOT NULL
                                        DEFAULT 1,
 
@@ -158,7 +158,7 @@ CREATE TABLE market.order_book_level
     CONSTRAINT ck_order_book_level_price
         CHECK
         (
-            order_price >= 0
+            order_price > 0
         ),
 
     CONSTRAINT ck_order_book_level_quantity
@@ -173,10 +173,10 @@ CREATE TABLE market.order_book_level
             order_count >= 0
         ),
 
-    CONSTRAINT ck_order_book_level_version
+    CONSTRAINT ck_order_book_level_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
@@ -277,7 +277,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.order_book_level.is_active
+COMMENT ON COLUMN market.order_book_level.order_book_level_is_active
 IS
 'Indicates whether the record is active and available for business operations within the Phoenix Platform.';
 
@@ -301,7 +301,7 @@ COMMENT ON COLUMN market.order_book_level.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.order_book_level.version
+COMMENT ON COLUMN market.order_book_level.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

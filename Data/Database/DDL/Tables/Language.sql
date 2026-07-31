@@ -92,7 +92,7 @@ CREATE TABLE ref.language
     -- Business Attributes
     ----------------------------------------------------------------------------
 
-    language_code            VARCHAR(10)
+    language_code            CHAR(2)
                                  NOT NULL,
 
     language_name            VARCHAR(200)
@@ -100,8 +100,6 @@ CREATE TABLE ref.language
 
     native_name              VARCHAR(200)
                                  NOT NULL,
-
-    iso639_1_code            CHAR(2),
 
     iso639_2_code            CHAR(3),
 
@@ -111,17 +109,17 @@ CREATE TABLE ref.language
 
     locale_code              VARCHAR(20),
 
-    display_order            SMALLINT
+    language_display_order            SMALLINT
                                  NOT NULL
                                  DEFAULT 1,
 
-    description              VARCHAR(500),
+    language_description              VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                BOOLEAN
+    language_is_active                BOOLEAN
                                  NOT NULL
                                  DEFAULT TRUE,
 
@@ -140,7 +138,7 @@ CREATE TABLE ref.language
 
     updated_by               BIGINT,
 
-    version                  INTEGER
+    row_version                  INTEGER
                                  NOT NULL
                                  DEFAULT 1,
 
@@ -154,31 +152,25 @@ CREATE TABLE ref.language
             language_id
         ),
 
-    CONSTRAINT uq_language_public_id
+    CONSTRAINT uk_language_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_language_code
+    CONSTRAINT uk_language_code
         UNIQUE
         (
             language_code
         ),
 
-    CONSTRAINT uq_language_iso639_1
-        UNIQUE
-        (
-            iso639_1_code
-        ),
-
-    CONSTRAINT uq_language_iso639_2
+    CONSTRAINT uk_language_iso639_2
         UNIQUE
         (
             iso639_2_code
         ),
 
-    CONSTRAINT uq_language_locale_code
+    CONSTRAINT uk_language_locale_code
         UNIQUE
         (
             locale_code
@@ -188,6 +180,12 @@ CREATE TABLE ref.language
         CHECK
         (
             LENGTH(TRIM(language_code)) > 0
+        ),
+
+    CONSTRAINT ck_language_code_format
+        CHECK
+        (
+            language_code = LOWER(language_code)
         ),
 
     CONSTRAINT ck_language_name_not_empty
@@ -202,6 +200,29 @@ CREATE TABLE ref.language
             LENGTH(TRIM(native_name)) > 0
         ),
 
+    CONSTRAINT ck_language_iso639_2_length
+        CHECK
+        (
+            iso639_2_code IS NULL
+            OR 
+            (iso639_2_code = LOWER(iso639_2_code)
+            AND LENGTH(TRIM(iso639_2_code)) = 3)
+        ),
+
+    CONSTRAINT ck_language_locale_code_not_empty
+        CHECK
+        (
+            locale_code IS NULL
+            OR LENGTH(TRIM(locale_code)) > 0
+        ),
+
+    CONSTRAINT ck_language_locale_code_format
+        CHECK
+        (
+            locale_code IS NULL
+            OR locale_code ~ '^[a-z]{2}(-[A-Z]{2})?$'
+        ),
+
     CONSTRAINT ck_language_script_direction
         CHECK
         (
@@ -211,13 +232,20 @@ CREATE TABLE ref.language
     CONSTRAINT ck_language_display_order
         CHECK
         (
-            display_order > 0
+            language_display_order > 0
         ),
 
-    CONSTRAINT ck_language_version_positive
+    CONSTRAINT ck_language_description_not_empty
         CHECK
         (
-            version > 0
+            language_description IS NULL
+            OR LENGTH(TRIM(language_description)) > 0
+        ),
+
+    CONSTRAINT ck_language_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -246,7 +274,7 @@ IS
 
 COMMENT ON COLUMN ref.language.language_code
 IS
-'Unique business code identifying the language.';
+'Unique business code -ISO 639-1 two-character code- identifying the language.';
 
 COMMENT ON COLUMN ref.language.language_name
 IS
@@ -255,10 +283,6 @@ IS
 COMMENT ON COLUMN ref.language.native_name
 IS
 'Official native-language name of the language.';
-
-COMMENT ON COLUMN ref.language.iso639_1_code
-IS
-'ISO 639-1 two-character language code.';
 
 COMMENT ON COLUMN ref.language.iso639_2_code
 IS
@@ -272,15 +296,15 @@ COMMENT ON COLUMN ref.language.locale_code
 IS
 'Standard locale identifier based on IETF BCP 47 (for example, en-US, fa-IR, ar-SA, or zh-CN).';
 
-COMMENT ON COLUMN ref.language.display_order
+COMMENT ON COLUMN ref.language.language_display_order
 IS
 'Display sequence used by applications when presenting languages to users.';
 
-COMMENT ON COLUMN ref.language.description
+COMMENT ON COLUMN ref.language.language_description
 IS
 'Optional business description of the language.';
 
-COMMENT ON COLUMN ref.language.is_active
+COMMENT ON COLUMN ref.language.language_is_active
 IS
 'Indicates whether the language is currently active and available for use throughout the Phoenix Platform.';
 
@@ -300,7 +324,7 @@ COMMENT ON COLUMN ref.language.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.language.version
+COMMENT ON COLUMN ref.language.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

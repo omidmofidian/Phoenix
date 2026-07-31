@@ -10,7 +10,7 @@
  *
  * Description
  * -------------------------------------------------------------------------------------------------
- * Creates the canonical Company reference table.
+ * Creates the canonical Company master table.
  *
  * The Company table represents legal business entities recognized by the Phoenix Platform.
  * A company may issue one or more financial instruments supported by the Phoenix Platform.
@@ -67,6 +67,8 @@
  * - One table per file.
  * - Architecture-driven implementation.
  * - PostgreSQL 17 compatible.
+ * - Exchange and Market references are intentionally stored together with Trading Board
+ *   for analytical query optimization and classification performance.
  *
  * Author           : Phoenix Architecture Team
  * Created          : 2026-07-24
@@ -106,7 +108,7 @@ CREATE TABLE market.company
     company_name                        VARCHAR(200)
                                     NOT NULL,
 
-    short_name                  VARCHAR(100),
+    company_short_name                  VARCHAR(100),
 
     company_local_name                  VARCHAR(200),
 
@@ -116,11 +118,11 @@ CREATE TABLE market.company
 
     economic_code               VARCHAR(50),
 
-    display_order               SMALLINT
+    company_display_order               SMALLINT
                                     NOT NULL
                                     DEFAULT 1,
 
-    description                 VARCHAR(500),
+    company_description                 VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Classification References
@@ -145,7 +147,7 @@ CREATE TABLE market.company
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                   BOOLEAN
+    company_is_active                   BOOLEAN
                                     NOT NULL
                                     DEFAULT TRUE,
 
@@ -164,11 +166,11 @@ CREATE TABLE market.company
 
     updated_by                  BIGINT,
 
-    version                     INTEGER
+    row_version                     INTEGER
                                     NOT NULL
                                     DEFAULT 1,
 
-        ----------------------------------------------------------------------------
+    ----------------------------------------------------------------------------
     -- Constraints
     ----------------------------------------------------------------------------
 
@@ -202,10 +204,58 @@ CREATE TABLE market.company
             LENGTH(TRIM(company_name)) > 0
         ),
 
+    CONSTRAINT ck_company_short_name_not_empty
+        CHECK 
+        (
+            company_short_name IS NULL
+            OR LENGTH(TRIM(company_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_company_local_name_not_empty
+        CHECK 
+        (
+            company_local_name IS NULL
+            OR LENGTH(TRIM(company_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_company_national_id_not_empty
+        CHECK 
+        (
+            national_id IS NULL
+            OR LENGTH(TRIM(national_id)) > 0
+        ),
+
+    CONSTRAINT ck_company_registration_number_not_empty
+        CHECK 
+        (
+            registration_number IS NULL
+            OR LENGTH(TRIM(registration_number)) > 0
+        ),
+
+    CONSTRAINT ck_company_economic_code_not_empty
+        CHECK 
+        (
+            economic_code IS NULL
+            OR LENGTH(TRIM(economic_code)) > 0
+        ),
+
+    CONSTRAINT ck_company_description_not_empty
+        CHECK 
+        (
+            company_description IS NULL
+            OR LENGTH(TRIM(company_description)) > 0
+        ),
+
     CONSTRAINT ck_company_display_order
         CHECK
         (
-            display_order > 0
+            company_display_order > 0
+        ),
+
+    CONSTRAINT ck_company_row_version_positive
+        CHECK 
+        (
+            row_version > 0
         ),
 
     CONSTRAINT fk_company_exchange
@@ -232,6 +282,20 @@ CREATE TABLE market.company
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
 
+    CONSTRAINT fk_company_exchange_market
+        FOREIGN KEY 
+        (
+            exchange_id, 
+            market_id
+        )
+        REFERENCES market.market 
+        (
+            exchange_id, 
+            market_id
+        )
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
     CONSTRAINT fk_company_trading_board
         FOREIGN KEY
         (
@@ -239,6 +303,20 @@ CREATE TABLE market.company
         )
         REFERENCES market.trading_board
         (
+            trading_board_id
+        )
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT fk_company_market_trading_board
+        FOREIGN KEY
+        (
+            market_id,
+            trading_board_id
+        )
+        REFERENCES market.trading_board
+        (
+            market_id,
             trading_board_id
         )
         ON UPDATE RESTRICT
@@ -267,6 +345,7 @@ CREATE TABLE market.company
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT
+        
 );
 
 --------------------------------------------------------------------------------
@@ -275,7 +354,7 @@ CREATE TABLE market.company
 
 COMMENT ON TABLE market.company
 IS
-'Reference table containing the legal companies supported by the Phoenix Platform.
+'Master table containing the legal companies supported by the Phoenix Platform.
 Each company is classified by exchange, market, trading board, industry, and
 sector, and serves as the authoritative business entity for financial instruments,
 market data, and analytical services.';
@@ -300,7 +379,7 @@ COMMENT ON COLUMN market.company.company_name
 IS
 'Official legal name of the company.';
 
-COMMENT ON COLUMN market.company.short_name
+COMMENT ON COLUMN market.company.company_short_name
 IS
 'Abbreviated company name used by user interfaces and reports.';
 
@@ -320,11 +399,11 @@ COMMENT ON COLUMN market.company.economic_code
 IS
 'Official economic or tax identification code assigned to the company.';
 
-COMMENT ON COLUMN market.company.display_order
+COMMENT ON COLUMN market.company.company_display_order
 IS
 'Display sequence used by applications when presenting companies to users.';
 
-COMMENT ON COLUMN market.company.description
+COMMENT ON COLUMN market.company.company_description
 IS
 'Optional business description of the company.';
 
@@ -348,7 +427,7 @@ COMMENT ON COLUMN market.company.sector_id
 IS
 'Reference to the parent sector to which the company belongs.';
 
-COMMENT ON COLUMN market.company.is_active
+COMMENT ON COLUMN market.company.company_is_active
 IS
 'Indicates whether the company is currently active and available for business operations.';
 
@@ -368,7 +447,7 @@ COMMENT ON COLUMN market.company.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.company.version
+COMMENT ON COLUMN market.company.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

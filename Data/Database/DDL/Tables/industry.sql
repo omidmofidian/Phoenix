@@ -96,21 +96,21 @@ CREATE TABLE ref.industry
     industry_name                    VARCHAR(200)
                                 NOT NULL,
 
-    short_name              VARCHAR(100),
+    industry_short_name              VARCHAR(100),
 
     industry_local_name              VARCHAR(200),
 
-    display_order           SMALLINT
+    industry_display_order           SMALLINT
                                 NOT NULL
                                 DEFAULT 1,
 
-    description             VARCHAR(500),
+    industry_description             VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active               BOOLEAN
+    industry_is_active               BOOLEAN
                                 NOT NULL
                                 DEFAULT TRUE,
 
@@ -129,7 +129,7 @@ CREATE TABLE ref.industry
 
     updated_by              BIGINT,
 
-    version                 INTEGER
+    row_version                 INTEGER
                                 NOT NULL
                                 DEFAULT 1,
 
@@ -161,17 +161,57 @@ CREATE TABLE ref.industry
             LENGTH(TRIM(industry_code)) > 0
         ),
 
+    CONSTRAINT ck_industry_code_length
+        CHECK
+        (
+            LENGTH(TRIM(industry_code)) BETWEEN 2 AND 20
+        ),
+
+    CONSTRAINT ck_industry_code_uppercase
+        CHECK
+        (
+            industry_code = UPPER(industry_code)
+        ),
+
     CONSTRAINT ck_industry_name_not_empty
         CHECK
         (
             LENGTH(TRIM(industry_name)) > 0
         ),
 
+    CONSTRAINT ck_industry_short_name_not_empty
+        CHECK
+        (
+            industry_short_name IS NULL
+            OR LENGTH(TRIM(industry_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_industry_local_name_not_empty
+        CHECK
+        (
+            industry_local_name IS NULL
+            OR LENGTH(TRIM(industry_local_name)) > 0
+        ),
+
     CONSTRAINT ck_industry_display_order
         CHECK
         (
-            display_order > 0
+            industry_display_order > 0
+        ),
+
+    CONSTRAINT ck_industry_description_not_empty
+        CHECK
+        (
+            industry_description IS NULL
+            OR LENGTH(TRIM(industry_description)) > 0
+        ),
+
+    CONSTRAINT ck_industry_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
+
 );
 
 --------------------------------------------------------------------------------
@@ -204,7 +244,7 @@ COMMENT ON COLUMN ref.industry.industry_name
 IS
 'Official business name of the industry.';
 
-COMMENT ON COLUMN ref.industry.short_name
+COMMENT ON COLUMN ref.industry.industry_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -212,15 +252,15 @@ COMMENT ON COLUMN ref.industry.industry_local_name
 IS
 'Official local-language name of the industry.';
 
-COMMENT ON COLUMN ref.industry.display_order
+COMMENT ON COLUMN ref.industry.industry_display_order
 IS
 'Display sequence used by applications when presenting industries to users.';
 
-COMMENT ON COLUMN ref.industry.description
+COMMENT ON COLUMN ref.industry.industry_description
 IS
 'Optional business description of the industry.';
 
-COMMENT ON COLUMN ref.industry.is_active
+COMMENT ON COLUMN ref.industry.industry_is_active
 IS
 'Indicates whether the industry is currently active and available for use throughout the Phoenix Platform.';
 
@@ -240,7 +280,7 @@ COMMENT ON COLUMN ref.industry.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.industry.version
+COMMENT ON COLUMN ref.industry.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

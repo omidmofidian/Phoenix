@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : MarketSnapshotType.sql
+ * Script           : Market_Snapshot_Type.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Reference Table
  * Object Name      : MarketSnapshotType
@@ -60,19 +60,23 @@ CREATE TABLE ref.market_snapshot_type
     -- Business Identifier
     ----------------------------------------------------------------------------
 
-    snapshot_type_code                         VARCHAR(30)
+    market_snapshot_type_code                         VARCHAR(30)
                                      NOT NULL,
 
     ----------------------------------------------------------------------------
     -- Business Information
     ----------------------------------------------------------------------------
 
-    snapshot_type_name                         VARCHAR(100)
+    market_snapshot_type_name                         VARCHAR(100)
                                      NOT NULL,
 
-    description                  TEXT,
+    market_snapshot_type_short_name                 VARCHAR(50),
 
-    sort_order                   SMALLINT
+    market_snapshot_type_local_name                 VARCHAR(100),
+
+    market_snapshot_type_description                  TEXT,
+
+    market_snapshot_type_display_order                   SMALLINT
                                      NOT NULL
                                      DEFAULT 1,
 
@@ -80,7 +84,7 @@ CREATE TABLE ref.market_snapshot_type
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                    BOOLEAN
+    market_snapshot_type_is_active                    BOOLEAN
                                      NOT NULL
                                      DEFAULT TRUE,
 
@@ -99,7 +103,7 @@ CREATE TABLE ref.market_snapshot_type
 
     updated_by                   BIGINT,
 
-    version                      INTEGER
+    row_version                      INTEGER
                                      NOT NULL
                                      DEFAULT 1,
 
@@ -113,16 +117,16 @@ CREATE TABLE ref.market_snapshot_type
             market_snapshot_type_id
         ),
 
-    CONSTRAINT uq_market_snapshot_type_public_id
+    CONSTRAINT uk_market_snapshot_type_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_market_snapshot_type_code
+    CONSTRAINT uk_market_snapshot_type_code
         UNIQUE
         (
-            snapshot_type_code
+            market_snapshot_type_code
         ),
 
     ----------------------------------------------------------------------------
@@ -132,25 +136,52 @@ CREATE TABLE ref.market_snapshot_type
     CONSTRAINT ck_market_snapshot_type_code
         CHECK
         (
-            LENGTH(TRIM(snapshot_type_code)) > 0
+            LENGTH(TRIM(market_snapshot_type_code)) > 0
+        ),
+
+    CONSTRAINT ck_market_snapshot_type_code_uppercase
+        CHECK
+        (
+            market_snapshot_type_code = UPPER(market_snapshot_type_code)
         ),
 
     CONSTRAINT ck_market_snapshot_type_name
         CHECK
         (
-            LENGTH(TRIM(snapshot_type_name)) > 0
+            LENGTH(TRIM(market_snapshot_type_name)) > 0
         ),
 
-    CONSTRAINT ck_market_snapshot_type_sort_order
-        CHECK
+    CONSTRAINT ck_market_snapshot_type_short_name_not_empty
+    CHECK
         (
-            sort_order > 0
+            market_snapshot_type_short_name IS NULL
+            OR LENGTH(TRIM(market_snapshot_type_short_name)) > 0
         ),
 
-    CONSTRAINT ck_market_snapshot_type_version
+    CONSTRAINT ck_market_snapshot_type_local_name_not_empty
+    CHECK
+        (
+            market_snapshot_type_local_name IS NULL
+            OR LENGTH(TRIM(market_snapshot_type_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_market_snapshot_type_display_order
         CHECK
         (
-            version > 0
+            market_snapshot_type_display_order > 0
+        ),
+
+    CONSTRAINT ck_market_snapshot_type_description_not_empty
+        CHECK
+        (
+            market_snapshot_type_description IS NULL
+            OR LENGTH(TRIM(market_snapshot_type_description)) > 0
+        ),
+
+    CONSTRAINT ck_market_snapshot_type_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -182,7 +213,7 @@ APIs, and distributed systems.';
 -- Business Identifier
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.market_snapshot_type.snapshot_type_code
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_code
 IS
 'Stable business code uniquely identifying the market snapshot type.';
 
@@ -190,15 +221,23 @@ IS
 -- Business Information
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.market_snapshot_type.snapshot_type_name
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_name
 IS
 'Business name of the market snapshot type.';
 
-COMMENT ON COLUMN ref.market_snapshot_type.description
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_short_name
+IS
+'Abbreviated name used by user interfaces and reports.';
+
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_local_name
+IS
+'Official local-language name of the market snapshot type.';
+
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_description
 IS
 'Optional business description explaining the purpose and usage of the market snapshot type.';
 
-COMMENT ON COLUMN ref.market_snapshot_type.sort_order
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_display_order
 IS
 'Display and processing order used when presenting market snapshot types.';
 
@@ -206,7 +245,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.market_snapshot_type.is_active
+COMMENT ON COLUMN ref.market_snapshot_type.market_snapshot_type_is_active
 IS
 'Indicates whether the market snapshot type is active and available for business operations.';
 
@@ -230,7 +269,7 @@ COMMENT ON COLUMN ref.market_snapshot_type.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.market_snapshot_type.version
+COMMENT ON COLUMN ref.market_snapshot_type.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

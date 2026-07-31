@@ -38,7 +38,7 @@
  *     None
  *
  * Referenced By
- *     - ref.instrument
+ *     - market.instrument
  *     - Additional business entities
  *
  * Standards
@@ -96,21 +96,21 @@
     instrument_type_name         VARCHAR(200)
                                      NOT NULL,
 
-    short_name                   VARCHAR(100),
+    instrument_type_short_name                   VARCHAR(100),
 
     instrument_type_local_name                   VARCHAR(200),
 
-    display_order                SMALLINT
+    instrument_type_display_order                SMALLINT
                                      NOT NULL
                                      DEFAULT 1,
 
-    description                  VARCHAR(500),
+    instrument_type_description                  VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                    BOOLEAN
+    instrument_type_is_active                    BOOLEAN
                                      NOT NULL
                                      DEFAULT TRUE,
 
@@ -129,7 +129,7 @@
 
     updated_by                   BIGINT,
 
-    version                      INTEGER
+    row_version                      INTEGER
                                      NOT NULL
                                      DEFAULT 1,
 
@@ -143,13 +143,13 @@
             instrument_type_id
         ),
 
-    CONSTRAINT uq_instrument_type_public_id
+    CONSTRAINT uk_instrument_type_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_instrument_type_code
+    CONSTRAINT uk_instrument_type_code
         UNIQUE
         (
             instrument_type_code
@@ -161,22 +161,50 @@
             LENGTH(TRIM(instrument_type_code)) > 0
         ),
 
+    CONSTRAINT ck_instrument_type_code_length
+        CHECK
+        (
+            LENGTH(TRIM(instrument_type_code)) BETWEEN 2 AND 30
+        ),
+
+    CONSTRAINT ck_instrument_type_code_uppercase
+        CHECK 
+        (
+            instrument_type_code = UPPER(instrument_type_code)
+        ),
+
     CONSTRAINT ck_instrument_type_name_not_empty
         CHECK
         (
             LENGTH(TRIM(instrument_type_name)) > 0
         ),
+    CONSTRAINT ck_instrument_type_short_name_not_empty
+        CHECK (
+            instrument_type_short_name IS NULL
+            OR LENGTH(TRIM(instrument_type_short_name)) > 0
+        ),
 
+    CONSTRAINT ck_instrument_type_local_name_not_empty
+        CHECK (
+            instrument_type_local_name IS NULL
+            OR LENGTH(TRIM(instrument_type_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_type_description_not_empty
+        CHECK (
+            instrument_type_description IS NULL
+            OR LENGTH(TRIM(instrument_type_description)) > 0
+        ),
     CONSTRAINT ck_instrument_type_display_order
         CHECK
         (
-            display_order > 0
+            instrument_type_display_order > 0
         ),
 
-    CONSTRAINT ck_instrument_type_version_positive
+    CONSTRAINT ck_instrument_type_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -211,7 +239,7 @@ COMMENT ON COLUMN ref.instrument_type.instrument_type_name
 IS
 'Official business name of the financial instrument type.';
 
-COMMENT ON COLUMN ref.instrument_type.short_name
+COMMENT ON COLUMN ref.instrument_type.instrument_type_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -219,15 +247,15 @@ COMMENT ON COLUMN ref.instrument_type.instrument_type_local_name
 IS
 'Official local-language name of the financial instrument type.';
 
-COMMENT ON COLUMN ref.instrument_type.display_order
+COMMENT ON COLUMN ref.instrument_type.instrument_type_display_order
 IS
 'Display sequence used by applications when presenting financial instrument types to users.';
 
-COMMENT ON COLUMN ref.instrument_type.description
+COMMENT ON COLUMN ref.instrument_type.instrument_type_description
 IS
 'Optional business description of the financial instrument type.';
 
-COMMENT ON COLUMN ref.instrument_type.is_active
+COMMENT ON COLUMN ref.instrument_type.instrument_type_is_active
 IS
 'Indicates whether the financial instrument type is currently active and available for use throughout the Phoenix Platform.';
 
@@ -247,7 +275,7 @@ COMMENT ON COLUMN ref.instrument_type.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.instrument_type.version
+COMMENT ON COLUMN ref.instrument_type.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

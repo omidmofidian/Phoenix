@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : DataQualityStatus.sql
+ * Script           : Data_Quality_Status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : DataQualityStatus
@@ -96,20 +96,25 @@ CREATE TABLE ref.data_quality_status
     -- Business Identifier
     ----------------------------------------------------------------------------
 
-    quality_status_code                            VARCHAR(30)
+    data_quality_status_code                            VARCHAR(30)
                                         NOT NULL,
 
     ----------------------------------------------------------------------------
     -- Business Information
     ----------------------------------------------------------------------------
 
-    quality_status_name                            VARCHAR(100)
+    data_quality_status_name                            VARCHAR(100)
                                         NOT NULL,
 
-    description                     VARCHAR(500),
+    data_quality_status_short_name    VARCHAR(50),
 
-    display_order                   SMALLINT
-                                        NOT NULL,
+    data_quality_status_local_name    VARCHAR(100),
+
+    data_quality_status_description                     VARCHAR(500),
+
+    data_quality_status_display_order                   SMALLINT
+                                        NOT NULL
+                                            DEFAULT 1,
 
     ----------------------------------------------------------------------------
     -- System Attributes
@@ -119,7 +124,7 @@ CREATE TABLE ref.data_quality_status
                                         NOT NULL
                                         DEFAULT TRUE,
 
-    is_active                       BOOLEAN
+    data_quality_status_is_active                       BOOLEAN
                                         NOT NULL
                                         DEFAULT TRUE,
 
@@ -138,7 +143,7 @@ CREATE TABLE ref.data_quality_status
 
     updated_by                      BIGINT,
 
-    version                         INTEGER
+    row_version                         INTEGER
                                         NOT NULL
                                         DEFAULT 1,
 
@@ -161,13 +166,13 @@ CREATE TABLE ref.data_quality_status
     CONSTRAINT uq_data_quality_status_code
         UNIQUE
         (
-            quality_status_code
+            data_quality_status_code
         ),
 
     CONSTRAINT uq_data_quality_status_name
         UNIQUE
         (
-            quality_status_name
+            data_quality_status_name
         ),
 
     ----------------------------------------------------------------------------
@@ -177,25 +182,46 @@ CREATE TABLE ref.data_quality_status
     CONSTRAINT ck_data_quality_status_code
         CHECK
         (
-            LENGTH(TRIM(quality_status_code)) > 0
+            LENGTH(TRIM(data_quality_status_code)) > 0
         ),
 
     CONSTRAINT ck_data_quality_status_name
         CHECK
         (
-            LENGTH(TRIM(quality_status_name)) > 0
+            LENGTH(TRIM(data_quality_status_name)) > 0
+        ),
+
+    CONSTRAINT ck_data_quality_status_short_name_not_empty
+        CHECK
+        (
+            data_quality_status_short_name IS NULL
+            OR LENGTH(TRIM(data_quality_status_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_data_quality_status_local_name_not_empty
+        CHECK
+        (
+            data_quality_status_local_name IS NULL
+            OR LENGTH(TRIM(data_quality_status_local_name)) > 0
         ),
 
     CONSTRAINT ck_data_quality_status_display_order
         CHECK
         (
-            display_order > 0
+            data_quality_status_display_order > 0
         ),
 
-    CONSTRAINT ck_data_quality_status_version
+    CONSTRAINT ck_data_quality_status_description_not_empty
         CHECK
         (
-            version > 0
+            data_quality_status_description IS NULL
+            OR LENGTH(TRIM(data_quality_status_description)) > 0
+        ),
+
+    CONSTRAINT ck_data_quality_status_row_version_positive
+        CHECK
+        (
+            row_version > 0
         )
 );
 
@@ -223,19 +249,27 @@ COMMENT ON COLUMN ref.data_quality_status.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, APIs, and distributed systems.';
 
-COMMENT ON COLUMN ref.data_quality_status.quality_status_code
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_code
 IS
 'Short unique business code identifying the data quality status.';
 
-COMMENT ON COLUMN ref.data_quality_status.quality_status_name
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_name
 IS
 'Unique business name of the data quality status.';
 
-COMMENT ON COLUMN ref.data_quality_status.description
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_short_name
+IS
+'Abbreviated name used by user interfaces and reports.';
+
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_local_name
+IS
+'Official local-language name of the data quality status.';
+
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_description
 IS
 'Optional business description explaining the purpose and usage of the data quality status.';
 
-COMMENT ON COLUMN ref.data_quality_status.display_order
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_display_order
 IS
 'Display sequence used for user interfaces, reports, and ordered business lists.';
 
@@ -243,7 +277,7 @@ COMMENT ON COLUMN ref.data_quality_status.is_system
 IS
 'Indicates whether the record is a protected system-defined reference value managed by the Phoenix Platform.';
 
-COMMENT ON COLUMN ref.data_quality_status.is_active
+COMMENT ON COLUMN ref.data_quality_status.data_quality_status_is_active
 IS
 'Indicates whether the reference value is active and available for business operations.';
 
@@ -263,85 +297,9 @@ COMMENT ON COLUMN ref.data_quality_status.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.data_quality_status.version
+COMMENT ON COLUMN ref.data_quality_status.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
-
---------------------------------------------------------------------------------
--- Seed Data
---------------------------------------------------------------------------------
-
-INSERT INTO ref.data_quality_status
-(
-    quality_status_code,
-    quality_status_name,
-    description,
-    display_order,
-    is_system,
-    is_active,
-    created_by
-)
-VALUES
-
-(
-    'VALID',
-    'Valid',
-    'Data successfully validated and approved for all business operations.',
-    1,
-    TRUE,
-    TRUE,
-    1
-),
-
-(
-    'EST',
-    'Estimated',
-    'Data generated through estimation because official values were unavailable.',
-    2,
-    TRUE,
-    TRUE,
-    1
-),
-
-(
-    'COR',
-    'Corrected',
-    'Previously published data that has been officially corrected.',
-    3,
-    TRUE,
-    TRUE,
-    1
-),
-
-(
-    'PVAL',
-    'Pending Validation',
-    'Data received but awaiting completion of validation and quality control procedures.',
-    4,
-    TRUE,
-    TRUE,
-    1
-),
-
-(
-    'INV',
-    'Invalid',
-    'Data failed validation rules and shall not be used for business processing.',
-    5,
-    TRUE,
-    TRUE,
-    1
-),
-
-(
-    'REJ',
-    'Rejected',
-    'Data explicitly rejected during validation or quality control processes.',
-    6,
-    TRUE,
-    TRUE,
-    1
-);
 
 --------------------------------------------------------------------------------
 -- End of File

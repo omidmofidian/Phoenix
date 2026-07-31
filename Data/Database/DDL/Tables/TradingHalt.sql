@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : TradingHalt.sql
+ * Script           : Trading_Halt.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingHalt
@@ -41,7 +41,7 @@
  *     - Table  : ref.market_status
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.market_status
  *
  * Referenced By
@@ -95,7 +95,7 @@ CREATE TABLE market.trading_halt
 -- Classification References
 ----------------------------------------------------------------------------
 
-    instrument_listing_id           BIGINT
+    listing_id                      BIGINT
                                         NOT NULL,
 
     market_status_id                BIGINT
@@ -130,13 +130,13 @@ CREATE TABLE market.trading_halt
     halt_reason                    VARCHAR(500)
                                         NOT NULL,
 
-    description                    VARCHAR(500),
+    trading_halt_description                    VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                       BOOLEAN
+    trading_halt_is_active                       BOOLEAN
                                         NOT NULL
                                         DEFAULT TRUE,
 
@@ -155,7 +155,7 @@ CREATE TABLE market.trading_halt
 
     updated_by                      BIGINT,
 
-    version                         INTEGER
+    row_version                         INTEGER
                                         NOT NULL
                                         DEFAULT 1,
 
@@ -169,16 +169,27 @@ CREATE TABLE market.trading_halt
             trading_halt_id
         ),
 
-    CONSTRAINT uq_trading_halt_public_id
+    CONSTRAINT uk_trading_halt_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_trading_halt_code
+    CONSTRAINT uk_trading_halt_code
         UNIQUE
         (
             halt_code
+        ),
+
+    CONSTRAINT ex_trading_halt_period_overlap
+        EXCLUDE USING gist
+        (
+            listing_id WITH =,
+            tstzrange(
+                halt_start_at,
+                COALESCE(halt_end_at, 'infinity'::timestamptz),
+                '[)'
+            ) WITH &&
         ),
 
     CONSTRAINT ck_trading_halt_code_not_empty
@@ -191,6 +202,13 @@ CREATE TABLE market.trading_halt
         CHECK
         (
             LENGTH(TRIM(halt_reason)) > 0
+        ),
+
+    CONSTRAINT ck_trading_halt_announced
+        CHECK
+        (
+            announced_at IS NULL
+            OR announced_at <= halt_start_at
         ),
 
     CONSTRAINT ck_trading_halt_reference_not_empty
@@ -221,20 +239,20 @@ CREATE TABLE market.trading_halt
             OR expected_resume_at >= halt_start_at
         ),
 
-    CONSTRAINT ck_trading_halt_version_positive
+    CONSTRAINT ck_trading_halt_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
-    CONSTRAINT fk_trading_halt_instrument_listing
+    CONSTRAINT fk_trading_halt_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -299,7 +317,7 @@ COMMENT ON COLUMN market.trading_halt.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN market.trading_halt.instrument_listing_id
+COMMENT ON COLUMN market.trading_halt.listing_id
 IS
 'Reference to the instrument listing affected by the trading halt.';
 
@@ -349,11 +367,11 @@ COMMENT ON COLUMN market.trading_halt.halt_reason
 IS
 'Business reason explaining why trading was temporarily suspended.';
 
-COMMENT ON COLUMN market.trading_halt.description
+COMMENT ON COLUMN market.trading_halt.trading_halt_description
 IS
 'Optional business description providing additional information about the trading halt.';
 
-COMMENT ON COLUMN market.trading_halt.is_active
+COMMENT ON COLUMN market.trading_halt.trading_halt_is_active
 IS
 'Indicates whether the trading halt record is currently active and valid within the Phoenix Platform.';
 
@@ -373,7 +391,7 @@ COMMENT ON COLUMN market.trading_halt.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.trading_halt.version
+COMMENT ON COLUMN market.trading_halt.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

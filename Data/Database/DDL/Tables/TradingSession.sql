@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : TradingSession.sql
+ * Script           : Trading_Session.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingSession
@@ -101,21 +101,21 @@ CREATE TABLE ref.trading_session
     trading_session_name      VARCHAR(200)
                                   NOT NULL,
 
-    short_name                VARCHAR(100),
+    trading_session_short_name                VARCHAR(100),
 
     trading_session_local_name                VARCHAR(200),
 
-    display_order             SMALLINT
+    trading_session_display_order             SMALLINT
                                   NOT NULL
                                   DEFAULT 1,
 
-    description               VARCHAR(500),
+    trading_session_description               VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                 BOOLEAN
+    trading_session_is_active                 BOOLEAN
                                   NOT NULL
                                   DEFAULT TRUE,
 
@@ -134,7 +134,7 @@ CREATE TABLE ref.trading_session
 
     updated_by                BIGINT,
 
-    version                   INTEGER
+    row_version                   INTEGER
                                   NOT NULL
                                   DEFAULT 1,
 
@@ -160,6 +160,12 @@ CREATE TABLE ref.trading_session
             trading_session_code
         ),
 
+    CONSTRAINT ck_trading_session_code_length
+        CHECK 
+        (
+            LENGTH(TRIM(trading_session_code)) BETWEEN 2 AND 30
+        ),
+
     CONSTRAINT ck_trading_session_code_not_empty
         CHECK
         (
@@ -175,13 +181,34 @@ CREATE TABLE ref.trading_session
     CONSTRAINT ck_trading_session_display_order
         CHECK
         (
-            display_order > 0
+            trading_session_display_order > 0
         ),
 
-    CONSTRAINT ck_trading_session_version_positive
+    CONSTRAINT ck_trading_session_short_name_not_empty
+        CHECK 
+        (
+            trading_session_short_name IS NULL
+            OR LENGTH(TRIM(trading_session_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_trading_session_local_name_not_empty
+        CHECK 
+        (
+            trading_session_local_name IS NULL
+            OR LENGTH(TRIM(trading_session_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_trading_session_description_not_empty
+        CHECK 
+        (
+            trading_session_description IS NULL
+            OR LENGTH(TRIM(trading_session_description)) > 0
+        ),
+
+    CONSTRAINT ck_trading_session_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -191,10 +218,11 @@ CREATE TABLE ref.trading_session
 
 COMMENT ON TABLE ref.trading_session
 IS
-'Reference table containing the standardized trading sessions supported by the
-Phoenix Platform. Each record represents an authoritative trading session used
-to identify a specific phase of the trading day across all supported financial
-markets.';
+'Reference table containing the standardized trading session types supported by
+the Phoenix Platform. Each record defines a reusable trading session type
+(such as pre-open, opening auction, continuous trading, closing auction, or
+after-hours trading) that may be associated with one or more market-specific
+trading schedules.';
 
 --------------------------------------------------------------------------------
 -- Column Comments
@@ -216,7 +244,7 @@ COMMENT ON COLUMN ref.trading_session.trading_session_name
 IS
 'Official business name of the trading session.';
 
-COMMENT ON COLUMN ref.trading_session.short_name
+COMMENT ON COLUMN ref.trading_session.trading_session_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -224,15 +252,15 @@ COMMENT ON COLUMN ref.trading_session.trading_session_local_name
 IS
 'Official local-language name of the trading session.';
 
-COMMENT ON COLUMN ref.trading_session.display_order
+COMMENT ON COLUMN ref.trading_session.trading_session_display_order
 IS
 'Display sequence used by applications when presenting trading sessions to users.';
 
-COMMENT ON COLUMN ref.trading_session.description
+COMMENT ON COLUMN ref.trading_session.trading_session_description
 IS
 'Optional business description of the trading session.';
 
-COMMENT ON COLUMN ref.trading_session.is_active
+COMMENT ON COLUMN ref.trading_session.trading_session_is_active
 IS
 'Indicates whether the trading session is currently active and available for use throughout the Phoenix Platform.';
 
@@ -252,7 +280,7 @@ COMMENT ON COLUMN ref.trading_session.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.trading_session.version
+COMMENT ON COLUMN ref.trading_session.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

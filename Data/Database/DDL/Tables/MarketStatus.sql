@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : MarketStatus.sql
+ * Script           : Market_Status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : MarketStatus
@@ -42,8 +42,9 @@
  *     None
  *
  * Referenced By
- *     - market.market
- *     - market.trading_session
+ *     - market.market_session
+ *     - market.daily_market_data
+ *     - market.market_event
  *     - Additional business entities
  *
  * Standards
@@ -101,21 +102,21 @@ CREATE TABLE ref.market_status
     market_status_name        VARCHAR(200)
                                   NOT NULL,
 
-    short_name               VARCHAR(100),
+    market_status_short_name               VARCHAR(100),
 
     market_status_local_name               VARCHAR(200),
 
-    display_order            SMALLINT
+    market_status_display_order            SMALLINT
                                   NOT NULL
                                   DEFAULT 1,
 
-    description              VARCHAR(500),
+    market_status_description              VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                BOOLEAN
+    market_status_is_active                BOOLEAN
                                   NOT NULL
                                   DEFAULT TRUE,
 
@@ -134,7 +135,7 @@ CREATE TABLE ref.market_status
 
     updated_by               BIGINT,
 
-    version                  INTEGER
+    row_version                  INTEGER
                                   NOT NULL
                                   DEFAULT 1,
 
@@ -160,6 +161,12 @@ CREATE TABLE ref.market_status
             market_status_code
         ),
 
+    CONSTRAINT ck_market_status_code_length
+        CHECK 
+        (
+            LENGTH(TRIM(market_status_code)) BETWEEN 2 AND 30
+        ),
+
     CONSTRAINT ck_market_status_code_not_empty
         CHECK
         (
@@ -171,17 +178,37 @@ CREATE TABLE ref.market_status
         (
             LENGTH(TRIM(market_status_name)) > 0
         ),
+    CONSTRAINT ck_market_status_short_name_not_empty
+        CHECK 
+        (
+            market_status_short_name IS NULL
+            OR LENGTH(TRIM(market_status_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_market_status_local_name_not_empty
+        CHECK 
+        (
+            market_status_local_name IS NULL
+            OR LENGTH(TRIM(market_status_local_name)) > 0
+        ),
 
     CONSTRAINT ck_market_status_display_order
         CHECK
         (
-            display_order > 0
+            market_status_display_order > 0
         ),
 
-    CONSTRAINT ck_market_status_version_positive
+    CONSTRAINT ck_market_status_description_not_empty
+        CHECK 
+        (
+            market_status_description IS NULL
+            OR LENGTH(TRIM(market_status_description)) > 0
+        ),
+
+    CONSTRAINT ck_market_status_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         )
 );
 
@@ -193,8 +220,9 @@ COMMENT ON TABLE ref.market_status
 IS
 'Reference table containing the standardized market operational statuses
 supported by the Phoenix Platform. Each record represents an authoritative
-status describing the operational state of a financial market and is used
-consistently across all supported financial markets.';
+operational state of a financial market or trading environment (such as open,
+closed, halted, suspended, maintenance, or auction) and is used consistently
+across market schedules, listings, and market data processing.';
 
 --------------------------------------------------------------------------------
 -- Column Comments
@@ -216,7 +244,7 @@ COMMENT ON COLUMN ref.market_status.market_status_name
 IS
 'Official business name of the market status.';
 
-COMMENT ON COLUMN ref.market_status.short_name
+COMMENT ON COLUMN ref.market_status.market_status_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
@@ -224,15 +252,15 @@ COMMENT ON COLUMN ref.market_status.market_status_local_name
 IS
 'Official local-language name of the market status.';
 
-COMMENT ON COLUMN ref.market_status.display_order
+COMMENT ON COLUMN ref.market_status.market_status_display_order
 IS
 'Display sequence used by applications when presenting market statuses to users.';
 
-COMMENT ON COLUMN ref.market_status.description
+COMMENT ON COLUMN ref.market_status.market_status_description
 IS
 'Optional business description of the market status.';
 
-COMMENT ON COLUMN ref.market_status.is_active
+COMMENT ON COLUMN ref.market_status.market_status_is_active
 IS
 'Indicates whether the market status is currently active and available for use throughout the Phoenix Platform.';
 
@@ -252,7 +280,7 @@ COMMENT ON COLUMN ref.market_status.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.market_status.version
+COMMENT ON COLUMN ref.market_status.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

@@ -4,13 +4,13 @@
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : Instrument
- * Schema           : ref
+ * Schema           : market
  * Version          : 2026.1
  * Status           : Approved
  *
  * Description
  * -------------------------------------------------------------------------------------------------
- * Creates the canonical Instrument reference table.
+ * Creates the canonical Instrument master table.
  *
  * The Instrument table represents the tradable financial instruments supported
  * by the Phoenix Platform. Each instrument belongs to exactly one Company and 
@@ -32,15 +32,16 @@
  * Dependencies
  * -------------------------------------------------------------------------------------------------
  * Prerequisites
- *     - Schema : ref
+ *     - Schema : market
  *     - Table  : market.company
+ *     - Table : ref.instrument_type
  *
  * Referenced Objects
  *     - market.company
+ *     - ref.instrument_type 
  *
  * Referenced By
- *     - market.daily_market_data
- *     - market.corporate_action
+ *     - market.listing
  *     - Additional transactional entities
  *
  * Standards
@@ -71,7 +72,7 @@
  *                        architecture.
  **************************************************************************************************/
 
-CREATE TABLE ref.instrument
+CREATE TABLE market.instrument
 (
     ----------------------------------------------------------------------------
     -- Primary Identifier
@@ -95,23 +96,20 @@ CREATE TABLE ref.instrument
     instrument_code                        VARCHAR(50)
                                     NOT NULL,
 
-    ticker                      VARCHAR(50)
-                                    NOT NULL,
-
     instrument_name                        VARCHAR(200)
                                     NOT NULL,
 
-    short_name                  VARCHAR(100),
+    instrument_short_name                  VARCHAR(100),
 
     instrument_local_name                  VARCHAR(200),
 
     isin                        VARCHAR(12),
 
-    display_order               SMALLINT
+    instrument_display_order               SMALLINT
                                     NOT NULL
                                     DEFAULT 1,
 
-    description                 VARCHAR(500),
+    instrument_description                 VARCHAR(500),
     
     ----------------------------------------------------------------------------
     -- Classification Reference
@@ -127,7 +125,7 @@ CREATE TABLE ref.instrument
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                   BOOLEAN
+    instrument_is_active                   BOOLEAN
                                     NOT NULL
                                     DEFAULT TRUE,
 
@@ -146,7 +144,7 @@ CREATE TABLE ref.instrument
 
     updated_by                  BIGINT,
 
-    version                     INTEGER
+    row_version                     INTEGER
                                     NOT NULL
                                     DEFAULT 1,
 
@@ -172,12 +170,6 @@ CREATE TABLE ref.instrument
             instrument_code
         ),
 
-    CONSTRAINT uk_instrument_ticker
-        UNIQUE
-        (
-            ticker
-        ),
-
     CONSTRAINT uk_instrument_isin
         UNIQUE
         (
@@ -190,33 +182,54 @@ CREATE TABLE ref.instrument
             LENGTH(TRIM(instrument_code)) > 0
         ),
 
-    CONSTRAINT ck_instrument_ticker_not_empty
-        CHECK
-        (
-            LENGTH(TRIM(ticker)) > 0
-        ),
-
     CONSTRAINT ck_instrument_name_not_empty
         CHECK
         (
             LENGTH(TRIM(instrument_name)) > 0
         ),
 
-    CONSTRAINT ck_instrument_display_order
-        CHECK
-        (
-            display_order > 0
-        ),
-
-    CONSTRAINT ck_instrument_isin_length
+     CONSTRAINT ck_instrument_isin_length
         CHECK
         (
             isin IS NULL
             OR LENGTH(TRIM(isin)) = 12
         ),
 
+    CONSTRAINT ck_instrument_short_name_not_empty
+        CHECK 
+        (
+            instrument_short_name IS NULL
+            OR LENGTH(TRIM(instrument_short_name)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_local_name_not_empty
+        CHECK 
+        (
+            instrument_local_name IS NULL
+            OR LENGTH(TRIM(instrument_local_name)) > 0
+        ),
+
+    CONSTRAINT ck_instrument_description_not_empty
+        CHECK 
+        (
+            instrument_description IS NULL
+            OR LENGTH(TRIM(instrument_description)) > 0
+        ),
+
+   CONSTRAINT ck_instrument_display_order
+        CHECK
+        (
+            instrument_display_order > 0
+        ),
+
+    CONSTRAINT ck_instrument_row_version_positive
+        CHECK 
+        (
+            row_version > 0
+        ),
+
     CONSTRAINT fk_instrument_company
-        FOREIGN KEY
+        FOREIGN KEY 
         (
             company_id
         )
@@ -244,9 +257,9 @@ CREATE TABLE ref.instrument
 -- Table Comment
 --------------------------------------------------------------------------------
 
-COMMENT ON TABLE ref.instrument
+COMMENT ON TABLE market.instrument
 IS
-'Reference table containing the tradable financial instruments supported by the
+'Master table containing the tradable financial instruments supported by the
 Phoenix Platform. Each instrument represents a tradable financial security
 issued by exactly one company and serves as the authoritative master entity for
 market data, corporate actions, analytics, and investment services.';
@@ -255,75 +268,71 @@ market data, corporate actions, analytics, and investment services.';
 -- Column Comments
 --------------------------------------------------------------------------------
 
-COMMENT ON COLUMN ref.instrument.instrument_id
+COMMENT ON COLUMN market.instrument.instrument_id
 IS
 'Internal surrogate primary key generated by PostgreSQL.';
 
-COMMENT ON COLUMN ref.instrument.public_id
+COMMENT ON COLUMN market.instrument.public_id
 IS
 'Immutable public identifier used for external integrations, synchronization, and APIs.';
 
-COMMENT ON COLUMN ref.instrument.instrument_code
+COMMENT ON COLUMN market.instrument.instrument_code
 IS
 'Unique internal business code identifying the financial instrument.';
 
-COMMENT ON COLUMN ref.instrument.ticker
-IS
-'Trading ticker or trading symbol assigned by the exchange.';
-
-COMMENT ON COLUMN ref.instrument.instrument_name
+COMMENT ON COLUMN market.instrument.instrument_name
 IS
 'Official business name of the financial instrument.';
 
-COMMENT ON COLUMN ref.instrument.short_name
+COMMENT ON COLUMN market.instrument.instrument_short_name
 IS
 'Abbreviated name used by user interfaces and reports.';
 
-COMMENT ON COLUMN ref.instrument.instrument_local_name
+COMMENT ON COLUMN market.instrument.instrument_local_name
 IS
 'Official local-language name of the financial instrument.';
 
-COMMENT ON COLUMN ref.instrument.isin
+COMMENT ON COLUMN market.instrument.isin
 IS
 'International Securities Identification Number (ISIN) assigned to the instrument.';
 
-COMMENT ON COLUMN ref.instrument.display_order
+COMMENT ON COLUMN market.instrument.instrument_display_order
 IS
 'Display sequence used by applications when presenting financial instruments to users.';
 
-COMMENT ON COLUMN ref.instrument.description
+COMMENT ON COLUMN market.instrument.instrument_description
 IS
 'Optional business description of the financial instrument.';
 
-COMMENT ON COLUMN ref.instrument.company_id
+COMMENT ON COLUMN market.instrument.company_id
 IS
 'Reference to the parent company that issued the financial instrument.';
 
-COMMENT ON COLUMN ref.instrument.instrument_type_id
+COMMENT ON COLUMN market.instrument.instrument_type_id
 IS
 'Reference to the standardized financial instrument type assigned to the instrument.';
 
-COMMENT ON COLUMN ref.instrument.is_active
+COMMENT ON COLUMN market.instrument.instrument_is_active
 IS
 'Indicates whether the financial instrument is currently active and available for use throughout the Phoenix Platform.';
 
-COMMENT ON COLUMN ref.instrument.created_at
+COMMENT ON COLUMN market.instrument.created_at
 IS
 'Timestamp indicating when the record was created.';
 
-COMMENT ON COLUMN ref.instrument.created_by
+COMMENT ON COLUMN market.instrument.created_by
 IS
 'Identifier of the user, service, or process that created the record.';
 
-COMMENT ON COLUMN ref.instrument.updated_at
+COMMENT ON COLUMN market.instrument.updated_at
 IS
 'Timestamp indicating when the record was last modified.';
 
-COMMENT ON COLUMN ref.instrument.updated_by
+COMMENT ON COLUMN market.instrument.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN ref.instrument.version
+COMMENT ON COLUMN market.instrument.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

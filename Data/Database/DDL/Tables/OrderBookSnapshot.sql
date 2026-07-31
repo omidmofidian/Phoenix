@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : OrderBookSnapshot.sql
+ * Script           : Order_Book_Snapshot.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : OrderBookSnapshot
@@ -35,14 +35,14 @@
  *     - Schema : ref
  *
  * Referenced Objects
- *     - market.instrument_listing
+ *     - market.listing
  *     - ref.trading_session
  *     - ref.market_status
  *     - ref.calendar_type
  *     - ref.time_zone
  *     - ref.data_source
  *     - ref.data_quality_status
- *     - ref.snapshot_type
+ *     - ref.market_snapshot_type
  *
  * Referenced By
  * -------------------------------------------------------------------------------------------------
@@ -81,7 +81,7 @@ CREATE TABLE market.order_book_snapshot
     -- Classification References
     ----------------------------------------------------------------------------
 
-    instrument_listing_id           BIGINT
+    listing_id           BIGINT
                                         NOT NULL,
 
     trading_session_id              BIGINT
@@ -102,7 +102,7 @@ CREATE TABLE market.order_book_snapshot
     data_quality_status_id          BIGINT
                                         NOT NULL,
 
-    snapshot_type_id                BIGINT
+    market_snapshot_type_id                BIGINT
                                         NOT NULL,
 
     ----------------------------------------------------------------------------
@@ -127,7 +127,7 @@ CREATE TABLE market.order_book_snapshot
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                       BOOLEAN
+    order_book_snapshot_is_active                       BOOLEAN
                                         NOT NULL
                                         DEFAULT TRUE,
 
@@ -146,7 +146,7 @@ CREATE TABLE market.order_book_snapshot
 
     updated_by                      BIGINT,
 
-    version                         INTEGER
+    row_version                         INTEGER
                                         NOT NULL
                                         DEFAULT 1,
 
@@ -160,16 +160,16 @@ CREATE TABLE market.order_book_snapshot
             order_book_snapshot_id
         ),
 
-    CONSTRAINT uq_order_book_snapshot_public_id
+    CONSTRAINT uk_order_book_snapshot_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_order_book_snapshot_business
+    CONSTRAINT uk_order_book_snapshot_business
         UNIQUE
         (
-            instrument_listing_id,
+            listing_id,
             snapshot_timestamp,
             data_source_id
         ),
@@ -177,6 +177,18 @@ CREATE TABLE market.order_book_snapshot
     ----------------------------------------------------------------------------
     -- Check Constraints
     ----------------------------------------------------------------------------
+
+    CONSTRAINT ck_order_book_snapshot_trading_date
+        CHECK 
+        (
+            trading_date >= DATE '1900-01-01'
+        ),
+
+    CONSTRAINT ck_order_book_snapshot_timestamp
+        CHECK
+        (
+            snapshot_timestamp >= TIMESTAMPTZ '1900-01-01 00:00:00+00'
+        ),
 
     CONSTRAINT ck_order_book_snapshot_sequence
         CHECK
@@ -192,24 +204,24 @@ CREATE TABLE market.order_book_snapshot
             OR LENGTH(TRIM(source_record_identifier)) > 0
         ),
 
-    CONSTRAINT ck_order_book_snapshot_version
+    CONSTRAINT ck_order_book_snapshot_row_version_positive
         CHECK
         (
-            version > 0
+            row_version > 0
         ),
 
     ----------------------------------------------------------------------------
     -- Foreign Keys
     ----------------------------------------------------------------------------
 
-    CONSTRAINT fk_order_book_snapshot_instrument_listing
+    CONSTRAINT fk_order_book_snapshot_listing
         FOREIGN KEY
         (
-            instrument_listing_id
+            listing_id
         )
-        REFERENCES market.instrument_listing
+        REFERENCES market.listing
         (
-            instrument_listing_id
+            listing_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -274,14 +286,14 @@ CREATE TABLE market.order_book_snapshot
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
 
-    CONSTRAINT fk_order_book_snapshot_snapshot_type
+    CONSTRAINT fk_order_book_snapshot_market_snapshot_type
         FOREIGN KEY
         (
-            snapshot_type_id
+            market_snapshot_type_id
         )
-        REFERENCES ref.snapshot_type
+        REFERENCES ref.market_snapshot_type
         (
-            snapshot_type_id
+            market_snapshot_type_id
         )
         ON UPDATE RESTRICT
         ON DELETE RESTRICT,
@@ -329,7 +341,7 @@ APIs, and distributed systems.';
 -- Classification References
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.order_book_snapshot.instrument_listing_id
+COMMENT ON COLUMN market.order_book_snapshot.listing_id
 IS
 'Reference to the listed financial instrument associated with the captured order book snapshot.';
 
@@ -353,9 +365,9 @@ COMMENT ON COLUMN market.order_book_snapshot.data_source_id
 IS
 'Reference to the data source from which the snapshot originated.';
 
-COMMENT ON COLUMN market.order_book_snapshot.snapshot_type_id
+COMMENT ON COLUMN market.order_book_snapshot.market_snapshot_type_id
 IS
-'Reference to the snapshot type defining how the order book snapshot was generated.';
+'Reference to the market snapshot type defining how the order book snapshot was generated.';
 
 COMMENT ON COLUMN market.order_book_snapshot.data_quality_status_id
 IS
@@ -389,7 +401,7 @@ IS
 -- Business Status
 ----------------------------------------------------------------------------
 
-COMMENT ON COLUMN market.order_book_snapshot.is_active
+COMMENT ON COLUMN market.order_book_snapshot.order_book_snapshot_is_active
 IS
 'Indicates whether the snapshot record is active and available for business operations within the Phoenix Platform.';
 
@@ -413,7 +425,7 @@ COMMENT ON COLUMN market.order_book_snapshot.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.order_book_snapshot.version
+COMMENT ON COLUMN market.order_book_snapshot.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 

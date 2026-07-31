@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : CorporateActionItem.sql
+ * Script           : Corporate_Action_Item.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CorporateActionItem
@@ -116,23 +116,23 @@ CREATE TABLE market.corporate_action_item
     effective_date                   DATE
                                          NOT NULL,
 
-    value                            NUMERIC(24,8),
+    corporate_action_item_value                            NUMERIC(24,8),
 
-    percentage                       NUMERIC(10,6),
+    corporate_action_item_percentage                       NUMERIC(10,6),
 
-    quantity                         NUMERIC(24,8),
+    corporate_action_item_quantity                         NUMERIC(24,8),
 
     item_reference                   VARCHAR(200),
 
     source_reference                 VARCHAR(500),
 
-    description                      VARCHAR(500),
+    corporate_action_item_description                      VARCHAR(500),
 
     ----------------------------------------------------------------------------
     -- Business Status
     ----------------------------------------------------------------------------
 
-    is_active                        BOOLEAN
+    corporate_action_item_is_active                        BOOLEAN
                                          NOT NULL
                                          DEFAULT TRUE,
 
@@ -151,7 +151,7 @@ CREATE TABLE market.corporate_action_item
 
     updated_by                       BIGINT,
 
-    version                          INTEGER
+    row_version                          INTEGER
                                          NOT NULL
                                          DEFAULT 1,
 
@@ -187,22 +187,22 @@ CREATE TABLE market.corporate_action_item
     CONSTRAINT ck_corporate_action_item_value_positive
         CHECK
         (
-            value IS NULL
-            OR value >= 0
+            corporate_action_item_value IS NULL
+            OR corporate_action_item_value >= 0
         ),
 
     CONSTRAINT ck_corporate_action_item_percentage_positive
         CHECK
         (
-            percentage IS NULL
-            OR percentage >= 0
+            corporate_action_item_percentage IS NULL
+            OR corporate_action_item_percentage >= 0
         ),
 
     CONSTRAINT ck_corporate_action_item_quantity_positive
         CHECK
         (
-            quantity IS NULL
-            OR quantity >= 0
+            corporate_action_item_quantity IS NULL
+            OR corporate_action_item_quantity >= 0
         ),
 
     CONSTRAINT ck_corporate_action_item_reference_not_empty
@@ -219,10 +219,17 @@ CREATE TABLE market.corporate_action_item
             OR LENGTH(TRIM(source_reference)) > 0
         ),
 
-    CONSTRAINT ck_corporate_action_item_version_positive
+    CONSTRAINT ck_corporate_action_item_description_not_empty
         CHECK
         (
-            version > 0
+            corporate_action_item_description IS NULL
+            OR LENGTH(TRIM(corporate_action_item_description)) > 0
+        ),
+
+    CONSTRAINT ck_corporate_action_item_row_version_positive
+        CHECK
+        (
+            row_version > 0
         ),
 
     CONSTRAINT fk_corporate_action_item_action
@@ -305,15 +312,15 @@ COMMENT ON COLUMN market.corporate_action_item.effective_date
 IS
 'Business effective date on which this corporate action item becomes applicable.';
 
-COMMENT ON COLUMN market.corporate_action_item.value
+COMMENT ON COLUMN market.corporate_action_item.corporate_action_item_value
 IS
 'Financial value associated with this corporate action item, when applicable.';
 
-COMMENT ON COLUMN market.corporate_action_item.percentage
+COMMENT ON COLUMN market.corporate_action_item.corporate_action_item_percentage
 IS
 'Percentage associated with this corporate action item, such as dividend yield or capital increase ratio.';
 
-COMMENT ON COLUMN market.corporate_action_item.quantity
+COMMENT ON COLUMN market.corporate_action_item.corporate_action_item_quantity
 IS
 'Quantity of securities or units associated with this corporate action item, when applicable.';
 
@@ -326,11 +333,11 @@ IS
 'External reference identifying the official source of this corporate action item, 
 such as an exchange announcement, regulatory notice, document identifier, or URL.';
 
-COMMENT ON COLUMN market.corporate_action_item.description
+COMMENT ON COLUMN market.corporate_action_item.corporate_action_item_description
 IS
 'Optional business description providing additional information about the corporate action item.';
 
-COMMENT ON COLUMN market.corporate_action_item.is_active
+COMMENT ON COLUMN market.corporate_action_item.corporate_action_item_is_active
 IS
 'Indicates whether the corporate action item is currently active and available for business operations within the Phoenix Platform.';
 
@@ -350,7 +357,7 @@ COMMENT ON COLUMN market.corporate_action_item.updated_by
 IS
 'Identifier of the user, service, or process that last modified the record.';
 
-COMMENT ON COLUMN market.corporate_action_item.version
+COMMENT ON COLUMN market.corporate_action_item.row_version
 IS
 'Optimistic concurrency control version number incremented after each successful update.';
 
