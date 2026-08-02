@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Symbol_Alias.sql
+ * Script           : symbol_alias.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : SymbolAlias

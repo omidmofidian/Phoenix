@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Holiday_Calendar.sql
+ * Script           : holiday_calendar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : HolidayCalendar

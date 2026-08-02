@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Calendar_Type.sql
+ * Script           : calendar_type.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CalendarType

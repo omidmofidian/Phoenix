@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Data_Quality_Status.sql
+ * Script           : data_quality_status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : DataQualityStatus

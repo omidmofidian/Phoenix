@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Language.sql
+ * Script           : language.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : Language

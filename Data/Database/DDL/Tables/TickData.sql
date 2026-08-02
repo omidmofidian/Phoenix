@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Tick_Data.sql
+ * Script           : tick_data.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TickData

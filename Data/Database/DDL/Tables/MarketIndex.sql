@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Market_Index.sql
+ * Script           : market_index.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : MarketIndex

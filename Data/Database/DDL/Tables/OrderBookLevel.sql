@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Order_Book_Level.sql
+ * Script           : order_book_level.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : OrderBookLevel

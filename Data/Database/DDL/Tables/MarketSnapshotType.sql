@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Market_Snapshot_Type.sql
+ * Script           : market_snapshot_type.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Reference Table
  * Object Name      : MarketSnapshotType

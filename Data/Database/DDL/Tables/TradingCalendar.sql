@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Trading_Calendar.sql
+ * Script           : trading_calendar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingCalendar

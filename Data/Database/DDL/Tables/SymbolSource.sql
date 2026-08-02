@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : SymbolSource.sql
+ * Script           : symbol_source.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : SymbolSource

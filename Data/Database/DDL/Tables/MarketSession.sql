@@ -1,7 +1,7 @@
 /***************************************************************************************************
 
 * Project          : Phoenix Platform
-* Script           : Market_Session.sql
+* Script           : market_session.sql
 * Category         : Database Definition Language (DDL)
 * Object Type      : Table
 * Object Name      : MarketSession

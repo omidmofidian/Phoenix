@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Instrument_Price_Adjustment.sql
+ * Script           : instrument_price_adjustment.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentPriceAdjustment

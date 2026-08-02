@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : DataProvider.sql
+ * Script           : data_provider.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : DataProvider

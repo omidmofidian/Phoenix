@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Instrument_Status_History.sql
+ * Script           : instrument_status_history.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentStatusHistory

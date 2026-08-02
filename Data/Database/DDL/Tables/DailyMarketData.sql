@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Daily_Market_Data.sql
+ * Script           : daily_market_data.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : DailyMarketData

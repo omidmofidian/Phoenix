@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Data_Source.sql
+ * Script           : data_source.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : DataSource

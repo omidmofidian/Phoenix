@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Order_Book_Snapshot.sql
+ * Script           : order_book_snapshot.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : OrderBookSnapshot

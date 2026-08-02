@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Price_Adjustment_Status.sql
+ * Script           : price_adjustment_status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : PriceAdjustmentStatus

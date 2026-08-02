@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Time_Zone.sql
+ * Script           : time_zone.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TimeZone

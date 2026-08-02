@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Trading_Session.sql
+ * Script           : trading_session.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingSession

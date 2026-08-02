@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Intraday_Bar.sql
+ * Script           : intraday_bar.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : IntradayBar

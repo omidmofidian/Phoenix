@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Market_Event_Type.sql
+ * Script           : market_event_type.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : MarketEventType

@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Market_Status.sql
+ * Script           : market_status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : MarketStatus

@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Trading_Halt.sql
+ * Script           : trading_halt.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : TradingHalt

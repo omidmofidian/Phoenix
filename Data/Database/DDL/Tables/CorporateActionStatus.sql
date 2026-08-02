@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Corporate_Action_Status.sql
+ * Script           : corporate_action_status.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CorporateActionStatus

@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Corporate_Action_Item.sql
+ * Script           : corporate_action_item.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : CorporateActionItem

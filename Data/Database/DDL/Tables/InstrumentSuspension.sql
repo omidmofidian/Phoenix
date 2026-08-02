@@ -1,6 +1,6 @@
 /***************************************************************************************************
  * Project          : Phoenix Platform
- * Script           : Instrument_Suspension.sql
+ * Script           : instrument_suspension.sql
  * Category         : Database Definition Language (DDL)
  * Object Type      : Table
  * Object Name      : InstrumentSuspension
