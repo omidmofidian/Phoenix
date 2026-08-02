@@ -1,7 +1,7 @@
 /***************************************************************************************************
 
 * Project          : Phoenix Platform
-* Script           : HolidayType.sql
+* Script           : holiday_type.sql
 * Category         : Database Definition Language (DDL)
 * Object Type      : Table
 * Object Name      : HolidayType
