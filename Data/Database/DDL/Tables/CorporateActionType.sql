@@ -93,11 +93,7 @@ CREATE TABLE ref.corporate_action_type
 
     corporate_action_type_name   VARCHAR(100)
                                      NOT NULL,
-
-    corporate_action_type_short_name                   VARCHAR(50),
-
-    corporate_action_type_local_name                   VARCHAR(100),
-
+    
     corporate_action_type_display_order                SMALLINT
                                      NOT NULL
                                      DEFAULT 1,
@@ -141,13 +137,13 @@ CREATE TABLE ref.corporate_action_type
             corporate_action_type_id
         ),
 
-    CONSTRAINT uq_corporate_action_type_public_id
+    CONSTRAINT uk_corporate_action_type_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_corporate_action_type_code
+    CONSTRAINT uk_corporate_action_type_code
         UNIQUE
         (
             corporate_action_type_code
@@ -177,21 +173,7 @@ CREATE TABLE ref.corporate_action_type
             LENGTH(TRIM(corporate_action_type_name)) > 0
         ),
 
-    CONSTRAINT ck_corporate_action_type_short_name_not_empty
-        CHECK
-        (
-            corporate_action_type_short_name IS NULL
-            OR LENGTH(TRIM(corporate_action_type_short_name)) > 0
-        ),
-
-    CONSTRAINT ck_corporate_action_type_local_name_not_empty
-        CHECK
-        (
-            corporate_action_type_local_name IS NULL
-            OR LENGTH(TRIM(corporate_action_type_local_name)) > 0
-        ),
-
-    CONSTRAINT ck_corporate_action_type_display_order
+    CONSTRAINT ck_corporate_action_type_display_order_positive
         CHECK
         (
             corporate_action_type_display_order > 0
@@ -241,14 +223,6 @@ IS
 COMMENT ON COLUMN ref.corporate_action_type.corporate_action_type_name
 IS
 'Official business name of the corporate action type.';
-
-COMMENT ON COLUMN ref.corporate_action_type.corporate_action_type_short_name
-IS
-'Abbreviated name used by user interfaces and reports.';
-
-COMMENT ON COLUMN ref.corporate_action_type.corporate_action_type_local_name
-IS
-'Official local-language name of the corporate action type.';
 
 COMMENT ON COLUMN ref.corporate_action_type.corporate_action_type_display_order
 IS

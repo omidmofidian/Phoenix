@@ -42,9 +42,10 @@
  *     None
  *
  * Referenced By
- *     - market.market_session
+ *     - market.trading_session
  *     - market.daily_market_data
- *     - market.market_event
+ *     - market.tick_data
+ *     - market.trading_halt
  *     - Additional business entities
  *
  * Standards
@@ -102,10 +103,6 @@ CREATE TABLE ref.market_status
     market_status_name        VARCHAR(200)
                                   NOT NULL,
 
-    market_status_short_name               VARCHAR(100),
-
-    market_status_local_name               VARCHAR(200),
-
     market_status_display_order            SMALLINT
                                   NOT NULL
                                   DEFAULT 1,
@@ -149,22 +146,22 @@ CREATE TABLE ref.market_status
             market_status_id
         ),
 
-    CONSTRAINT uq_market_status_public_id
+    CONSTRAINT uk_market_status_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_market_status_code
+    CONSTRAINT uk_market_status_code
         UNIQUE
         (
             market_status_code
         ),
 
-    CONSTRAINT ck_market_status_code_length
-        CHECK 
+    CONSTRAINT uk_market_status_name
+        UNIQUE
         (
-            LENGTH(TRIM(market_status_code)) BETWEEN 2 AND 30
+            market_status_name
         ),
 
     CONSTRAINT ck_market_status_code_not_empty
@@ -173,26 +170,25 @@ CREATE TABLE ref.market_status
             LENGTH(TRIM(market_status_code)) > 0
         ),
 
+    CONSTRAINT ck_market_status_code_uppercase
+        CHECK
+        (
+            market_status_code = UPPER(market_status_code)
+        ),
+
+    CONSTRAINT ck_market_status_code_length
+        CHECK 
+        (
+            LENGTH(TRIM(market_status_code)) BETWEEN 2 AND 30
+        ),
+
     CONSTRAINT ck_market_status_name_not_empty
         CHECK
         (
             LENGTH(TRIM(market_status_name)) > 0
         ),
-    CONSTRAINT ck_market_status_short_name_not_empty
-        CHECK 
-        (
-            market_status_short_name IS NULL
-            OR LENGTH(TRIM(market_status_short_name)) > 0
-        ),
-
-    CONSTRAINT ck_market_status_local_name_not_empty
-        CHECK 
-        (
-            market_status_local_name IS NULL
-            OR LENGTH(TRIM(market_status_local_name)) > 0
-        ),
-
-    CONSTRAINT ck_market_status_display_order
+    
+    CONSTRAINT ck_market_status_display_order_positive
         CHECK
         (
             market_status_display_order > 0
@@ -243,14 +239,6 @@ IS
 COMMENT ON COLUMN ref.market_status.market_status_name
 IS
 'Official business name of the market status.';
-
-COMMENT ON COLUMN ref.market_status.market_status_short_name
-IS
-'Abbreviated name used by user interfaces and reports.';
-
-COMMENT ON COLUMN ref.market_status.market_status_local_name
-IS
-'Official local-language name of the market status.';
 
 COMMENT ON COLUMN ref.market_status.market_status_display_order
 IS

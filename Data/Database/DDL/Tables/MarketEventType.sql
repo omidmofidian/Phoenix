@@ -98,8 +98,6 @@ CREATE TABLE ref.market_event_type
     market_event_type_name                       VARCHAR(100)
                                          NOT NULL,
 
-    market_event_type_short_name                       VARCHAR(50),
-
     market_event_type_display_order                    SMALLINT
                                          NOT NULL
                                          DEFAULT 1,
@@ -143,19 +141,19 @@ CREATE TABLE ref.market_event_type
             market_event_type_id
         ),
 
-    CONSTRAINT uq_market_event_type_public_id
+    CONSTRAINT uk_market_event_type_public_id
         UNIQUE
         (
             public_id
         ),
 
-    CONSTRAINT uq_market_event_type_code
+    CONSTRAINT uk_market_event_type_code
         UNIQUE
         (
             market_event_type_code
         ),
 
-    CONSTRAINT uq_market_event_type_name
+    CONSTRAINT uk_market_event_type_name
         UNIQUE
         (
             market_event_type_name
@@ -165,6 +163,12 @@ CREATE TABLE ref.market_event_type
         CHECK
         (
             LENGTH(TRIM(market_event_type_code)) > 0
+        ),
+
+    CONSTRAINT ck_market_event_type_code_uppercase
+        CHECK
+        (
+            market_event_type_code = UPPER(market_event_type_code)
         ),
 
     CONSTRAINT ck_market_event_type_name_not_empty
@@ -177,6 +181,13 @@ CREATE TABLE ref.market_event_type
         CHECK
         (
             market_event_type_display_order > 0
+        ),
+
+    CONSTRAINT ck_market_event_type_description_not_empty
+        CHECK
+        (
+            market_event_type_description IS NULL
+            OR LENGTH(TRIM(market_event_type_description)) > 0
         ),
 
     CONSTRAINT ck_market_event_type_row_version_positive
@@ -216,10 +227,6 @@ IS
 COMMENT ON COLUMN ref.market_event_type.market_event_type_name
 IS
 'Official business name of the market event type.';
-
-COMMENT ON COLUMN ref.market_event_type.market_event_type_short_name
-IS
-'Abbreviated business name used by applications, dashboards, reports, and user interfaces.';
 
 COMMENT ON COLUMN ref.market_event_type.market_event_type_display_order
 IS
